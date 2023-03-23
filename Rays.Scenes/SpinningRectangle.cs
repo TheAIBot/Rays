@@ -7,24 +7,24 @@ namespace Rays.Scenes;
 internal sealed class SpinningRectangle : IScene
 {
     private readonly IPolygonDrawer _polygonDrawer;
-    private readonly List<Wall> _walls;
+    private readonly List<Wall> _staticWalls;
     private Rectangle _rectangle;
 
-    public SpinningRectangle(IPolygonDrawer polygonDrawer, List<Wall> walls, Rectangle rectangle)
+    public SpinningRectangle(IPolygonDrawer polygonDrawer, List<Wall> staticWalls, Rectangle rectangle)
     {
         _polygonDrawer = polygonDrawer;
-        _walls = walls;
+        _staticWalls = staticWalls;
         _rectangle = rectangle;
     }
 
     public async Task RenderAsync()
     {
-        List<Wall> rayBounceWalls = new List<Wall>(_walls);
-        rayBounceWalls.AddRange(_rectangle.GetAsWalls());
-        List<Line> lines = GetRayPath(new Ray(new Vector2(40, 50), Vector2.Normalize(new Vector2(-1, -1.5f))), 9, rayBounceWalls.ToArray());
+        List<Wall> walls = new List<Wall>(_staticWalls);
+        walls.AddRange(_rectangle.GetAsWalls());
+        List<Line> lines = GetRayPath(new Ray(new Vector2(40, 50), Vector2.Normalize(new Vector2(-1, -1.5f))), 9, walls);
 
         await _polygonDrawer.ClearAsync();
-        foreach (var wall in rayBounceWalls)
+        foreach (var wall in walls)
         {
             await _polygonDrawer.DrawAsync(wall);
         }
@@ -37,10 +37,12 @@ internal sealed class SpinningRectangle : IScene
         _rectangle = Rectangle.RotateRectangle(_rectangle, 0.5f);
     }
 
-    private static List<Line> GetRayPath(Ray ray, int bounceCount, params Wall[] walls)
+    private static List<Line> GetRayPath(Ray ray, int bounceCount, List<Wall> walls)
     {
-        List<Vector2> points = new List<Vector2>();
-        points.Add(ray.Start);
+        List<Vector2> points = new List<Vector2>
+        {
+            ray.Start
+        };
         List<Wall>? previousWalls = null;
         for (int i = 0; i < bounceCount; i++)
         {
