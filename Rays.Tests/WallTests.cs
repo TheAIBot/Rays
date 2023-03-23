@@ -44,4 +44,32 @@ public sealed class WallTests
         Assert.Equal(dirX * 2, reflectedRay.Value.Start.X, 0.00001f);
         Assert.Equal(dirY * 2, reflectedRay.Value.Start.Y, 0.00001f);
     }
+
+    public static TheoryData<Ray, Wall, Vector2?> IntersectionTestData => new TheoryData<Ray, Wall, Vector2?>
+    {
+        {
+            new Ray(new Vector2(0, 0), new Vector2(1, 1)),
+            new Wall(new Line(new Vector2(1, 1), new Vector2(1, 3)), Vector2.Zero),
+            new Vector2(1, 1)
+        },
+        {
+            new Ray(new Vector2(2, 2), new Vector2(1, 1)),
+            new Wall(new Line(new Vector2(1, 0), new Vector2(1, 1)), Vector2.Zero),
+            null
+        },
+        {
+            new Ray(new Vector2(0, 0), new Vector2(1, 1)),
+            new Wall(new Line(new Vector2(2, 2), new Vector2(3, 3)), Vector2.Zero),
+            null
+        }
+    };
+
+    [Theory]
+    [MemberData(nameof(IntersectionTestData))]
+    public void TestTryGetIntersectionPointScalar(Ray ray, Wall wall, Vector2? expectedIntersection)
+    {
+        Vector2? intersectionScalar = wall.TryGetIntersectionPointScalar(ray);
+
+        Assert.Equal(expectedIntersection, intersectionScalar);
+    }
 }
