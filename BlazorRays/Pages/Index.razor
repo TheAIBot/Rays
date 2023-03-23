@@ -1,0 +1,158 @@
+﻿@page "/"
+@using Blazor.Extensions
+@using Rays
+@using System.Numerics
+@using System.Diagnostics.CodeAnalysis
+@using Rays.Polygons
+
+
+<BECanvas Width="300" Height="400" @ref="CanvasReference"></BECanvas>
+
+@code {
+    [AllowNull]
+    private IPolygonDrawer Drawer;
+    [AllowNull]
+    protected BECanvasComponent CanvasReference;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var canvas = await CanvasReference.CreateCanvas2DAsync();
+            var canvasSize = new Vector2(300, 400);
+            Drawer = new CanvasPolygonDrawer(canvas, canvasSize);
+
+            var _ = Task.Factory.StartNew(async () =>
+            {
+                try
+                {
+                    var rectangle = new Rectangle(new Vector2(10, 10), new Vector2(10, 0), new Vector2(0, 10));
+                    var border = new Rectangle(new Vector2(0, 0), new Vector2(canvasSize.X, 0), new Vector2(0, canvasSize.Y));
+                    var bottomWall = new Wall(new Line(new Vector2(0, 0), new Vector2(canvasSize.X, 0)), new Vector2(0, 1));
+                    var topWall = new Wall(new Line(new Vector2(0, canvasSize.Y), new Vector2(canvasSize.X, canvasSize.Y)), new Vector2(0, -1));
+                    var leftWall = new Wall(new Line(new Vector2(0, 0), new Vector2(0, canvasSize.Y)), new Vector2(1, 0));
+                    var rightWall = new Wall(new Line(new Vector2(canvasSize.X, 0), new Vector2(canvasSize.X, canvasSize.Y)), new Vector2(-1, 0));
+                    rectangle = RotateRectangle(rectangle, 0.5f);
+
+                    var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(50));
+                    while (await timer.WaitForNextTickAsync())
+                    {
+                        List<Wall> walls = new List<Wall>();
+                        walls.Add(bottomWall);
+                        walls.Add(topWall);
+                        walls.Add(leftWall);
+                        walls.Add(rightWall);
+                        walls.AddRange(rectangle.GetAsWalls());
+
+                        List<Line> lines = GetRayPath(new Ray(new Vector2(40, 50), Vector2.Normalize(new Vector2(1, 1.5f))), 9, walls.ToArray());
+
+                        await Drawer.ClearAsync();
+                        await Drawer.DrawAsync(rectangle);
+                        await Drawer.DrawAsync(border);
+                        await Drawer.DrawAsync(bottomWall);
+                        await Drawer.DrawAsync(topWall);
+                        await Drawer.DrawAsync(leftWall);
+                        await Drawer.DrawAsync(rightWall);
+                        foreach (var line in lines)
+                        {
+                            await Drawer.DrawAsync(line);
+                        }
+                        await Drawer.RenderAsync();
+
+                        rectangle = RotateRectangle(rectangle, 0.5f);
+                        //break;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
+            });
+        }
+    }
+
+    private static List<Line> GetRayPath(Ray ray, int bounceCount, params Wall[] walls)
+    {
+        List<Vector2> points = new List<Vector2>();
+        points.Add(ray.Start);
+        List<Wall>? previousWalls = null;
+        for (int i = 0; i < bounceCount; i++)
+        {
+            List<Wall> wallsHit = GetClosestCollidingWalls(ray, walls.Where(x => previousWalls == null || !previousWalls.Contains(x)).ToArray());
+            if (wallsHit.Count == 0)
+            {
+                break;
+            }
+            previousWalls = wallsHit;
+
+            Ray? reflectedRay = wallsHit[0].TryReflectRay(ray);
+            if (!reflectedRay.HasValue)
+            {
+                throw new Exception("");
+            }
+            foreach (var wall in wallsHit.Skip(1))
+            {
+                reflectedRay = new Ray(reflectedRay.Value.Start, wall.GetReflectedVector(reflectedRay.Value));
+            }
+            ray = reflectedRay.Value;
+            points.Add(ray.Start);
+        }
+
+        List<Line> lines = new List<Line>();
+        for (int i = 0; i < points.Count - 1; i++)
+        {
+            lines.Add(new Line(points[i], points[i + 1]));
+        }
+
+        return lines;
+    }
+
+    private static List<Wall> GetClosestCollidingWalls(Ray ray, Wall[] walls)
+    {
+        var wallsCollidingWith = new List<Wall>();
+        float bestDistance = float.MaxValue;
+        for (int i = 0; i < walls.Length; i++)
+        {
+            if (!walls[i].IsColliding(ray, out Vector2? collisionPoint))
+            {
+                continue;
+            }
+
+            float distance = Vector2.Distance(ray.Start, collisionPoint.Value);
+            float differenceInDistance = distance - bestDistance;
+            const float acceptableError = 0.02f;
+            if (differenceInDistance < -acceptableError)
+            {
+                wallsCollidingWith.Clear();
+
+            }
+            else if (differenceInDistance > acceptableError)
+            {
+                continue;
+            }
+
+            wallsCollidingWith.Add(walls[i]);
+            bestDistance = distance;
+        }
+
+        return wallsCollidingWith;
+    }
+
+    private static Rectangle RotateRectangle(Rectangle rectangle, float angleInDeg)
+    {
+        float angle = DegreesToRadians(angleInDeg);
+        Matrix3x2 rotator = Matrix3x2.CreateRotation(angle);
+        Vector2 toCenter = (rectangle.Horizontal + rectangle.Vertical) / 2;
+        Vector2 centerPosition = rectangle.BottomLeft + toCenter;
+        Vector2 gre = Vector2.Transform(toCenter, rotator);
+        Vector2 newPos = centerPosition - gre;
+
+        return new Rectangle(newPos, Vector2.Transform(rectangle.Horizontal, rotator), Vector2.Transform(rectangle.Vertical, rotator));
+    }
+
+    private static float DegreesToRadians(float degrees)
+    {
+        return degrees * (MathF.PI / 180);
+    }
+}
