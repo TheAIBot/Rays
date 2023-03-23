@@ -20,7 +20,7 @@ public readonly record struct Wall(Line Line, Vector2 Normal)
 
     public readonly bool IsColliding(Ray ray, [NotNullWhen(true)] out Vector2? collisionPosition)
     {
-        if (Vector2.Dot(ray.Direction, Normal) < 0)
+        if (Vector2.Dot(ray.Direction, Normal) > 0)
         {
             collisionPosition = null;
             return false;
@@ -55,7 +55,7 @@ public readonly record struct Wall(Line Line, Vector2 Normal)
         // see https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line_segment
         const float minAcceptableWallIntersectionFactor = -0.01f;
         const float maxAcceptableWallIntersectionFactor = 1.01f;
-        if (t > 0 || u < minAcceptableWallIntersectionFactor || u > maxAcceptableWallIntersectionFactor)
+        if (t < 0 || u < minAcceptableWallIntersectionFactor || u > maxAcceptableWallIntersectionFactor)
         {
             Console.WriteLine("null");
             return null;

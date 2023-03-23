@@ -44,7 +44,7 @@
                         walls.Add(rightWall);
                         walls.AddRange(rectangle.GetAsWalls());
 
-                        List<Line> lines = GetRayPath(new Ray(new Vector2(40, 50), Vector2.Normalize(new Vector2(1, 1.5f))), 9, walls.ToArray());
+                        List<Line> lines = GetRayPath(new Ray(new Vector2(40, 50), Vector2.Normalize(new Vector2(-1, -1.5f))), 9, walls.ToArray());
 
                         await Drawer.ClearAsync();
                         await Drawer.DrawAsync(rectangle);
@@ -60,7 +60,6 @@
                         await Drawer.RenderAsync();
 
                         rectangle = RotateRectangle(rectangle, 0.5f);
-                        //break;
                     }
                 }
                 catch (Exception e)
