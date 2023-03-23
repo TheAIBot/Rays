@@ -9,6 +9,8 @@ internal sealed class ConsolePolygonDrawer : IPolygonDrawer
 {
     private readonly char[,] Screen = new char[100, 30];
 
+    public Vector2 Size { get; } = new Vector2(100, 30);
+
     public Task DrawAsync(Rectangle rectangle)
     {
         DrawLine(rectangle.BottomLeft, rectangle.Horizontal);

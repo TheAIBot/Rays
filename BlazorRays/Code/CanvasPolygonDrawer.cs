@@ -8,12 +8,13 @@ namespace BlazorRays.Code
     public sealed class CanvasPolygonDrawer : IPolygonDrawer
     {
         private readonly Canvas2DContext DrawingContext;
-        private readonly Vector2 CanvasSize;
+
+        public Vector2 Size { get; }
 
         public CanvasPolygonDrawer(Canvas2DContext canvas2DContext, Vector2 canvasSize)
         {
             DrawingContext = canvas2DContext;
-            CanvasSize = canvasSize;
+            Size = canvasSize;
         }
 
         public async Task DrawAsync(Rectangle rectangle)
@@ -70,13 +71,13 @@ namespace BlazorRays.Code
             await DrawingContext.BeginBatchAsync();
 
             //Set background color of the canvas
-            await DrawingContext.ClearRectAsync(0, 0, CanvasSize.X, CanvasSize.Y);
+            await DrawingContext.ClearRectAsync(0, 0, Size.X, Size.Y);
 
             //Horizontal flip. First set transformation matrix and
             //then move the view into negative y since it was flipped
             //into that space.
             await DrawingContext.SetTransformAsync(1, 0, 0, -1, 0, 0);
-            await DrawingContext.TranslateAsync(0, -CanvasSize.Y);
+            await DrawingContext.TranslateAsync(0, -Size.Y);
         }
 
         public Task RenderAsync()
