@@ -45,7 +45,6 @@ public readonly record struct Wall(Line Line, Vector2 Normal)
         if (Math.Abs(denominator) < float.Epsilon)
         {
             // The lines are parallel
-            Console.WriteLine("null");
             return null;
         }
 
@@ -57,11 +56,9 @@ public readonly record struct Wall(Line Line, Vector2 Normal)
         const float maxAcceptableWallIntersectionFactor = 1.01f;
         if (t < 0 || u < minAcceptableWallIntersectionFactor || u > maxAcceptableWallIntersectionFactor)
         {
-            Console.WriteLine("null");
             return null;
         }
 
-        Console.WriteLine(Line.Start + u * (Line.End - Line.Start));
         return Line.Start + u * (Line.End - Line.Start);
     }
 
