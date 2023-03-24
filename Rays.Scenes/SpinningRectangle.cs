@@ -21,7 +21,9 @@ internal sealed class SpinningRectangle : IScene
     {
         List<Wall> walls = new List<Wall>(_staticWalls);
         walls.AddRange(_rectangle.GetAsWalls());
-        List<Line> lines = GetRayPath(new Ray(new Vector2(40, 50), Vector2.Normalize(new Vector2(-1, -1.5f))), 9, walls);
+
+        var ray = new Ray(new Vector2(40, 50), Vector2.Normalize(new Vector2(-1, -1.5f)));
+        List<Line> lines = Ray.GetRayPath(ray, 9, walls);
 
         await _polygonDrawer.ClearAsync();
         foreach (var wall in walls)

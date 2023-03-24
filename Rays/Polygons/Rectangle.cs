@@ -28,10 +28,10 @@ public readonly struct Rectangle
 
         return new Wall[]
         {
-            new Wall(top, Vector2.Normalize(Rotate90DegCounterClockwise(top.Direction))),
-            new Wall(bottom, Vector2.Normalize(Rotate90DegCounterClockwise(bottom.Direction))),
-            new Wall(left, Vector2.Normalize(Rotate90DegCounterClockwise(left.Direction))),
-            new Wall(right, Vector2.Normalize(Rotate90DegCounterClockwise(right.Direction)))
+            top.ToWall(),
+            bottom.ToWall(),
+            left.ToWall(),
+            right.ToWall()
         };
     }
 

@@ -46,13 +46,4 @@ public class RectangleTests
         Assert.Equal(new Line(new Vector2(0, 0), new Vector2(0, 5)), walls[2].Line);
         Assert.Equal(new Line(new Vector2(10, 5), new Vector2(10, 0)), walls[3].Line);
     }
-
-    [Fact]
-    public void TestRotate90DegCounterClockwise()
-    {
-        var point = new Vector2(1, 2);
-        var rotatedPoint = Rectangle.Rotate90DegCounterClockwise(point);
-
-        Assert.Equal(new Vector2(-2, 1), rotatedPoint);
-    }
 }
