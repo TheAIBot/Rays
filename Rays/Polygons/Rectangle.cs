@@ -2,22 +2,12 @@
 
 namespace Rays.Polygons;
 
-public readonly struct Rectangle
+public readonly record struct Rectangle(Vector2 BottomLeft, Vector2 Horizontal, Vector2 Vertical)
 {
-    public readonly Vector2 BottomLeft;
-    public readonly Vector2 Horizontal;
-    public readonly Vector2 Vertical;
     public readonly Vector2 TopLeft => BottomLeft + Vertical;
     public readonly Vector2 TopRight => BottomLeft + Vertical + Horizontal;
     public readonly Vector2 BottomRight => BottomLeft + Horizontal;
     public readonly Vector2 Center => BottomLeft + ((Vertical + Horizontal) / 2);
-
-    public Rectangle(Vector2 bottomLeft, Vector2 horizontal, Vector2 vertical)
-    {
-        BottomLeft = bottomLeft;
-        Horizontal = horizontal;
-        Vertical = vertical;
-    }
 
     public readonly Wall[] GetAsWalls()
     {

@@ -2,19 +2,8 @@
 
 namespace Rays.Polygons;
 
-public readonly struct Triangle
+public readonly record struct Triangle(Vector2 Top, Vector2 BottomLeft, Vector2 BottomRight)
 {
-    public readonly Vector2 Top;
-    public readonly Vector2 BottomLeft;
-    public readonly Vector2 BottomRight;
-
-    public Triangle(Vector2 top, Vector2 bottomLeft, Vector2 bottomRight)
-    {
-        Top = top;
-        BottomLeft = bottomLeft;
-        BottomRight = bottomRight;
-    }
-
     public readonly Wall[] GetAsWalls()
     {
         var right = new Line(BottomRight, Top);
