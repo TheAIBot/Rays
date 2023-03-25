@@ -3,47 +3,43 @@ using System.Numerics;
 
 namespace Rays.Tests;
 
-public class RectangleTests
+public sealed class RectangleTests
 {
     [Fact]
-    public void TestCorners()
+    public void GetAsWalls_WallsCreatedFromRectangleVertices()
     {
         var bottomLeft = new Vector2(0, 0);
-        var horizontal = new Vector2(10, 0);
-        var vertical = new Vector2(0, 5);
-        var rect = new Rectangle(bottomLeft, horizontal, vertical);
+        var horizontal = new Vector2(2, 0);
+        var vertical = new Vector2(0, 1);
+        var rectangle = new Rectangle(bottomLeft, horizontal, vertical);
+        var expectedWalls = new[]
+        {
+            new Wall(new Line(rectangle.TopLeft, rectangle.TopRight), new Vector2(0, 1)),
+            new Wall(new Line(rectangle.BottomRight, rectangle.BottomLeft), new Vector2(0, -1)),
+            new Wall(new Line(rectangle.BottomLeft, rectangle.TopLeft), new Vector2(-1, 0)),
+            new Wall(new Line(rectangle.TopRight, rectangle.BottomRight), new Vector2(1, 0))
+        };
 
-        Assert.Equal(bottomLeft, rect.BottomLeft);
-        Assert.Equal(new Vector2(0, 5), rect.TopLeft);
-        Assert.Equal(new Vector2(10, 0), rect.BottomRight);
-        Assert.Equal(new Vector2(10, 5), rect.TopRight);
+        var walls = rectangle.GetAsWalls();
+
+        Assert.Equal(expectedWalls, walls);
     }
 
     [Fact]
-    public void TestCenter()
+    public void RotateRectangle_RotatesRectangleByGivenAngle()
     {
         var bottomLeft = new Vector2(0, 0);
-        var horizontal = new Vector2(10, 0);
-        var vertical = new Vector2(0, 5);
-        var rect = new Rectangle(bottomLeft, horizontal, vertical);
+        var horizontal = new Vector2(2, 0);
+        var vertical = new Vector2(0, 1);
+        var rectangle = new Rectangle(bottomLeft, horizontal, vertical);
+        float angle = 90f;
 
-        Assert.Equal(new Vector2(5, 2.5f), rect.Center);
-    }
+        var rotatedRectangle = Rectangle.RotateRectangle(rectangle, angle);
 
-    [Fact]
-    public void TestGetAsWalls()
-    {
-        var bottomLeft = new Vector2(0, 0);
-        var horizontal = new Vector2(10, 0);
-        var vertical = new Vector2(0, 5);
-        var rect = new Rectangle(bottomLeft, horizontal, vertical);
-
-        Wall[] walls = rect.GetAsWalls();
-
-        Assert.Equal(4, walls.Length);
-        Assert.Equal(new Line(new Vector2(0, 5), new Vector2(10, 5)), walls[0].Line);
-        Assert.Equal(new Line(new Vector2(10, 0), new Vector2(0, 0)), walls[1].Line);
-        Assert.Equal(new Line(new Vector2(0, 0), new Vector2(0, 5)), walls[2].Line);
-        Assert.Equal(new Line(new Vector2(10, 5), new Vector2(10, 0)), walls[3].Line);
+        float tolerance = 0.001f;
+        Assert.Equal(rectangle.Horizontal.Length(), rotatedRectangle.Horizontal.Length(), 0.00001f);
+        Assert.Equal(rectangle.Vertical.Length(), rotatedRectangle.Vertical.Length(), 0.00001f);
+        Assert.Equal(rectangle.Center.X, rotatedRectangle.Center.X, tolerance);
+        Assert.Equal(rectangle.Center.Y, rotatedRectangle.Center.Y, tolerance);
     }
 }

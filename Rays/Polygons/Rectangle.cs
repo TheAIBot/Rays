@@ -25,11 +25,6 @@ public readonly record struct Rectangle(Vector2 BottomLeft, Vector2 Horizontal, 
         };
     }
 
-    public static Vector2 Rotate90DegCounterClockwise(Vector2 point)
-    {
-        return new Vector2(-point.Y, point.X);
-    }
-
     public static Rectangle RotateRectangle(Rectangle rectangle, float angleInDeg)
     {
         float angle = DegreesToRadians(angleInDeg);
