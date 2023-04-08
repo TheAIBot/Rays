@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Windows.Markup;
 
-namespace Rays.GeometryLoaders;
+namespace Rays.GeometryLoaders.Geometry;
 
 internal sealed class GeometryModelBuilder
 {

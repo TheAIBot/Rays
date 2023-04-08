@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
+using Rays.GeometryLoaders.Geometry;
 
-namespace Rays.GeometryLoaders.Tests;
+namespace Rays.GeometryLoaders.Tests.Geometry;
 
 public sealed class GeometryObjectBuilderTests
 {
@@ -52,7 +53,7 @@ vt 0.0 0.0";
     [Fact]
     public void CreateFromString_WithFace_CreatesExpectedFaces()
     {
-        var expectedFaces = new Face[] 
+        var expectedFaces = new Face[]
         {
             new Face(new[] { 1 }, new[] { 2 }, new[] { 3 })
         };

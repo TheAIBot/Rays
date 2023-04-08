@@ -1,37 +1,53 @@
-﻿using System.Numerics;
+using System;
+using System.Globalization;
+using System.Numerics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Enumerables;
+using Rays.GeometryLoaders.Geometry;
+using Xunit;
 
-namespace Rays.GeometryLoaders.Tests;
+namespace Rays.GeometryLoaders.Tests.Geometry;
 
-public sealed class VertexNormalTests
+public sealed class VertexTests
 {
     [Fact]
-    public void Parse_WhenInputHasXYZ_CreatesVertexNormalWithXYZ()
+    public void Parse_WhenInputHasXYZ_CreatesVertexWithXYZAndDefaultW()
     {
-        var inputLine = "vn 1.0 2.0 3.0";
+        var inputLine = "v 1.0 2.0 3.0";
         var lineTokens = new ReadOnlySpanTokenizer<char>(inputLine.AsSpan(), ' ');
         lineTokens.MoveNext();
         lineTokens.MoveNext();
 
-        var result = VertexNormal.Parse(lineTokens);
+        var result = Vertex.Parse(lineTokens);
 
-        Assert.Equal(new Vector3(1.0f, 2.0f, 3.0f), result.Normal);
+        Assert.Equal(new Vector4(1.0f, 2.0f, 3.0f, 1.0f), result.Value);
+    }
+
+    [Fact]
+    public void Parse_WhenInputHasXYZW_CreatesVertexWithXYZW()
+    {
+        var inputLine = "v 1.0 2.0 3.0 4.0";
+        var lineTokens = new ReadOnlySpanTokenizer<char>(inputLine.AsSpan(), ' ');
+        lineTokens.MoveNext();
+        lineTokens.MoveNext();
+
+        var result = Vertex.Parse(lineTokens);
+
+        Assert.Equal(new Vector4(1.0f, 2.0f, 3.0f, 4.0f), result.Value);
     }
 
     [Fact]
     public void Parse_WhenInputHasNotEnoughTokens_ThrowsInvalidOperationException()
     {
-        var inputLine = "vn 1.0 2.0";
+        var inputLine = "v 1.0 2.0";
         var lineTokens = new ReadOnlySpanTokenizer<char>(inputLine.AsSpan(), ' ');
         lineTokens.MoveNext();
         lineTokens.MoveNext();
-
         Exception? caughtException = null;
 
         try
         {
-            VertexNormal.Parse(lineTokens);
+            Vertex.Parse(lineTokens);
         }
         catch (Exception ex)
         {
@@ -44,16 +60,15 @@ public sealed class VertexNormalTests
     [Fact]
     public void Parse_WhenInputHasInvalidTokens_ThrowsFormatException()
     {
-        var inputLine = "vn 1.0 2.0 invalid";
+        var inputLine = "v 1.0 2.0 invalid";
         var lineTokens = new ReadOnlySpanTokenizer<char>(inputLine.AsSpan(), ' ');
         lineTokens.MoveNext();
         lineTokens.MoveNext();
-
         Exception? caughtException = null;
 
         try
         {
-            VertexNormal.Parse(lineTokens);
+            Vertex.Parse(lineTokens);
         }
         catch (Exception ex)
         {
@@ -62,4 +77,5 @@ public sealed class VertexNormalTests
 
         Assert.IsType<FormatException>(caughtException);
     }
+
 }

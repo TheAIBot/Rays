@@ -2,7 +2,7 @@
 using System.Globalization;
 using CommunityToolkit.HighPerformance.Enumerables;
 
-namespace Rays.GeometryLoaders;
+namespace Rays.GeometryLoaders.Geometry;
 
 public readonly record struct Face(int[] VertexIndexes, int[]? TextureCoordinateIndexes, int[]? NormalIndexes)
 {
@@ -40,7 +40,7 @@ public readonly record struct Face(int[] VertexIndexes, int[]? TextureCoordinate
             normalIndexes.Add(int.Parse(elementTokens.Current, CultureInfo.InvariantCulture));
         } while (lineTokens.MoveNext());
 
-        return new Face(vertexIndexes.ToArray(), 
+        return new Face(vertexIndexes.ToArray(),
                         textureCoordinateIndexes.Count > 0 ? textureCoordinateIndexes.ToArray() : null,
                         normalIndexes.Count > 0 ? normalIndexes.ToArray() : null);
     }

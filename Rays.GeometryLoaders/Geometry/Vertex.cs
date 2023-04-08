@@ -2,7 +2,7 @@
 using System.Numerics;
 using CommunityToolkit.HighPerformance.Enumerables;
 
-namespace Rays.GeometryLoaders;
+namespace Rays.GeometryLoaders.Geometry;
 
 public readonly record struct Vertex(Vector4 Value)
 {

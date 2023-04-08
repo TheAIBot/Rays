@@ -1,7 +1,8 @@
 ﻿using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Enumerables;
+using Rays.GeometryLoaders.Geometry;
 
-namespace Rays.GeometryLoaders.Tests;
+namespace Rays.GeometryLoaders.Tests.Geometry;
 
 public sealed class FaceTests
 {

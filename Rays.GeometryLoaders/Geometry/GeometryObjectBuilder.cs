@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.HighPerformance;
 
-namespace Rays.GeometryLoaders;
+namespace Rays.GeometryLoaders.Geometry;
 
 public sealed class GeometryObjectBuilder
 {
@@ -23,7 +23,7 @@ public sealed class GeometryObjectBuilder
 
         ReadOnlySpan<char> line;
         while ((line = stream.ReadLine()) != null)
-        { 
+        {
             //Skip empty lines
             if (line.Length == 0)
             {
@@ -101,7 +101,7 @@ public sealed class GeometryObjectBuilder
                         currentModelBuilder.AddFace(Face.Parse(lineTokens));
                     }
                     break;
-                default: 
+                default:
                     //Skip any command that is not support yet
                     break;
             }
@@ -119,9 +119,9 @@ public sealed class GeometryObjectBuilder
 
     internal GeometryObject Build()
     {
-        return new GeometryObject(vertices.ToArray(), 
-                                  normals.ToArray(), 
-                                  textureCoordinates.ToArray(), 
+        return new GeometryObject(vertices.ToArray(),
+                                  normals.ToArray(),
+                                  textureCoordinates.ToArray(),
                                   modelBuilders.Select(x => x.Build()).ToArray());
     }
 }
