@@ -1,10 +1,7 @@
-using System;
-using System.Globalization;
-using System.Numerics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Enumerables;
 using Rays.GeometryLoaders.Geometry;
-using Xunit;
+using System.Numerics;
 
 namespace Rays.GeometryLoaders.Tests.Geometry;
 
@@ -77,5 +74,4 @@ public sealed class VertexTests
 
         Assert.IsType<FormatException>(caughtException);
     }
-
 }
