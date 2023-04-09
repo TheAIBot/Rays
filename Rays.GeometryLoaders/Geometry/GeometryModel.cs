@@ -1,3 +1,5 @@
-﻿namespace Rays.GeometryLoaders.Geometry;
+﻿using Rays.GeometryLoaders.Materials;
 
-public sealed record GeometryModel(string Name, Face[] Faces);
+namespace Rays.GeometryLoaders.Geometry;
+
+public sealed record GeometryModel(string Name, Face[] Faces, Material Material);

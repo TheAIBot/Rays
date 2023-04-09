@@ -1,12 +1,12 @@
-﻿using System.Text;
-using System.Windows.Markup;
+﻿using Rays.GeometryLoaders.Materials;
 
 namespace Rays.GeometryLoaders.Geometry;
 
 internal sealed class GeometryModelBuilder
 {
-    private readonly List<Face> faces = new();
     private readonly string modelName;
+    private readonly List<Face> faces = new();
+    private Material? material = null;
 
     public GeometryModelBuilder(string modelName)
     {
@@ -18,8 +18,18 @@ internal sealed class GeometryModelBuilder
         faces.Add(face);
     }
 
+    internal void SetMaterial(Material material)
+    {
+        this.material = material;
+    }
+
     internal GeometryModel Build()
     {
-        return new GeometryModel(modelName, faces.ToArray());
+        if (material == null)
+        {
+            throw new InvalidOperationException($"Missing material for {modelName} geometry group.");
+        }
+
+        return new GeometryModel(modelName, faces.ToArray(), material);
     }
 }

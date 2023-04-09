@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.HighPerformance;
+using Rays.GeometryLoaders.Materials;
 
 namespace Rays.GeometryLoaders.Geometry;
 
@@ -9,17 +10,14 @@ public sealed class GeometryObjectBuilder
     private readonly List<TextureCoordinate> textureCoordinates = new();
     private readonly List<GeometryModelBuilder> modelBuilders = new();
 
-    public static GeometryObject CreateFromString(string content)
+    public static GeometryObject CreateFromFile(string filePath)
     {
-        return CreateFromStream(new StringReader(content));
-    }
-
-    private static GeometryObject CreateFromStream(TextReader stream)
-    {
+        using TextReader stream = new StreamReader(filePath);
         var objectBuilder = new GeometryObjectBuilder();
 
         //State
         GeometryModelBuilder? currentModelBuilder = null;
+        var materials = new Dictionary<string, Material>();
 
         ReadOnlySpan<char> line;
         while ((line = stream.ReadLine()) != null)
@@ -99,6 +97,49 @@ public sealed class GeometryObjectBuilder
                         }
 
                         currentModelBuilder.AddFace(Face.Parse(lineTokens));
+                    }
+                    break;
+                case "mtllib":
+                    {
+                        if (!lineTokens.MoveNext())
+                        {
+                            throw new InvalidOperationException("Unexpected end of line.");
+                        }
+
+                        string? folderPath = Path.GetDirectoryName(filePath);
+                        if (folderPath == null)
+                        {
+                            throw new InvalidOperationException("Failed to get the directory the .obj file resides in.");
+                        }
+
+                        string materialFileName = Path.Combine(folderPath, lineTokens.Current.ToString());
+                        if (!File.Exists(materialFileName))
+                        {
+                            throw new FileNotFoundException($"No materials file with the name {materialFileName} exists.");
+                        }
+
+                        foreach (var material in Material.CreateFromString(File.ReadAllText(materialFileName)))
+                        {
+                            materials.Add(material.Name, material);
+                        }
+                    }
+                    break;
+                case "usemtl":
+                    {
+                        if (!lineTokens.MoveNext())
+                        {
+                            throw new InvalidOperationException("Unexpected end of line.");
+                        }
+                        if (currentModelBuilder == null)
+                        {
+                            throw new InvalidOperationException("Object group must be defined before setting material.");
+                        }
+                        if (!materials.TryGetValue(lineTokens.Current.ToString(), out Material? material))
+                        {
+                            throw new InvalidOperationException($"No material with the name {lineTokens.Current} exist.");
+                        }
+
+                        currentModelBuilder.SetMaterial(material);
                     }
                     break;
                 default:
