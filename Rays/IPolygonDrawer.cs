@@ -7,6 +7,7 @@ public interface IPolygonDrawer
 {
     Vector2 Size { get; }
     Task DrawAsync(Rectangle rectangle);
+    Task DrawFillAsync(Rectangle rectangle);
     Task DrawAsync(Wall Wall);
     Task DrawAsync(Line line);
 

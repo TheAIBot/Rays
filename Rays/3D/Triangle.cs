@@ -19,6 +19,10 @@ public readonly record struct Triangle(Vector3 CornerA, Vector3 CornerB, Vector3
         float t = Vector3.Dot(AO, N) * invdet;
 
         intersection = ray.Start + t * ray.Direction;
-        return (det >= 1e-6 && t >= 0.0 && u >= 0.0 && v >= 0.0 && (u + v) <= 1.0);
+        return (float.Abs(det) >= 1e-6f && // changed to float.Abs(det) since det did not work
+                t >= 0.0 &&
+                u >= 0.0 &&
+                v >= 0.0 &&
+                (u + v) <= 1.0);
     }
 }

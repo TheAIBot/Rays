@@ -11,7 +11,7 @@ namespace Company.WebApplication1
             // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
-            builder.Services.AddSingleton<ISceneFactory, SpinningRectangleFactory>();
+            builder.Services.AddSingleton<ISceneFactory, SingleTriangleRayTracerFactory>();
 
             var app = builder.Build();
 

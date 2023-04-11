@@ -35,6 +35,21 @@ namespace BlazorRays.Code
             }
         }
 
+        public async Task DrawFillAsync(Rectangle rectangle)
+        {
+            await DrawingContext.BeginPathAsync();
+
+            await DrawingContext.MoveToAsync(rectangle.TopLeft.X, rectangle.TopLeft.Y);
+            await DrawingContext.LineToAsync(rectangle.TopRight.X, rectangle.TopRight.Y);
+            await DrawingContext.LineToAsync(rectangle.BottomRight.X, rectangle.BottomRight.Y);
+            await DrawingContext.LineToAsync(rectangle.BottomLeft.X, rectangle.BottomLeft.Y);
+            //await DrawingContext.LineToAsync(rectangle.TopLeft.X, rectangle.TopLeft.Y);
+            await DrawingContext.ClosePathAsync();
+            await DrawingContext.FillAsync();
+
+            await DrawingContext.StrokeAsync();
+        }
+
         public async Task DrawAsync(Wall wall)
         {
             await DrawAsync(wall.Line);

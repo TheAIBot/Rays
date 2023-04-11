@@ -160,9 +160,15 @@ public sealed class GeometryObjectBuilder
 
     internal GeometryObject Build()
     {
-        return new GeometryObject(vertices.ToArray(),
-                                  normals.ToArray(),
-                                  textureCoordinates.ToArray(),
-                                  modelBuilders.Select(x => x.Build()).ToArray());
+        var geometryObject = new GeometryObject(vertices.ToArray(),
+                                                normals.ToArray(),
+                                                textureCoordinates.ToArray(),
+                                                modelBuilders.Select(x => x.Build()).ToArray());
+        foreach (var geometryModel in geometryObject.GeometryModels)
+        {
+            geometryModel.SetGeometryObject(geometryObject);
+        }
+
+        return geometryObject;
     }
 }

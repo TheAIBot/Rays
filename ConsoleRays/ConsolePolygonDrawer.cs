@@ -21,6 +21,11 @@ internal sealed class ConsolePolygonDrawer : IPolygonDrawer
         return Task.CompletedTask;
     }
 
+    public Task DrawFillAsync(Rectangle rectangle)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task DrawAsync(Wall wall)
     {
         return DrawAsync(wall.Line);
