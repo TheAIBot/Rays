@@ -79,6 +79,22 @@ namespace BlazorRays.Code
             await DrawingContext.StrokeAsync();
         }
 
+        public Task SetFillColorAsync(Color color)
+        {
+            return DrawingContext.SetStrokeStyleAsync(ToCanvasColor(color));
+        }
+
+        private static string ToCanvasColor(Color color)
+        {
+            Span<byte> colorBytes = stackalloc byte[Color.Channels];
+            colorBytes[0] = color.Red;
+            colorBytes[1] = color.Green;
+            colorBytes[2] = color.Blue;
+            colorBytes[3] = color.Alpha;
+
+            return $"#{Convert.ToHexString(colorBytes)}";
+        }
+
         public async Task ClearAsync()
         {
             //Need to bactch the commands manually when using server

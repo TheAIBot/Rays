@@ -12,6 +12,7 @@ internal sealed class RayTracer : IScene
     private readonly float _viewportDistance = 3;
     private readonly Vector2 _viewportSize = new Vector2(5, 5);
     private readonly Triangle[] _triangles;
+    private readonly Triangle _triangleColor = new Triangle(new Vector3(255, 0, 0), new Vector3(0, 255, 0), new Vector3(0, 0, 255));
     private readonly IPolygonDrawer _polygonDrawer;
 
     public RayTracer(IPolygonDrawer polygonDrawer, Triangle[] triangles)
@@ -40,8 +41,10 @@ internal sealed class RayTracer : IScene
 
                 for (int i = 0; i < _triangles.Length; i++)
                 {
-                    if (_triangles[i].TryGetIntersection(ray, out Vector3 _))
+                    if (_triangles[i].TryGetIntersection(ray, out TriangleIntersection intersection))
                     {
+                        Vector3 color = intersection.Interpolate(_triangleColor.CornerA, _triangleColor.CornerB, _triangleColor.CornerC);
+                        await _polygonDrawer.SetFillColorAsync(new Color((int)color.X, (int)color.Y, (int)color.Z, 255));
                         await _polygonDrawer.DrawFillAsync(new Rectangle(new Vector2(x, y), new Vector2(1, 0), new Vector2(0, 1)));
                         break;
                     }

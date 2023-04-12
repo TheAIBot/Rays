@@ -77,6 +77,12 @@ internal sealed class ConsolePolygonDrawer : IPolygonDrawer
                point.Y >= 0 && point.Y < Screen.GetLength(1);
     }
 
+    public Task SetFillColorAsync(Color color)
+    {
+        // Not implemented
+        return Task.CompletedTask;
+    }
+
     public Task ClearAsync()
     {
         for (int y = 0; y < Screen.GetLength(1); y++)

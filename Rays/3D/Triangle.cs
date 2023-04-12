@@ -5,7 +5,7 @@ namespace Rays._3D;
 public readonly record struct Triangle(Vector3 CornerA, Vector3 CornerB, Vector3 CornerC)
 {
     // https://stackoverflow.com/a/42752998
-    public bool TryGetIntersection(Ray ray, out Vector3 intersection)
+    public bool TryGetIntersection(Ray ray, out TriangleIntersection intersection)
     {
         Vector3 E1 = CornerB - CornerA;
         Vector3 E2 = CornerC - CornerA;
@@ -18,7 +18,7 @@ public readonly record struct Triangle(Vector3 CornerA, Vector3 CornerB, Vector3
         float v = -Vector3.Dot(E1, DAO) * invdet;
         float t = Vector3.Dot(AO, N) * invdet;
 
-        intersection = ray.Start + t * ray.Direction;
+        intersection = new TriangleIntersection(t, u, v);
         return (float.Abs(det) >= 1e-6f && // changed to float.Abs(det) since det did not work
                 t >= 0.0 &&
                 u >= 0.0 &&
