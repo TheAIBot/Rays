@@ -1,4 +1,5 @@
 using Rays.Scenes;
+using System.Reflection;
 
 namespace Company.WebApplication1
 {
@@ -11,7 +12,7 @@ namespace Company.WebApplication1
             // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
-            builder.Services.AddSingleton<ISceneFactory>(_ => new RayTraceGeometryObjectFactory("./Models/Airplane.zip"));
+            builder.Services.AddSingleton<ISceneFactory>(_ => new RayTraceGeometryObjectFactory(GetModelPath("Airplane.zip")));
 
             var app = builder.Build();
 
@@ -30,6 +31,15 @@ namespace Company.WebApplication1
             app.MapFallbackToPage("/_Host");
 
             app.Run();
+        }
+
+        private static string GetModelPath(string modelFileName)
+        {
+            string executingFile = Assembly.GetExecutingAssembly().Location;
+            string executingDirectory = Path.GetDirectoryName(executingFile)!;
+            string modelsFolder = Path.Combine(executingDirectory, "Models");
+
+            return Path.Combine(modelsFolder, modelFileName);
         }
     }
 }

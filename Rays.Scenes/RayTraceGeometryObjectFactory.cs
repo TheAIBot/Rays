@@ -52,7 +52,9 @@ public sealed class RayTraceGeometryObjectFactory : ISceneFactory
 
     private static string UnZipFileToDirectory(string zipFilePath)
     {
-        string unzipDirectoryPath = $"{Path.GetFileNameWithoutExtension(zipFilePath)}-unzipped";
+        string directoryPath = Path.GetDirectoryName(zipFilePath)!;
+        string zipFileName = Path.GetFileNameWithoutExtension(zipFilePath);
+        string unzipDirectoryPath = $"{Path.Combine(directoryPath, zipFileName)}-unzipped";
         ZipFile.ExtractToDirectory(zipFilePath, unzipDirectoryPath, true);
 
         return unzipDirectoryPath;
@@ -60,7 +62,7 @@ public sealed class RayTraceGeometryObjectFactory : ISceneFactory
 
     private static GeometryObject LoadGeometryObject(string geometryObjectFolderPath)
     {
-        string objectFilePath = Directory.GetFiles(geometryObjectFolderPath, "*.obj", new EnumerationOptions() { RecurseSubdirectories = true }).Single();
+        string objectFilePath = Directory.GetFiles(geometryObjectFolderPath, "*.obj").Single();
 
         return GeometryObjectBuilder.CreateFromFile(objectFilePath);
     }
