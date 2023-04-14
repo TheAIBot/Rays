@@ -59,7 +59,7 @@ internal sealed class RayTracer : IScene
             return (position.x, position.y, new Color(255, 255, 255, 255));
         }, new ExecutionDataflowBlockOptions()
         {
-            MaxDegreeOfParallelism = Environment.ProcessorCount
+            MaxDegreeOfParallelism = Math.Max(1, Environment.ProcessorCount - 1)
         });
 
         for (int y = 0; y < _polygonDrawer.Size.Y; y++)
