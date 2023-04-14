@@ -26,13 +26,14 @@ public sealed class GeometryModel : IEquatable<GeometryModel>
     {
         foreach (var face in Faces)
         {
-            for (int i = 0; i < face.VertexIndexes.Length - Triangle<Vertex>.EdgeCount; i++)
-            {
-                int index1 = face.VertexIndexes[i + 0] - 1;
-                int index2 = face.VertexIndexes[i + 1] - 1;
-                int index3 = face.VertexIndexes[i + 2] - 1;
+            int index1 = face.VertexIndexes[0] - 1;
+            Vertex value1 = geometryObject.Vertices[index1];
 
-                Vertex value1 = geometryObject.Vertices[index1];
+            for (int i = 1; i < face.VertexIndexes.Length - 1; i++)
+            {
+                int index2 = face.VertexIndexes[i] - 1;
+                int index3 = face.VertexIndexes[i + 1] - 1;
+
                 Vertex value2 = geometryObject.Vertices[index2];
                 Vertex value3 = geometryObject.Vertices[index3];
 
@@ -50,13 +51,14 @@ public sealed class GeometryModel : IEquatable<GeometryModel>
                 throw new InvalidOperationException();
             }
 
-            for (int i = 0; i < face.TextureCoordinateIndexes.Length - Triangle<TextureCoordinate>.EdgeCount; i++)
-            {
-                int index1 = face.VertexIndexes[i + 0] - 1;
-                int index2 = face.VertexIndexes[i + 1] - 1;
-                int index3 = face.VertexIndexes[i + 2] - 1;
+            int index1 = face.TextureCoordinateIndexes[0] - 1;
+            TextureCoordinate value1 = geometryObject.TextureCoordinates[index1];
 
-                TextureCoordinate value1 = geometryObject.TextureCoordinates[index1];
+            for (int i = 1; i < face.TextureCoordinateIndexes.Length - 1; i++)
+            {
+                int index2 = face.TextureCoordinateIndexes[i] - 1;
+                int index3 = face.TextureCoordinateIndexes[i + 1] - 1;
+
                 TextureCoordinate value2 = geometryObject.TextureCoordinates[index2];
                 TextureCoordinate value3 = geometryObject.TextureCoordinates[index3];
 
