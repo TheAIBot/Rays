@@ -4,19 +4,21 @@
 @using System.Numerics
 @using System.Diagnostics.CodeAnalysis
 @using Rays.Polygons
-@using Rays.Scenes
+@using Rays.Scenes;
+@implements IAsyncDisposable
 
 
 <BECanvas Width="@((int)_CanvasSize.X)" Height="@((int)_CanvasSize.Y)" @ref="CanvasReference"></BECanvas>
 
 @code {
     private readonly Vector2 _CanvasSize = new Vector2(300, 400);
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
+    private Task? _renderTask;
+
     [AllowNull]
     protected BECanvasComponent CanvasReference;
     [Inject]
     private ISceneFactory sceneFactory { get; set; } = default!;
-    [AllowNull]
-    private IScene scene;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -24,25 +26,33 @@
         {
             var canvas = await CanvasReference.CreateCanvas2DAsync();
             var drawer = new CanvasPolygonDrawer(canvas, _CanvasSize);
-            scene = sceneFactory.Create(drawer);
+            IScene scene = sceneFactory.Create(drawer);
 
-            var _ = Task.Factory.StartNew(async () =>
+            _renderTask = Task.Factory.StartNew(async () =>
             {
                 try
                 {
-                    var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(50));
-                    while (await timer.WaitForNextTickAsync())
+                    using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(50));
+                    while (await timer.WaitForNextTickAsync(_cancellationTokenSource.Token))
                     {
                         await scene.RenderAsync();
                     }
-
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
                     throw;
                 }
-            });
+            }, TaskCreationOptions.LongRunning);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _cancellationTokenSource.Cancel();
+        if (_renderTask != null)
+        {
+            await _renderTask;
         }
     }
 }
