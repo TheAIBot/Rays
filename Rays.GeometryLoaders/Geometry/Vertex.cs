@@ -1,6 +1,6 @@
-﻿using System.Globalization;
+﻿using CommunityToolkit.HighPerformance.Enumerables;
+using System.Globalization;
 using System.Numerics;
-using CommunityToolkit.HighPerformance.Enumerables;
 
 namespace Rays.GeometryLoaders.Geometry;
 
@@ -12,13 +12,13 @@ public readonly record struct Vertex(Vector4 Value)
     {
         float x = float.Parse(lineTokens.Current, CultureInfo.InvariantCulture);
 
-        if (!lineTokens.MoveNext())
+        if (!lineTokens.MoveNextNonEmpty())
         {
             throw new InvalidOperationException();
         }
         float y = float.Parse(lineTokens.Current, CultureInfo.InvariantCulture);
 
-        if (!lineTokens.MoveNext())
+        if (!lineTokens.MoveNextNonEmpty())
         {
             throw new InvalidOperationException();
         }
@@ -26,7 +26,7 @@ public readonly record struct Vertex(Vector4 Value)
 
         // w is optional with default value of 1.0
         float w = 1.0f;
-        if (lineTokens.MoveNext())
+        if (lineTokens.MoveNextNonEmpty())
         {
             w = float.Parse(lineTokens.Current, CultureInfo.InvariantCulture);
         }

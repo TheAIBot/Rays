@@ -15,4 +15,10 @@
     <ProjectReference Include="..\Rays\Rays.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Models\Airplane.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

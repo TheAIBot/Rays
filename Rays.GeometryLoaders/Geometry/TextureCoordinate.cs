@@ -1,6 +1,6 @@
-﻿using System.Globalization;
+﻿using CommunityToolkit.HighPerformance.Enumerables;
+using System.Globalization;
 using System.Numerics;
-using CommunityToolkit.HighPerformance.Enumerables;
 
 namespace Rays.GeometryLoaders.Geometry;
 
@@ -13,13 +13,13 @@ public readonly record struct TextureCoordinate(Vector3 Coordinate)
         float u = float.Parse(lineTokens.Current, CultureInfo.InvariantCulture);
 
         float v = 0.0f;
-        if (lineTokens.MoveNext())
+        if (lineTokens.MoveNextNonEmpty())
         {
             v = float.Parse(lineTokens.Current, CultureInfo.InvariantCulture);
         }
 
         float w = 0.0f;
-        if (lineTokens.MoveNext())
+        if (lineTokens.MoveNextNonEmpty())
         {
             w = float.Parse(lineTokens.Current, CultureInfo.InvariantCulture);
         }

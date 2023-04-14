@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.HighPerformance;
-using System.Globalization;
 using CommunityToolkit.HighPerformance.Enumerables;
+using System.Globalization;
 
 namespace Rays.GeometryLoaders.Geometry;
 
@@ -38,7 +38,7 @@ public readonly record struct Face(int[] VertexIndexes, int[]? TextureCoordinate
                 continue;
             }
             normalIndexes.Add(int.Parse(elementTokens.Current, CultureInfo.InvariantCulture));
-        } while (lineTokens.MoveNext());
+        } while (lineTokens.MoveNextNonEmpty());
 
         return new Face(vertexIndexes.ToArray(),
                         textureCoordinateIndexes.Count > 0 ? textureCoordinateIndexes.ToArray() : null,

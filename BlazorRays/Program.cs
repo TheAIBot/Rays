@@ -11,7 +11,7 @@ namespace Company.WebApplication1
             // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
-            builder.Services.AddSingleton<ISceneFactory, SingleTriangleRayTracerFactory>();
+            builder.Services.AddSingleton<ISceneFactory>(_ => new RayTraceGeometryObjectFactory("./Models/Airplane.zip"));
 
             var app = builder.Build();
 

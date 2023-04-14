@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.HighPerformance;
+using CommunityToolkit.HighPerformance.Enumerables;
 using Rays.GeometryLoaders.Materials;
 
 namespace Rays.GeometryLoaders.Geometry;
@@ -42,7 +43,7 @@ public sealed class GeometryObjectBuilder
             }
 
             var lineTokens = line.Tokenize(' ');
-            if (!lineTokens.MoveNext())
+            if (!lineTokens.MoveNextNonEmpty())
             {
                 throw new InvalidOperationException("Unexpected end of line.");
             }
@@ -51,7 +52,7 @@ public sealed class GeometryObjectBuilder
             {
                 case Vertex.LinePrefix:
                     {
-                        if (!lineTokens.MoveNext())
+                        if (!lineTokens.MoveNextNonEmpty())
                         {
                             throw new InvalidOperationException("Unexpected end of line.");
                         }
@@ -60,7 +61,7 @@ public sealed class GeometryObjectBuilder
                     break;
                 case VertexNormal.LinePrefix:
                     {
-                        if (!lineTokens.MoveNext())
+                        if (!lineTokens.MoveNextNonEmpty())
                         {
                             throw new InvalidOperationException("Unexpected end of line.");
                         }
@@ -69,7 +70,7 @@ public sealed class GeometryObjectBuilder
                     break;
                 case TextureCoordinate.LinePrefix:
                     {
-                        if (!lineTokens.MoveNext())
+                        if (!lineTokens.MoveNextNonEmpty())
                         {
                             throw new InvalidOperationException("Unexpected end of line.");
                         }
@@ -78,7 +79,7 @@ public sealed class GeometryObjectBuilder
                     break;
                 case "g":
                     {
-                        if (!lineTokens.MoveNext())
+                        if (!lineTokens.MoveNextNonEmpty())
                         {
                             throw new InvalidOperationException("Unexpected end of line.");
                         }
@@ -87,7 +88,7 @@ public sealed class GeometryObjectBuilder
                     break;
                 case Face.LinePrefix:
                     {
-                        if (!lineTokens.MoveNext())
+                        if (!lineTokens.MoveNextNonEmpty())
                         {
                             throw new InvalidOperationException("Unexpected end of line.");
                         }
@@ -101,7 +102,7 @@ public sealed class GeometryObjectBuilder
                     break;
                 case "mtllib":
                     {
-                        if (!lineTokens.MoveNext())
+                        if (!lineTokens.MoveNextNonEmpty())
                         {
                             throw new InvalidOperationException("Unexpected end of line.");
                         }
@@ -126,7 +127,7 @@ public sealed class GeometryObjectBuilder
                     break;
                 case "usemtl":
                     {
-                        if (!lineTokens.MoveNext())
+                        if (!lineTokens.MoveNextNonEmpty())
                         {
                             throw new InvalidOperationException("Unexpected end of line.");
                         }
@@ -170,5 +171,21 @@ public sealed class GeometryObjectBuilder
         }
 
         return geometryObject;
+    }
+}
+
+internal static class SpanTokenizerExtensions
+{
+    public static bool MoveNextNonEmpty(this ref ReadOnlySpanTokenizer<char> spanTokenizer)
+    {
+        while (spanTokenizer.MoveNext())
+        {
+            if (!spanTokenizer.Current.IsEmpty)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

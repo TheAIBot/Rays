@@ -28,15 +28,39 @@ public sealed class GeometryModel : IEquatable<GeometryModel>
         {
             for (int i = 0; i < face.VertexIndexes.Length - Triangle<Vertex>.EdgeCount; i++)
             {
-                int vertexIndex1 = face.VertexIndexes[i + 0] - 1;
-                int vertexIndex2 = face.VertexIndexes[i + 1] - 1;
-                int vertexIndex3 = face.VertexIndexes[i + 2] - 1;
+                int index1 = face.VertexIndexes[i + 0] - 1;
+                int index2 = face.VertexIndexes[i + 1] - 1;
+                int index3 = face.VertexIndexes[i + 2] - 1;
 
-                Vertex vertex1 = geometryObject.Vertices[vertexIndex1];
-                Vertex vertex2 = geometryObject.Vertices[vertexIndex2];
-                Vertex vertex3 = geometryObject.Vertices[vertexIndex3];
+                Vertex value1 = geometryObject.Vertices[index1];
+                Vertex value2 = geometryObject.Vertices[index2];
+                Vertex value3 = geometryObject.Vertices[index3];
 
-                yield return new Triangle<Vertex>(vertex1, vertex2, vertex3);
+                yield return new Triangle<Vertex>(value1, value2, value3);
+            }
+        }
+    }
+
+    public IEnumerable<Triangle<TextureCoordinate>> GetTextureCoordinatesAsTriangles()
+    {
+        foreach (var face in Faces)
+        {
+            if (face.TextureCoordinateIndexes == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            for (int i = 0; i < face.TextureCoordinateIndexes.Length - Triangle<TextureCoordinate>.EdgeCount; i++)
+            {
+                int index1 = face.VertexIndexes[i + 0] - 1;
+                int index2 = face.VertexIndexes[i + 1] - 1;
+                int index3 = face.VertexIndexes[i + 2] - 1;
+
+                TextureCoordinate value1 = geometryObject.TextureCoordinates[index1];
+                TextureCoordinate value2 = geometryObject.TextureCoordinates[index2];
+                TextureCoordinate value3 = geometryObject.TextureCoordinates[index3];
+
+                yield return new Triangle<TextureCoordinate>(value1, value2, value3);
             }
         }
     }
