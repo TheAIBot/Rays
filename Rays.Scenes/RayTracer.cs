@@ -48,13 +48,11 @@ internal sealed class RayTracer : IScene
             Vector3 rayDirection = viewPortPixelPosition - _cameraPosition;
             Ray ray = new Ray(viewPortPixelPosition, Vector3.Normalize(rayDirection));
 
-            foreach (var texturedTriangles in _texturedTriangles)
+            if (TryGetIntersectionWithTriangles(ray, out Color intersectionColor))
             {
-                if (TryGetIntersectionWithTriangles(ray, texturedTriangles, out Color intersectionColor))
-                {
-                    return (position.x, position.y, intersectionColor);
-                }
+                return (position.x, position.y, intersectionColor);
             }
+
 
             return (position.x, position.y, new Color(255, 255, 255, 255));
         }, new ExecutionDataflowBlockOptions()
@@ -82,19 +80,31 @@ internal sealed class RayTracer : IScene
         await parallel.Completion;
     }
 
-    private bool TryGetIntersectionWithTriangles(Ray ray, ITexturedTriangles triangles, out Color intersectionColor)
+    private bool TryGetIntersectionWithTriangles(Ray ray, out Color intersectionColor)
     {
-        for (int i = 0; i < triangles.Triangles.Length; i++)
+        intersectionColor = default;
+        float bestDistance = float.MaxValue;
+        foreach (var texturedTriangles in _texturedTriangles)
         {
-            if (triangles.Triangles[i].TryGetIntersection(ray, out TriangleIntersection intersection))
+            for (int i = 0; i < texturedTriangles.Triangles.Length; i++)
             {
-                intersectionColor = triangles.GetTriangleIntersectionTextureColor(i, intersection);
-                return true;
+                if (!texturedTriangles.Triangles[i].TryGetIntersection(ray, out TriangleIntersection intersection))
+                {
+                    continue;
+                }
+
+                float distance = Vector3.DistanceSquared(ray.Start, intersection.GetIntersection(ray));
+                if (distance > bestDistance)
+                {
+                    continue;
+                }
+
+                bestDistance = distance;
+                intersectionColor = texturedTriangles.GetTriangleIntersectionTextureColor(i, intersection);
             }
         }
 
-        intersectionColor = default;
-        return false;
+        return bestDistance != float.MaxValue;
     }
 }
 
