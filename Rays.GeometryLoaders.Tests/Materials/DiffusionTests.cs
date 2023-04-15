@@ -14,7 +14,7 @@ public sealed class DiffusionTests
         };
         var expectedDiffusion = new Diffusion(new Vector3(0.2f, 0.4f, 0.6f), null);
 
-        var actualDiffusion = Diffusion.Parse(lines);
+        var actualDiffusion = Diffusion.Parse(lines, "e");
 
         Assert.Equal(expectedDiffusion, actualDiffusion);
     }
@@ -24,11 +24,11 @@ public sealed class DiffusionTests
     {
         var lines = new Dictionary<string, string>
         {
-            { "map_kd", "texture_map.png" }
+            { "map_Kd",  "texture_map.png" }
         };
-        var expectedDiffusion = new Diffusion(null, "texture_map.png");
+        var expectedDiffusion = new Diffusion(null, Path.Combine("e", "texture_map.png"));
 
-        var actualDiffusion = Diffusion.Parse(lines);
+        var actualDiffusion = Diffusion.Parse(lines, "e");
 
         Assert.Equal(expectedDiffusion, actualDiffusion);
     }
@@ -39,11 +39,11 @@ public sealed class DiffusionTests
         var lines = new Dictionary<string, string>
         {
             { "Kd", "0.2 0.4 0.6" },
-            { "map_kd", "texture_map.png" }
+            { "map_Kd",  "texture_map.png" }
         };
-        var expectedDiffusion = new Diffusion(new Vector3(0.2f, 0.4f, 0.6f), "texture_map.png");
+        var expectedDiffusion = new Diffusion(new Vector3(0.2f, 0.4f, 0.6f), Path.Combine("e", "texture_map.png"));
 
-        var actualDiffusion = Diffusion.Parse(lines);
+        var actualDiffusion = Diffusion.Parse(lines, "e");
 
         Assert.Equal(expectedDiffusion, actualDiffusion);
     }
@@ -54,7 +54,7 @@ public sealed class DiffusionTests
         var lines = new Dictionary<string, string>();
         var expectedDiffusion = new Diffusion(null, null);
 
-        var actualDiffusion = Diffusion.Parse(lines);
+        var actualDiffusion = Diffusion.Parse(lines, "e");
 
         Assert.Equal(expectedDiffusion, actualDiffusion);
     }

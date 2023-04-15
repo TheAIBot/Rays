@@ -6,7 +6,7 @@ namespace Rays.GeometryLoaders.Materials;
 
 public sealed record Opacity(float? Transparency, Vector3? TransmissionFilterColor, float? OpticalDensity, string? TextureMapFileName)
 {
-    internal static Opacity Parse(Dictionary<string, string> lines)
+    internal static Opacity Parse(Dictionary<string, string> lines, string folderPath)
     {
         float? transparency = null;
         if (lines.TryGetValue("Tr", out string? line))
@@ -29,7 +29,7 @@ public sealed record Opacity(float? Transparency, Vector3? TransmissionFilterCol
         string? textureMapFileName = null;
         if (lines.TryGetValue("map_d", out line))
         {
-            textureMapFileName = line;
+            textureMapFileName = Path.Combine(folderPath, line);
         }
 
         return new Opacity(transparency, transmissionFilterColor, opticalDensity, textureMapFileName);

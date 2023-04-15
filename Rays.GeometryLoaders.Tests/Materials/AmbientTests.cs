@@ -14,7 +14,7 @@ public sealed class AmbientTests
         };
         var expectedAmbient = new Ambient(new Vector3(0.2f, 0.4f, 0.6f), null);
 
-        var actualAmbient = Ambient.Parse(lines);
+        var actualAmbient = Ambient.Parse(lines, "e");
 
         Assert.Equal(expectedAmbient, actualAmbient);
     }
@@ -26,9 +26,9 @@ public sealed class AmbientTests
         {
             { "map_Ka", "texture_map.png" }
         };
-        var expectedAmbient = new Ambient(null, "texture_map.png");
+        var expectedAmbient = new Ambient(null, Path.Combine("e", "texture_map.png"));
 
-        var actualAmbient = Ambient.Parse(lines);
+        var actualAmbient = Ambient.Parse(lines, "e");
 
         Assert.Equal(expectedAmbient, actualAmbient);
     }
@@ -41,9 +41,9 @@ public sealed class AmbientTests
             { "Ka", "0.2 0.4 0.6" },
             { "map_Ka", "texture_map.png" }
         };
-        var expectedAmbient = new Ambient(new Vector3(0.2f, 0.4f, 0.6f), "texture_map.png");
+        var expectedAmbient = new Ambient(new Vector3(0.2f, 0.4f, 0.6f), Path.Combine("e", "texture_map.png"));
 
-        var actualAmbient = Ambient.Parse(lines);
+        var actualAmbient = Ambient.Parse(lines, "e");
 
         Assert.Equal(expectedAmbient, actualAmbient);
     }
@@ -54,7 +54,7 @@ public sealed class AmbientTests
         var lines = new Dictionary<string, string>();
         var expectedAmbient = new Ambient(null, null);
 
-        var actualAmbient = Ambient.Parse(lines);
+        var actualAmbient = Ambient.Parse(lines, "e");
 
         Assert.Equal(expectedAmbient, actualAmbient);
     }

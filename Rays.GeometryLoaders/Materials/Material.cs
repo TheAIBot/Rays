@@ -2,12 +2,12 @@
 
 public sealed record Material(string Name, Ambient Ambient, Diffusion Diffusion, Specular Specular, Opacity Opacity, Deformity Deformity)
 {
-    public static IEnumerable<Material> CreateFromString(string content)
+    public static IEnumerable<Material> CreateFromString(string content, string folderPath)
     {
-        return CreateFromStream(new StringReader(content));
+        return CreateFromStream(new StringReader(content), folderPath);
     }
 
-    private static IEnumerable<Material> CreateFromStream(TextReader stream)
+    private static IEnumerable<Material> CreateFromStream(TextReader stream, string folderPath)
     {
         var allLines = new Queue<string>();
         string? line;
@@ -17,13 +17,13 @@ public sealed record Material(string Name, Ambient Ambient, Diffusion Diffusion,
         }
 
         Material? material;
-        while ((material = TryParse(allLines)) != null)
+        while ((material = TryParse(allLines, folderPath)) != null)
         {
             yield return material;
         }
     }
 
-    private static Material? TryParse(Queue<string> allLines)
+    private static Material? TryParse(Queue<string> allLines, string folderPath)
     {
         string? firstLine;
         do
@@ -77,11 +77,11 @@ public sealed record Material(string Name, Ambient Ambient, Diffusion Diffusion,
         }
 
         return new Material(name,
-                            Ambient.Parse(lines),
-                            Diffusion.Parse(lines),
-                            Specular.Parse(lines),
-                            Opacity.Parse(lines),
-                            Deformity.Parse(lines));
+                            Ambient.Parse(lines, folderPath),
+                            Diffusion.Parse(lines, folderPath),
+                            Specular.Parse(lines, folderPath),
+                            Opacity.Parse(lines, folderPath),
+                            Deformity.Parse(lines, folderPath));
     }
 
     private static string GetFirstTokenSeparatedBySpace(string text)

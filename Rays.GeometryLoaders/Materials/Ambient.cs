@@ -5,7 +5,7 @@ namespace Rays.GeometryLoaders.Materials;
 
 public sealed record Ambient(Vector3? Color, string? TextureMapFileName)
 {
-    internal static Ambient Parse(Dictionary<string, string> lines)
+    internal static Ambient Parse(Dictionary<string, string> lines, string folderPath)
     {
         Vector3? color = null;
         if (lines.TryGetValue("Ka", out string? line))
@@ -16,7 +16,7 @@ public sealed record Ambient(Vector3? Color, string? TextureMapFileName)
         string? textureMapFileName = null;
         if (lines.TryGetValue("map_Ka", out line))
         {
-            textureMapFileName = line;
+            textureMapFileName = Path.Combine(folderPath, line);
         }
 
         return new Ambient(color, textureMapFileName);

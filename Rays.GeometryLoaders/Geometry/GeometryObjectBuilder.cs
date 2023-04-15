@@ -13,6 +13,12 @@ public sealed class GeometryObjectBuilder
 
     public static GeometryObject CreateFromFile(string filePath)
     {
+        string folderPath = Path.GetDirectoryName(filePath)!;
+        if (folderPath == null)
+        {
+            throw new InvalidOperationException("Failed to get the directory the .obj file resides in.");
+        }
+
         using TextReader stream = new StreamReader(filePath);
         var objectBuilder = new GeometryObjectBuilder();
 
@@ -107,19 +113,13 @@ public sealed class GeometryObjectBuilder
                             throw new InvalidOperationException("Unexpected end of line.");
                         }
 
-                        string? folderPath = Path.GetDirectoryName(filePath);
-                        if (folderPath == null)
-                        {
-                            throw new InvalidOperationException("Failed to get the directory the .obj file resides in.");
-                        }
-
                         string materialFileName = Path.Combine(folderPath, lineTokens.Current.ToString());
                         if (!File.Exists(materialFileName))
                         {
                             throw new FileNotFoundException($"No materials file with the name {materialFileName} exists.");
                         }
 
-                        foreach (var material in Material.CreateFromString(File.ReadAllText(materialFileName)))
+                        foreach (var material in Material.CreateFromString(File.ReadAllText(materialFileName), folderPath))
                         {
                             materials.Add(material.Name, material);
                         }

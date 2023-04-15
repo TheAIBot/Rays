@@ -14,7 +14,7 @@ public sealed class SpecularTests
         };
         var expectedSpecular = new Specular(new Vector3(0.2f, 0.4f, 0.6f), null, null, null);
 
-        var actualSpecular = Specular.Parse(lines);
+        var actualSpecular = Specular.Parse(lines, "e");
 
         Assert.Equal(expectedSpecular, actualSpecular);
     }
@@ -28,7 +28,7 @@ public sealed class SpecularTests
         };
         var expectedSpecular = new Specular(null, 50, null, null);
 
-        var actualSpecular = Specular.Parse(lines);
+        var actualSpecular = Specular.Parse(lines, "e");
 
         Assert.Equal(expectedSpecular, actualSpecular);
     }
@@ -40,9 +40,9 @@ public sealed class SpecularTests
         {
             { "map_Ks", "texture_map.png" }
         };
-        var expectedSpecular = new Specular(null, null, "texture_map.png", null);
+        var expectedSpecular = new Specular(null, null, Path.Combine("e", "texture_map.png"), null);
 
-        var actualSpecular = Specular.Parse(lines);
+        var actualSpecular = Specular.Parse(lines, "e");
 
         Assert.Equal(expectedSpecular, actualSpecular);
     }
@@ -54,9 +54,9 @@ public sealed class SpecularTests
         {
             { "map_Ns", "highlight_texture_map.png" }
         };
-        var expectedSpecular = new Specular(null, null, null, "highlight_texture_map.png");
+        var expectedSpecular = new Specular(null, null, null, Path.Combine("e", "highlight_texture_map.png"));
 
-        var actualSpecular = Specular.Parse(lines);
+        var actualSpecular = Specular.Parse(lines, "e");
 
         Assert.Equal(expectedSpecular, actualSpecular);
     }
@@ -71,9 +71,9 @@ public sealed class SpecularTests
             { "map_Ks", "texture_map.png" },
             { "map_Ns", "highlight_texture_map.png" }
         };
-        var expectedSpecular = new Specular(new Vector3(0.2f, 0.4f, 0.6f), 50, "texture_map.png", "highlight_texture_map.png");
+        var expectedSpecular = new Specular(new Vector3(0.2f, 0.4f, 0.6f), 50, Path.Combine("e", "texture_map.png"), Path.Combine("e", "highlight_texture_map.png"));
 
-        var actualSpecular = Specular.Parse(lines);
+        var actualSpecular = Specular.Parse(lines, "e");
 
         Assert.Equal(expectedSpecular, actualSpecular);
     }
@@ -84,7 +84,7 @@ public sealed class SpecularTests
         var lines = new Dictionary<string, string>();
         var expectedSpecular = new Specular(null, null, null, null);
 
-        var actualSpecular = Specular.Parse(lines);
+        var actualSpecular = Specular.Parse(lines, "e");
 
         Assert.Equal(expectedSpecular, actualSpecular);
     }

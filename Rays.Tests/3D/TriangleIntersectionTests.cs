@@ -27,14 +27,12 @@ public sealed class TriangleIntersectionTests
         var cornerCValue = new Vector3(3, 3, 3);
         var firstAxisPercent = 0.3f;
         var secondAxisPercent = 0.4f;
+        var thirdAxisPercent = 0.3f;
+        Vector3 expectedValue = cornerAValue * firstAxisPercent + cornerBValue * secondAxisPercent + cornerCValue * thirdAxisPercent;
         var triangleIntersection = new TriangleIntersection(1.5f, firstAxisPercent, secondAxisPercent);
 
         Vector3 interpolatedValue = triangleIntersection.Interpolate(cornerAValue, cornerBValue, cornerCValue);
 
-        Vector3 expectedValue = (1 - firstAxisPercent) * cornerAValue * 0.5f +
-                                firstAxisPercent * cornerBValue +
-                                (1 - secondAxisPercent) * cornerAValue * 0.5f +
-                                secondAxisPercent * cornerCValue;
         Assert.Equal(expectedValue, interpolatedValue);
     }
 }

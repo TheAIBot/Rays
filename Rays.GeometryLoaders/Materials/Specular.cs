@@ -6,7 +6,7 @@ namespace Rays.GeometryLoaders.Materials;
 
 public sealed record Specular(Vector3? Color, float? Exponent, string? TextureMapFileName, string? HighlightTextureMapFileName)
 {
-    internal static Specular Parse(Dictionary<string, string> lines)
+    internal static Specular Parse(Dictionary<string, string> lines, string folderPath)
     {
         Vector3? color = null;
         if (lines.TryGetValue("Ks", out string? line))
@@ -23,13 +23,13 @@ public sealed record Specular(Vector3? Color, float? Exponent, string? TextureMa
         string? textureMapFileName = null;
         if (lines.TryGetValue("map_Ks", out line))
         {
-            textureMapFileName = line;
+            textureMapFileName = Path.Combine(folderPath, line);
         }
 
         string? highlightTextureMapFileName = null;
         if (lines.TryGetValue("map_Ns", out line))
         {
-            highlightTextureMapFileName = line;
+            highlightTextureMapFileName = Path.Combine(folderPath, line);
         }
 
         return new Specular(color, exponent, textureMapFileName, highlightTextureMapFileName);

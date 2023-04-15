@@ -11,9 +11,7 @@ public readonly record struct TriangleIntersection(float RayDirectionMultiplier,
 
     public Vector3 Interpolate(Vector3 cornerAValue, Vector3 cornerBValue, Vector3 cornerCValue)
     {
-        return (1 - FirstAxisPercent) * cornerAValue * 0.5f +
-               FirstAxisPercent * cornerBValue +
-               (1 - SecondAxisPercent) * cornerAValue * 0.5f +
-               SecondAxisPercent * cornerCValue;
+        float thirdAxis = 1.0f - FirstAxisPercent - SecondAxisPercent;
+        return cornerAValue * FirstAxisPercent + cornerBValue * SecondAxisPercent + cornerCValue * thirdAxis;
     }
 }

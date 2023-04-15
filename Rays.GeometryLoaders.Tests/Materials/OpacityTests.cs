@@ -14,7 +14,7 @@ public sealed class OpacityTests
         };
         var expectedOpacity = new Opacity(0.8f, null, null, null);
 
-        var actualOpacity = Opacity.Parse(lines);
+        var actualOpacity = Opacity.Parse(lines, "e");
 
         Assert.Equal(expectedOpacity, actualOpacity);
     }
@@ -28,7 +28,7 @@ public sealed class OpacityTests
         };
         var expectedOpacity = new Opacity(null, new Vector3(0.2f, 0.4f, 0.6f), null, null);
 
-        var actualOpacity = Opacity.Parse(lines);
+        var actualOpacity = Opacity.Parse(lines, "e");
 
         Assert.Equal(expectedOpacity, actualOpacity);
     }
@@ -42,7 +42,7 @@ public sealed class OpacityTests
         };
         var expectedOpacity = new Opacity(null, null, 1.5f, null);
 
-        var actualOpacity = Opacity.Parse(lines);
+        var actualOpacity = Opacity.Parse(lines, "e");
 
         Assert.Equal(expectedOpacity, actualOpacity);
     }
@@ -54,9 +54,9 @@ public sealed class OpacityTests
         {
             { "map_d", "texture_map.png" }
         };
-        var expectedOpacity = new Opacity(null, null, null, "texture_map.png");
+        var expectedOpacity = new Opacity(null, null, null, Path.Combine("e", "texture_map.png"));
 
-        var actualOpacity = Opacity.Parse(lines);
+        var actualOpacity = Opacity.Parse(lines, "e");
 
         Assert.Equal(expectedOpacity, actualOpacity);
     }
@@ -71,9 +71,9 @@ public sealed class OpacityTests
             { "Ni", "1.5" },
             { "map_d", "texture_map.png" }
         };
-        var expectedOpacity = new Opacity(0.8f, new Vector3(0.2f, 0.4f, 0.6f), 1.5f, "texture_map.png");
+        var expectedOpacity = new Opacity(0.8f, new Vector3(0.2f, 0.4f, 0.6f), 1.5f, Path.Combine("e", "texture_map.png"));
 
-        var actualOpacity = Opacity.Parse(lines);
+        var actualOpacity = Opacity.Parse(lines, "e");
 
         Assert.Equal(expectedOpacity, actualOpacity);
     }
@@ -84,7 +84,7 @@ public sealed class OpacityTests
         var lines = new Dictionary<string, string>();
         var expectedOpacity = new Opacity(null, null, null, null);
 
-        var actualOpacity = Opacity.Parse(lines);
+        var actualOpacity = Opacity.Parse(lines, "e");
 
         Assert.Equal(expectedOpacity, actualOpacity);
     }

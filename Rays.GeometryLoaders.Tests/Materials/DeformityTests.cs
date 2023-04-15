@@ -11,9 +11,9 @@ public sealed class DeformityTests
         {
             { "map_bump", "bump_map.png" }
         };
-        var expectedDeformity = new Deformity("bump_map.png", null, null);
+        var expectedDeformity = new Deformity(Path.Combine("e", "bump_map.png"), null, null);
 
-        var actualDeformity = Deformity.Parse(lines);
+        var actualDeformity = Deformity.Parse(lines, "e");
 
         Assert.Equal(expectedDeformity, actualDeformity);
     }
@@ -25,9 +25,9 @@ public sealed class DeformityTests
         {
             { "bump", "bump_map.png" }
         };
-        var expectedDeformity = new Deformity("bump_map.png", null, null);
+        var expectedDeformity = new Deformity(Path.Combine("e", "bump_map.png"), null, null);
 
-        var actualDeformity = Deformity.Parse(lines);
+        var actualDeformity = Deformity.Parse(lines, "e");
 
         Assert.Equal(expectedDeformity, actualDeformity);
     }
@@ -39,9 +39,9 @@ public sealed class DeformityTests
         {
             { "disp", "displacement_map.png" }
         };
-        var expectedDeformity = new Deformity(null, "displacement_map.png", null);
+        var expectedDeformity = new Deformity(null, Path.Combine("e", "displacement_map.png"), null);
 
-        var actualDeformity = Deformity.Parse(lines);
+        var actualDeformity = Deformity.Parse(lines, "e");
 
         Assert.Equal(expectedDeformity, actualDeformity);
     }
@@ -53,9 +53,9 @@ public sealed class DeformityTests
         {
             { "decal", "stencil_decal_map.png" }
         };
-        var expectedDeformity = new Deformity(null, null, "stencil_decal_map.png");
+        var expectedDeformity = new Deformity(null, null, Path.Combine("e", "stencil_decal_map.png"));
 
-        var actualDeformity = Deformity.Parse(lines);
+        var actualDeformity = Deformity.Parse(lines, "e");
 
         Assert.Equal(expectedDeformity, actualDeformity);
     }
@@ -69,9 +69,9 @@ public sealed class DeformityTests
             { "disp", "displacement_map.png" },
             { "decal", "stencil_decal_map.png" }
         };
-        var expectedDeformity = new Deformity("bump_map.png", "displacement_map.png", "stencil_decal_map.png");
+        var expectedDeformity = new Deformity(Path.Combine("e", "bump_map.png"), Path.Combine("e", "displacement_map.png"), Path.Combine("e", "stencil_decal_map.png"));
 
-        var actualDeformity = Deformity.Parse(lines);
+        var actualDeformity = Deformity.Parse(lines, "e");
 
         Assert.Equal(expectedDeformity, actualDeformity);
     }
@@ -82,7 +82,7 @@ public sealed class DeformityTests
         var lines = new Dictionary<string, string>();
         var expectedDeformity = new Deformity(null, null, null);
 
-        var actualDeformity = Deformity.Parse(lines);
+        var actualDeformity = Deformity.Parse(lines, "e");
 
         Assert.Equal(expectedDeformity, actualDeformity);
     }
