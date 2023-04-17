@@ -5,6 +5,7 @@
 @using System.Diagnostics.CodeAnalysis
 @using Rays.Polygons
 @using Rays.Scenes;
+@using System.Diagnostics;
 @implements IAsyncDisposable
 
 
@@ -30,12 +31,16 @@
 
             _renderTask = Task.Factory.StartNew(async () =>
             {
+                var watch = new Stopwatch();
                 try
                 {
                     using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(50));
                     while (await timer.WaitForNextTickAsync(_cancellationTokenSource.Token))
                     {
+                        watch.Restart();
                         await scene.RenderAsync();
+                        watch.Stop();
+                        Console.WriteLine($"Time: {watch.ElapsedMilliseconds:N2}");
                     }
                 }
                 catch (Exception e)
