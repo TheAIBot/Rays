@@ -1,5 +1,6 @@
 ﻿using Rays.Polygons;
 using System.Numerics;
+using Rectangle = Rays.Polygons.Rectangle;
 
 namespace Rays;
 
@@ -10,6 +11,7 @@ public interface IPolygonDrawer
     Task DrawFillAsync(Rectangle rectangle);
     Task DrawAsync(Wall Wall);
     Task DrawAsync(Line line);
+    Task DrawPixelAsync(int x, int y);
 
     Task SetFillColorAsync(Color color);
 

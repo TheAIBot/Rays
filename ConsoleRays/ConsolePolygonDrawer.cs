@@ -71,6 +71,17 @@ internal sealed class ConsolePolygonDrawer : IPolygonDrawer
         }
     }
 
+    public Task DrawPixelAsync(int x, int y)
+    {
+        if (!WithinScreen(new Vector2(x, y)))
+        {
+            return Task.CompletedTask;
+        }
+
+        Screen[x, y] = '#';
+        return Task.CompletedTask;
+    }
+
     private bool WithinScreen(Vector2 point)
     {
         return point.X >= 0 && point.X < Screen.GetLength(0) &&

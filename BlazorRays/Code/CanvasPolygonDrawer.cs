@@ -79,9 +79,14 @@ namespace BlazorRays.Code
             await DrawingContext.StrokeAsync();
         }
 
+        public Task DrawPixelAsync(int x, int y)
+        {
+            return DrawingContext.FillRectAsync(x, y, 1, 1);
+        }
+
         public Task SetFillColorAsync(Color color)
         {
-            return DrawingContext.SetStrokeStyleAsync(ToCanvasColor(color));
+            return DrawingContext.SetFillStyleAsync(ToCanvasColor(color));
         }
 
         private static string ToCanvasColor(Color color)
