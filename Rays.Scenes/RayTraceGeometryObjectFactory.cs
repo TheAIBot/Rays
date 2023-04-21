@@ -40,8 +40,8 @@ public sealed class RayTraceGeometryObjectFactory : ISceneFactory
                 continue;
             }
 
-            Triangle<TextureCoordinate>[] triangleTextureCoordinates = geometryModel.GetTextureCoordinatesAsTriangles()
-                                                                                    .Select(x => new Triangle<TextureCoordinate>(x.CornerA, x.CornerB, x.CornerC))
+            Triangle[] triangleTextureCoordinates = geometryModel.GetTextureCoordinatesAsTriangles()
+                                                                                    .Select(x => new Triangle(x.CornerA.Coordinate, x.CornerB.Coordinate, x.CornerC.Coordinate))
                                                                                     .ToArray();
             Image<Rgba32> texture = Image.Load<Rgba32>(geometryModel.Material.Diffusion.TextureMapFileName);
             texturedTriangles.Add(new TexturedTriangles(triangles, triangleTextureCoordinates, texture));
