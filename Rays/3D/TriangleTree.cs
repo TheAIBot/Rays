@@ -15,7 +15,7 @@ public sealed class TriangleTree
 
     public bool TryGetIntersection(Ray ray, out (TriangleIntersection intersection, Color color) triangleIntersection)
     {
-        Stack<Node> nodesToCheck = new Stack<Node>();
+        var nodesToCheck = new Stack<Node>();
         nodesToCheck.Push(_nodes[0]);
         while (nodesToCheck.Count > 0)
         {
@@ -30,19 +30,20 @@ public sealed class TriangleTree
                 continue;
             }
 
-            List<NodeScore> nodeScores = new List<NodeScore>();
-            for (int i = 0; i < node.Children.Length; i++)
+            var nodeScores = new List<NodeScore>();
+            var nodeChildren = node.Children.GetAsMemory(_nodes);
+            for (int i = 0; i < nodeChildren.Length; i++)
             {
-                Node child = node.Children.Span[i];
+                Node child = nodeChildren.Span[i];
                 if (child.BoundingBox.Intersects(ray))
                 {
                     nodeScores.Add(new NodeScore(i, Vector3.DistanceSquared(ray.Start, child.BoundingBox.Center)));
                 }
             }
 
-            foreach (var nodeScore in nodeScores.OrderBy(x => x.distance))
+            foreach (var nodeScore in nodeScores.OrderBy(x => x.Distance))
             {
-                nodesToCheck.Push(node.Children.Span[nodeScore.index]);
+                nodesToCheck.Push(nodeChildren.Span[nodeScore.Index]);
             }
         }
 
@@ -78,7 +79,15 @@ public sealed class TriangleTree
         return bestDistance != float.MaxValue;
     }
 
-    private readonly record struct NodeScore(int index, float distance);
+    private readonly record struct NodeScore(int Index, float Distance);
 
-    public sealed record Node(AxisAlignedBox BoundingBox, Memory<Node> Children, int TexturedTrianglesIndex);
+    public readonly record struct Node(AxisAlignedBox BoundingBox, MemoryRange Children, int TexturedTrianglesIndex);
+
+    public readonly record struct MemoryRange(int Index, int Length)
+    {
+        public Memory<T> GetAsMemory<T>(T[] array)
+        {
+            return array.AsMemory(Index, Length);
+        }
+    }
 }

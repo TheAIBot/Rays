@@ -65,7 +65,7 @@ public static class TriangleTreeBuilder
             else
             {
                 int firstChildIndex = nodeToIndex[node.Children[0]];
-                treeNodes[lastNodeIndex] = new TriangleTree.Node(node.BoundingBox, treeNodes.AsMemory(firstChildIndex, node.Children.Count), -1);
+                treeNodes[lastNodeIndex] = new TriangleTree.Node(node.BoundingBox, new TriangleTree.MemoryRange(firstChildIndex, node.Children.Count), -1);
                 nodeToIndex.Add(node, lastNodeIndex);
                 lastNodeIndex--;
             }
