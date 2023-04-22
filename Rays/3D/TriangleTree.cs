@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using static Rays._3D.AxisAlignedBox;
 
 namespace Rays._3D;
 
@@ -15,6 +16,8 @@ public sealed class TriangleTree
 
     public bool TryGetIntersection(Ray ray, out (TriangleIntersection intersection, Color color) triangleIntersection)
     {
+        var optimizedRayBoxIntersection = new RayAxisAlignBoxOptimizedIntersection(ray);
+
         var nodesToCheck = new Stack<Node>();
         nodesToCheck.Push(_nodes[0]);
         while (nodesToCheck.Count > 0)
@@ -35,7 +38,7 @@ public sealed class TriangleTree
             for (int i = 0; i < nodeChildren.Length; i++)
             {
                 Node child = nodeChildren[i];
-                if (child.BoundingBox.Intersects(ray))
+                if (child.BoundingBox.Intersects(optimizedRayBoxIntersection))
                 {
                     nodeScores.Add(new NodeScore(i, Vector3.DistanceSquared(ray.Start, child.BoundingBox.Center)));
                 }

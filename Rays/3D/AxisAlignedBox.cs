@@ -6,11 +6,17 @@ public readonly record struct AxisAlignedBox(Vector3 MinPosition, Vector3 MaxPos
 {
     public Vector3 Center => MinPosition + ((MaxPosition - MinPosition) / 2);
 
-    //https://gist.github.com/DomNomNom/46bb1ce47f68d255fd5d
+
     public bool Intersects(Ray ray)
     {
-        Vector3 tMin = (MinPosition - ray.Start) / ray.Direction;
-        Vector3 tMax = (MaxPosition - ray.Start) / ray.Direction;
+        return Intersects(new RayAxisAlignBoxOptimizedIntersection(ray));
+    }
+
+    //https://gist.github.com/DomNomNom/46bb1ce47f68d255fd5d
+    public bool Intersects(RayAxisAlignBoxOptimizedIntersection optimizedRay)
+    {
+        Vector3 tMin = (MinPosition - optimizedRay.Start) * optimizedRay.InverseDirection;
+        Vector3 tMax = (MaxPosition - optimizedRay.Start) * optimizedRay.InverseDirection;
         Vector3 t1 = Vector3.Min(tMin, tMax);
         Vector3 t2 = Vector3.Max(tMin, tMax);
         float tNear = float.Max(float.Max(t1.X, t1.Y), t1.Z);
@@ -191,5 +197,10 @@ public readonly record struct AxisAlignedBox(Vector3 MinPosition, Vector3 MaxPos
     private static float fmax(float a, float b, float c)
     {
         return Math.Max(a, Math.Max(b, c));
+    }
+
+    public readonly record struct RayAxisAlignBoxOptimizedIntersection(Vector3 Start, Vector3 InverseDirection)
+    {
+        public RayAxisAlignBoxOptimizedIntersection(Ray ray) : this(ray.Start, Vector3.One / ray.Direction) { }
     }
 }
