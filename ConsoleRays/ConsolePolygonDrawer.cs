@@ -9,7 +9,7 @@ internal sealed class ConsolePolygonDrawer : IPolygonDrawer
 {
     private readonly char[,] Screen = new char[100, 30];
 
-    public Vector2 Size { get; } = new Vector2(100, 30);
+    public Point Size { get; } = new Point(100, 30);
 
     public Task DrawAsync(Rectangle rectangle)
     {
@@ -19,11 +19,6 @@ internal sealed class ConsolePolygonDrawer : IPolygonDrawer
         DrawLine(rectangle.BottomLeft + rectangle.Horizontal, rectangle.Vertical);
 
         return Task.CompletedTask;
-    }
-
-    public Task DrawFillAsync(Rectangle rectangle)
-    {
-        throw new NotImplementedException();
     }
 
     public Task DrawAsync(Wall wall)
@@ -71,7 +66,7 @@ internal sealed class ConsolePolygonDrawer : IPolygonDrawer
         }
     }
 
-    public Task DrawPixelAsync(int x, int y)
+    public Task DrawPixelAsync(int x, int y, Color _)
     {
         if (!WithinScreen(new Vector2(x, y)))
         {
@@ -86,12 +81,6 @@ internal sealed class ConsolePolygonDrawer : IPolygonDrawer
     {
         return point.X >= 0 && point.X < Screen.GetLength(0) &&
                point.Y >= 0 && point.Y < Screen.GetLength(1);
-    }
-
-    public Task SetFillColorAsync(Color color)
-    {
-        // Not implemented
-        return Task.CompletedTask;
     }
 
     public Task ClearAsync()

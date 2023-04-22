@@ -9,15 +9,15 @@ namespace BlazorRays.Code
     {
         private readonly Canvas2DContext DrawingContext;
 
-        public Vector2 Size { get; }
+        public Rays.Point Size { get; }
 
-        public CanvasPolygonDrawer(Canvas2DContext canvas2DContext, Vector2 canvasSize)
+        public CanvasPolygonDrawer(Canvas2DContext canvas2DContext, Rays.Point canvasSize)
         {
             DrawingContext = canvas2DContext;
             Size = canvasSize;
         }
 
-        public async Task DrawAsync(Rectangle rectangle)
+        public async Task DrawAsync(Rays.Polygons.Rectangle rectangle)
         {
             await DrawingContext.BeginPathAsync();
 
@@ -33,21 +33,6 @@ namespace BlazorRays.Code
             {
                 await DrawWallNormal(wall);
             }
-        }
-
-        public async Task DrawFillAsync(Rectangle rectangle)
-        {
-            await DrawingContext.BeginPathAsync();
-
-            await DrawingContext.MoveToAsync(rectangle.TopLeft.X, rectangle.TopLeft.Y);
-            await DrawingContext.LineToAsync(rectangle.TopRight.X, rectangle.TopRight.Y);
-            await DrawingContext.LineToAsync(rectangle.BottomRight.X, rectangle.BottomRight.Y);
-            await DrawingContext.LineToAsync(rectangle.BottomLeft.X, rectangle.BottomLeft.Y);
-            //await DrawingContext.LineToAsync(rectangle.TopLeft.X, rectangle.TopLeft.Y);
-            await DrawingContext.ClosePathAsync();
-            await DrawingContext.FillAsync();
-
-            await DrawingContext.StrokeAsync();
         }
 
         public async Task DrawAsync(Wall wall)
@@ -79,19 +64,15 @@ namespace BlazorRays.Code
             await DrawingContext.StrokeAsync();
         }
 
-        public Task DrawPixelAsync(int x, int y)
+        public async Task DrawPixelAsync(int x, int y, Rays.Color color)
         {
-            return DrawingContext.FillRectAsync(x, y, 1, 1);
+            await DrawingContext.SetFillStyleAsync(ToCanvasColor(color));
+            await DrawingContext.FillRectAsync(x, y, 1, 1);
         }
 
-        public Task SetFillColorAsync(Color color)
+        private static string ToCanvasColor(Rays.Color color)
         {
-            return DrawingContext.SetFillStyleAsync(ToCanvasColor(color));
-        }
-
-        private static string ToCanvasColor(Color color)
-        {
-            Span<byte> colorBytes = stackalloc byte[Color.Channels];
+            Span<byte> colorBytes = stackalloc byte[Rays.Color.Channels];
             colorBytes[0] = color.Red;
             colorBytes[1] = color.Green;
             colorBytes[2] = color.Blue;

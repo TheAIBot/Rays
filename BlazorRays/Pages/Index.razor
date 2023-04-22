@@ -6,13 +6,15 @@
 @using Rays.Polygons
 @using Rays.Scenes;
 @using System.Diagnostics;
+@inject IJSRuntime jsRuntime
 @implements IAsyncDisposable
 
 
-<BECanvas Width="@((int)_CanvasSize.X)" Height="@((int)_CanvasSize.Y)" @ref="CanvasReference"></BECanvas>
+<BECanvas Width="@(_CanvasSize.X)" Height="@(_CanvasSize.Y)" @ref="CanvasReference"></BECanvas>
+<img id="image" />
 
 @code {
-    private readonly Vector2 _CanvasSize = new Vector2(300, 400);
+    private readonly Point _CanvasSize = new Point(300, 400);
     private readonly CancellationTokenSource _cancellationTokenSource = new();
     private Task? _renderTask;
 
@@ -26,7 +28,7 @@
         if (firstRender)
         {
             var canvas = await CanvasReference.CreateCanvas2DAsync();
-            var drawer = new CanvasPolygonDrawer(canvas, _CanvasSize);
+            var drawer = new BrowserImageDrawer(_CanvasSize, jsRuntime);
             IScene scene = sceneFactory.Create(drawer);
 
             _renderTask = Task.Factory.StartNew(async () =>

@@ -1,19 +1,15 @@
 ﻿using Rays.Polygons;
-using System.Numerics;
 using Rectangle = Rays.Polygons.Rectangle;
 
 namespace Rays;
 
 public interface IPolygonDrawer
 {
-    Vector2 Size { get; }
+    Point Size { get; }
     Task DrawAsync(Rectangle rectangle);
-    Task DrawFillAsync(Rectangle rectangle);
     Task DrawAsync(Wall Wall);
     Task DrawAsync(Line line);
-    Task DrawPixelAsync(int x, int y);
-
-    Task SetFillColorAsync(Color color);
+    Task DrawPixelAsync(int x, int y, Color color);
 
     Task ClearAsync();
 
@@ -25,3 +21,5 @@ public readonly record struct Color(byte Red, byte Green, byte Blue, byte Alpha)
     public const int Channels = 4;
     public Color(int red, int green, int blue, int alpha) : this((byte)red, (byte)green, (byte)blue, (byte)alpha) { }
 }
+
+public readonly record struct Point(int X, int Y);

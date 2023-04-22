@@ -4,15 +4,6 @@ using System.Threading.Tasks.Dataflow;
 
 namespace Rays.Scenes;
 
-internal sealed class Camera
-{
-    private readonly Vector3 _cameraPosition = new Vector3(0, 0, 0);
-    private readonly Vector3 _cameraDirection = new Vector3(1, 0, 0);
-    private readonly Vector3 _cameraUpDirection = new Vector3(0, 1, 0);
-    private readonly float _viewportDistance = 3;
-    private readonly Vector2 _viewportSize = new Vector2(5, 5);
-}
-
 internal sealed class RayTracer : IScene
 {
     private readonly Vector3 _cameraPosition = new Vector3(0, 0, 0);
@@ -21,7 +12,6 @@ internal sealed class RayTracer : IScene
     private readonly float _viewportDistance = 3;
     private readonly Vector2 _viewportSize = new Vector2(5, 5);
     private readonly TriangleTree _triangleTree;
-    private readonly Triangle _triangleColor = new Triangle(new Vector3(255, 0, 0), new Vector3(0, 255, 0), new Vector3(0, 0, 255));
     private readonly IPolygonDrawer _polygonDrawer;
 
     public RayTracer(IPolygonDrawer polygonDrawer, ITexturedTriangles[] texturedTriangles)
@@ -37,23 +27,10 @@ internal sealed class RayTracer : IScene
         Vector3 cameraHorizontalDirection = Vector3.Cross(_cameraDirection - _cameraPosition, _cameraUpDirection - _cameraPosition);
         Vector3 horizontalChange = cameraHorizontalDirection * (_viewportSize.X / _polygonDrawer.Size.X);
         Vector3 bottomLeftViewPort = _cameraPosition
-                                    + (_cameraDirection * _viewportDistance)
-                                    - (horizontalChange * (_polygonDrawer.Size.X / 2))
-                                    - (verticalChange * (_polygonDrawer.Size.Y / 2));
-        var parallel = new TransformBlock<(int x, int y), (int x, int y, Color color)>(position =>
-        {
-            Vector3 viewPortPixelPosition = bottomLeftViewPort + position.x * horizontalChange + position.y * verticalChange;
-            Vector3 rayDirection = viewPortPixelPosition - _cameraPosition;
-            Ray ray = new Ray(viewPortPixelPosition, Vector3.Normalize(rayDirection));
-
-            if (_triangleTree.TryGetIntersection(ray, out (TriangleIntersection intersection, Color color) triangleIntersection))
-            {
-                return (position.x, position.y, triangleIntersection.color);
-            }
-
-
-            return (position.x, position.y, new Color(255, 255, 255, 255));
-        }, new ExecutionDataflowBlockOptions()
+                                   + (_cameraDirection * _viewportDistance)
+                                   - (horizontalChange * (_polygonDrawer.Size.X / 2))
+                                   - (verticalChange * (_polygonDrawer.Size.Y / 2));
+        var parallel = new ActionBlock<Point>(position => RaySetPixelColor(bottomLeftViewPort, horizontalChange, verticalChange, position), new ExecutionDataflowBlockOptions()
         {
             MaxDegreeOfParallelism = Math.Max(1, Environment.ProcessorCount - 1)
         });
@@ -62,19 +39,28 @@ internal sealed class RayTracer : IScene
         {
             for (int x = 0; x < _polygonDrawer.Size.X; x++)
             {
-                await parallel.SendAsync((x, y));
+                await parallel.SendAsync(new Point(x, y));
             }
         }
 
         parallel.Complete();
-
-        await foreach (var result in parallel.ReceiveAllAsync())
-        {
-            await _polygonDrawer.SetFillColorAsync(result.color);
-            await _polygonDrawer.DrawPixelAsync(result.x, result.y);
-        }
+        await parallel.Completion;
 
         await _polygonDrawer.RenderAsync();
-        await parallel.Completion;
+    }
+
+    private Task RaySetPixelColor(Vector3 bottomLeftViewPort, Vector3 horizontalChange, Vector3 verticalChange, Point position)
+    {
+        Vector3 viewPortPixelPosition = bottomLeftViewPort + position.X * horizontalChange + position.Y * verticalChange;
+        Vector3 rayDirection = viewPortPixelPosition - _cameraPosition;
+        var ray = new Ray(viewPortPixelPosition, Vector3.Normalize(rayDirection));
+
+        Color color = default;
+        if (_triangleTree.TryGetIntersection(ray, out (TriangleIntersection intersection, Color color) triangleIntersection))
+        {
+            color = triangleIntersection.color;
+        }
+
+        return _polygonDrawer.DrawPixelAsync(position.X, position.Y, color);
     }
 }
