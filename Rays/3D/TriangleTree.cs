@@ -31,10 +31,10 @@ public sealed class TriangleTree
             }
 
             var nodeScores = new List<NodeScore>();
-            var nodeChildren = node.Children.GetAsMemory(_nodes);
+            var nodeChildren = node.Children.GetAsSpan(_nodes);
             for (int i = 0; i < nodeChildren.Length; i++)
             {
-                Node child = nodeChildren.Span[i];
+                Node child = nodeChildren[i];
                 if (child.BoundingBox.Intersects(ray))
                 {
                     nodeScores.Add(new NodeScore(i, Vector3.DistanceSquared(ray.Start, child.BoundingBox.Center)));
@@ -43,7 +43,7 @@ public sealed class TriangleTree
 
             foreach (var nodeScore in nodeScores.OrderBy(x => x.Distance))
             {
-                nodesToCheck.Push(nodeChildren.Span[nodeScore.Index]);
+                nodesToCheck.Push(nodeChildren[nodeScore.Index]);
             }
         }
 
@@ -81,13 +81,13 @@ public sealed class TriangleTree
 
     private readonly record struct NodeScore(int Index, float Distance);
 
-    public readonly record struct Node(AxisAlignedBox BoundingBox, MemoryRange Children, int TexturedTrianglesIndex);
+    public readonly record struct Node(AxisAlignedBox BoundingBox, SpanRange Children, int TexturedTrianglesIndex);
 
-    public readonly record struct MemoryRange(int Index, int Length)
+    public readonly record struct SpanRange(int Index, int Length)
     {
-        public Memory<T> GetAsMemory<T>(T[] array)
+        public Span<T> GetAsSpan<T>(T[] array)
         {
-            return array.AsMemory(Index, Length);
+            return array.AsSpan(Index, Length);
         }
     }
 }
