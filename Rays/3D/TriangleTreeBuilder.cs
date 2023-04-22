@@ -153,7 +153,7 @@ public static class TriangleTreeBuilder
             return new AxisAlignedBox(boxMinPosition, boxMinPosition + boxSize);
         }
 
-        Vector3 halfSize = Vector3.Abs((box.MaxPosition - box.MinPosition) / 2);
+        Vector3 halfSize = Vector3.Abs((box.MaxPosition - box.MinPosition) * 0.5f);
         return new AxisAlignedBox[]
         {
             CreateBox(box.MinPosition, halfSize, 0, 0, 0),

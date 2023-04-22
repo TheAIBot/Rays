@@ -7,7 +7,7 @@ public readonly record struct Rectangle(Vector2 BottomLeft, Vector2 Horizontal, 
     public readonly Vector2 TopLeft => BottomLeft + Vertical;
     public readonly Vector2 TopRight => BottomLeft + Vertical + Horizontal;
     public readonly Vector2 BottomRight => BottomLeft + Horizontal;
-    public readonly Vector2 Center => BottomLeft + ((Vertical + Horizontal) / 2);
+    public readonly Vector2 Center => BottomLeft + ((Vertical + Horizontal) * 0.5f);
 
     public readonly Wall[] GetAsWalls()
     {
@@ -29,7 +29,7 @@ public readonly record struct Rectangle(Vector2 BottomLeft, Vector2 Horizontal, 
     {
         float angle = DegreesToRadians(angleInDeg);
         Matrix3x2 rotator = Matrix3x2.CreateRotation(angle);
-        Vector2 toCenter = (rectangle.Horizontal + rectangle.Vertical) / 2;
+        Vector2 toCenter = (rectangle.Horizontal + rectangle.Vertical) * 0.5f;
         Vector2 centerPosition = rectangle.BottomLeft + toCenter;
         Vector2 gre = Vector2.Transform(toCenter, rotator);
         Vector2 newPos = centerPosition - gre;

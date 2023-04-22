@@ -4,7 +4,7 @@ namespace Rays._3D;
 
 public readonly record struct AxisAlignedBox(Vector3 MinPosition, Vector3 MaxPosition)
 {
-    public Vector3 Center => MinPosition + ((MaxPosition - MinPosition) / 2);
+    public Vector3 Center => MinPosition + ((MaxPosition - MinPosition) * 0.5f);
 
 
     public bool Intersects(Ray ray)
@@ -30,7 +30,7 @@ public readonly record struct AxisAlignedBox(Vector3 MinPosition, Vector3 MaxPos
         // From the book "Real-Time Collision Detection" by Christer Ericson, page 169
         // See also the published Errata at http://realtimecollisiondetection.net/books/rtcd/errata/
 
-        Vector3 boxExtents = (MaxPosition - MinPosition) / 2;
+        Vector3 boxExtents = (MaxPosition - MinPosition) * 0.5f;
 
         // Translate triangle as conceptually moving AABB to origin
         var v0 = (triangle.CornerA - Center);
