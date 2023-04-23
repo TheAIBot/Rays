@@ -12,6 +12,7 @@ public sealed class SingleTriangleRayTracerFactory : ISceneFactory
             new Triangle(new Vector3(10, -1, -1), new Vector3(10, 3, -2), new Vector3(10, 2, 4))
         };
         Triangle color = new Triangle(new Vector3(255, 0, 0), new Vector3(0, 255, 0), new Vector3(0, 0, 255));
-        return new RayTracer(polygonDrawer, new[] { new SimpleColoredTriangles(triangles, color) });
+        var camera = new Camera(new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 1, 0), 3, new Vector2(5, 5));
+        return new RayTracer(camera, polygonDrawer, new[] { new SimpleColoredTriangles(triangles, color) });
     }
 }

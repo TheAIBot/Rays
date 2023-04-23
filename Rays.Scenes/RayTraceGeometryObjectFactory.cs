@@ -47,7 +47,8 @@ public sealed class RayTraceGeometryObjectFactory : ISceneFactory
             texturedTriangles.Add(new TexturedTriangles(triangles, triangleTextureCoordinates, texture));
         }
 
-        return new RayTracer(polygonDrawer, texturedTriangles.ToArray());
+        var camera = new Camera(new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 1, 0), 3, new Vector2(5, 5));
+        return new RayTracer(camera, polygonDrawer, texturedTriangles.ToArray());
     }
 
     private static string UnZipFileToDirectory(string zipFilePath)
