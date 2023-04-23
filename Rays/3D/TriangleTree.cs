@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using static Rays._3D.AxisAlignedBox;
+using static Rays._3D.Triangle;
 
 namespace Rays._3D;
 
@@ -56,13 +57,15 @@ public sealed class TriangleTree
 
     private bool TryGetIntersectionWithTriangles(Ray ray, ITexturedTriangles[] texturedTriangleSets, out (TriangleIntersection intersection, Color color) intersection)
     {
+        var rayTriangleOptimizedIntersection = new RayTriangleOptimizedIntersection(ray);
+
         intersection = default;
         float bestDistance = float.MaxValue;
         foreach (var texturedTriangles in texturedTriangleSets)
         {
             for (int i = 0; i < texturedTriangles.Triangles.Length; i++)
             {
-                if (!texturedTriangles.Triangles[i].TryGetIntersection(ray, out TriangleIntersection triangleIntersection))
+                if (!texturedTriangles.Triangles[i].TryGetIntersection(rayTriangleOptimizedIntersection, out TriangleIntersection triangleIntersection))
                 {
                     continue;
                 }
