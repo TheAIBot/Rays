@@ -47,7 +47,7 @@ public sealed class RayTraceGeometryObjectFactory : ISceneFactory
             texturedTriangles.Add(new TexturedTriangles(triangles, triangleTextureCoordinates, texture));
         }
 
-        var camera = new Camera(new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 1, 0), 3, new Vector2(5, 5));
+        var camera = new Camera(new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 1, 0), 90.0f, (float)polygonDrawer.Size.X / polygonDrawer.Size.Y);
         return new RayTracer(camera, polygonDrawer, texturedTriangles.ToArray());
     }
 

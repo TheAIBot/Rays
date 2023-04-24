@@ -43,7 +43,7 @@ internal sealed class RayTracer : IScene
     {
         Ray ray = rayTraceViewPort.GetRayForPixel(pixelPosition);
 
-        Color color = default;
+        Color color = new Color(20, 20, 20, 20);
         if (_triangleTree.TryGetIntersection(ray, out (TriangleIntersection intersection, Color color) triangleIntersection))
         {
             color = triangleIntersection.color;
