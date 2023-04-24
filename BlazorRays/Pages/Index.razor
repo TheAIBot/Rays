@@ -36,6 +36,8 @@
                 var watch = new Stopwatch();
                 try
                 {
+                    scene.Camera.Position = new Vector3(1000, 1000, 1000);
+                    scene.Camera.Direction = Vector3.Normalize(-scene.Camera.Position);
                     using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(50));
                     while (await timer.WaitForNextTickAsync(_cancellationTokenSource.Token))
                     {

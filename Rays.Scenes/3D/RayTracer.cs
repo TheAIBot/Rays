@@ -5,13 +5,13 @@ namespace Rays.Scenes;
 
 internal sealed class RayTracer : I3DScene
 {
-    private readonly Camera _camera;
+    public Camera Camera { get; }
     private readonly TriangleTree _triangleTree;
     private readonly IPolygonDrawer _polygonDrawer;
 
     public RayTracer(Camera camera, IPolygonDrawer polygonDrawer, ITexturedTriangles[] texturedTriangles)
     {
-        _camera = camera;
+        Camera = camera;
         _polygonDrawer = polygonDrawer;
         _triangleTree = TriangleTreeBuilder.Create(texturedTriangles);
     }
@@ -19,7 +19,7 @@ internal sealed class RayTracer : I3DScene
     public async Task RenderAsync()
     {
         await _polygonDrawer.ClearAsync();
-        RayTraceViewPort rayTraceViewPort = _camera.GetRayTraceViewPort(_polygonDrawer.Size);
+        RayTraceViewPort rayTraceViewPort = Camera.GetRayTraceViewPort(_polygonDrawer.Size);
         var parallel = new ActionBlock<Point>(position => RaySetPixelColor(rayTraceViewPort, position), new ExecutionDataflowBlockOptions()
         {
             MaxDegreeOfParallelism = Math.Max(1, Environment.ProcessorCount - 1)

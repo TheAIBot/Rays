@@ -4,30 +4,31 @@ namespace Rays.Scenes;
 
 public sealed class Camera
 {
-    private readonly Vector3 _position;
-    private readonly Vector3 _direction;
-    private readonly Vector3 _upDirection;
-    private readonly float _fieldOfViewRadians;
-    private readonly float _aspectRatio;
+    public Vector3 Position { get; set; }
+    public Vector3 Direction { get; set; }
+    public Vector3 UpDirection { get; set; }
+    public float FieldOfViewRadians { get; set; }
+    public float AspectRatio { get; set; }
 
     public Camera(Vector3 position, Vector3 direction, Vector3 upDirection, float fieldOfViewDegrees, float aspectRatio)
     {
-        _position = position;
-        _direction = direction;
-        _upDirection = upDirection;
-        _fieldOfViewRadians = fieldOfViewDegrees * (MathF.PI / 180.0f);
-        _aspectRatio = aspectRatio;
+        Position = position;
+        Direction = direction;
+        UpDirection = upDirection;
+        FieldOfViewRadians = fieldOfViewDegrees * (MathF.PI / 180.0f);
+        AspectRatio = aspectRatio;
     }
 
     internal RayTraceViewPort GetRayTraceViewPort(Point viewPortPixelCount)
     {
-        Vector3 horizontalDirection = Vector3.Cross(_direction - _position, _upDirection - _position);
-        return new RayTraceViewPort(_position,
-                                    _direction,
+        Vector3 horizontalDirection = Vector3.Cross(Direction, UpDirection);
+
+        return new RayTraceViewPort(Position,
+                                    Direction,
                                     horizontalDirection,
-                                    _upDirection,
-                                    (_fieldOfViewRadians * _aspectRatio) / viewPortPixelCount.X,
-                                    _fieldOfViewRadians / viewPortPixelCount.Y,
+                                    UpDirection,
+                                    (FieldOfViewRadians * AspectRatio) / viewPortPixelCount.X,
+                                    -FieldOfViewRadians / viewPortPixelCount.Y,
                                     viewPortPixelCount);
     }
 }

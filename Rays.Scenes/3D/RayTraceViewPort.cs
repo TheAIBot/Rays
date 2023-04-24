@@ -28,7 +28,7 @@ internal sealed class RayTraceViewPort
     {
         Matrix4x4 horizontalRotation = Matrix4x4.CreateFromAxisAngle(_horizontalDirection, _horizontalChange * (pixelPosition.X - (_screenSize.X / 2)));
         Matrix4x4 verticalRotation = Matrix4x4.CreateFromAxisAngle(_verticalDirection, _verticalChange * (pixelPosition.Y - (_screenSize.Y / 2)));
-        Vector4 rayDirection = Vector4.Transform(_cameraDirection, (horizontalRotation * verticalRotation));
+        Vector4 rayDirection = Vector4.Transform(_cameraDirection, horizontalRotation * verticalRotation);
         return new Ray(_cameraPosition, Vector3.Normalize(new Vector3(rayDirection.X, rayDirection.Y, rayDirection.Z)));
     }
 }
