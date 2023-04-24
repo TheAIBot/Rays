@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace Rays.Scenes;
 
-internal sealed class OnlyStaticContentScene : IScene
+internal sealed class OnlyStaticContentScene : I2DScene
 {
     private readonly IPolygonDrawer _polygonDrawer;
     private readonly List<Wall> _staticWalls;

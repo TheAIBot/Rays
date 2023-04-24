@@ -3,7 +3,7 @@ using System.Threading.Tasks.Dataflow;
 
 namespace Rays.Scenes;
 
-internal sealed class RayTracer : IScene
+internal sealed class RayTracer : I3DScene
 {
     private readonly Camera _camera;
     private readonly TriangleTree _triangleTree;

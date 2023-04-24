@@ -1,6 +1,6 @@
 ﻿namespace Rays.Scenes;
 
-public interface IScene
+public interface I2DScene
 {
     Task RenderAsync();
 }

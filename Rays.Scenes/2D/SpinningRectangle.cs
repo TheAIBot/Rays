@@ -4,7 +4,7 @@ using Rectangle = Rays.Polygons.Rectangle;
 
 namespace Rays.Scenes;
 
-internal sealed class SpinningRectangle : IScene
+internal sealed class SpinningRectangle : I2DScene
 {
     private readonly IPolygonDrawer _polygonDrawer;
     private readonly List<Wall> _staticWalls;

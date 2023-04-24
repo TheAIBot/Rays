@@ -3,9 +3,9 @@ using System.Numerics;
 
 namespace Rays.Scenes;
 
-public sealed class SingleTriangleRayTracerFactory : ISceneFactory
+public sealed class SingleTriangleRayTracerFactory : I3DSceneFactory
 {
-    public IScene Create(IPolygonDrawer polygonDrawer)
+    public I3DScene Create(IPolygonDrawer polygonDrawer)
     {
         Triangle[] triangles = new Triangle[]
         {

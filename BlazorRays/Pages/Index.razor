@@ -21,7 +21,7 @@
     [AllowNull]
     protected BECanvasComponent CanvasReference;
     [Inject]
-    private ISceneFactory sceneFactory { get; set; } = default!;
+    private I3DSceneFactory sceneFactory { get; set; } = default!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -29,7 +29,7 @@
         {
             var canvas = await CanvasReference.CreateCanvas2DAsync();
             var drawer = new BrowserImageDrawer(_CanvasSize, jsRuntime);
-            IScene scene = sceneFactory.Create(drawer);
+            I3DScene scene = sceneFactory.Create(drawer);
 
             _renderTask = Task.Factory.StartNew(async () =>
             {

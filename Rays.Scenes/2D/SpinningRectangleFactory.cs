@@ -4,14 +4,11 @@ using Rectangle = Rays.Polygons.Rectangle;
 
 namespace Rays.Scenes;
 
-public sealed class TriangleRectangleSceneFactory : ISceneFactory
+public sealed class SpinningRectangleFactory : I2DSceneFactory
 {
-    public IScene Create(IPolygonDrawer polygonDrawer)
+    public I2DScene Create(IPolygonDrawer polygonDrawer)
     {
-        var triangle = new Triangle(new Vector2(20, 20), new Vector2(40, 40), new Vector2(60, 20));
-        var rectangle1 = new Rectangle(new Vector2(80, 10), new Vector2(20, 0), new Vector2(0, 20));
-        var rectangle2 = new Rectangle(new Vector2(30, 60), new Vector2(20, 0), new Vector2(0, 10));
-
+        var rectangle = new Rectangle(new Vector2(10, 10), new Vector2(10, 0), new Vector2(0, 10));
         var bottomWall = new Wall(new Line(new Vector2(0, 0), new Vector2(polygonDrawer.Size.X - 1, 0)), new Vector2(0, 1));
         var topWall = new Wall(new Line(new Vector2(0, polygonDrawer.Size.Y - 1), new Vector2(polygonDrawer.Size.X - 1, polygonDrawer.Size.Y - 1)), new Vector2(0, -1));
         var leftWall = new Wall(new Line(new Vector2(0, 0), new Vector2(0, polygonDrawer.Size.Y - 1)), new Vector2(1, 0));
@@ -22,12 +19,8 @@ public sealed class TriangleRectangleSceneFactory : ISceneFactory
             bottomWall,
             topWall,
             leftWall,
-            rightWall,
+            rightWall
         };
-        walls.AddRange(triangle.GetAsWalls());
-        walls.AddRange(rectangle1.GetAsWalls());
-        walls.AddRange(rectangle2.GetAsWalls());
-
-        return new OnlyStaticContentScene(polygonDrawer, walls);
+        return new SpinningRectangle(polygonDrawer, walls, rectangle);
     }
 }

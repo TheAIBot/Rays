@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace Rays.Scenes;
 
-public sealed class RayTraceGeometryObjectFactory : ISceneFactory
+public sealed class RayTraceGeometryObjectFactory : I3DSceneFactory
 {
     private readonly string _zippedGeometryFilePath;
 
@@ -14,7 +14,7 @@ public sealed class RayTraceGeometryObjectFactory : ISceneFactory
         _zippedGeometryFilePath = zippedGeometryFilePath;
     }
 
-    public IScene Create(IPolygonDrawer polygonDrawer)
+    public I3DScene Create(IPolygonDrawer polygonDrawer)
     {
         string geometryFolderPath = UnZipFileToDirectory(_zippedGeometryFilePath);
         GeometryObject geometryObject = LoadGeometryObject(geometryFolderPath);
