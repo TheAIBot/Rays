@@ -41,13 +41,13 @@ public sealed class RayTraceGeometryObjectFactory : I3DSceneFactory
             }
 
             Triangle[] triangleTextureCoordinates = geometryModel.GetTextureCoordinatesAsTriangles()
-                                                                                    .Select(x => new Triangle(x.CornerA.Coordinate, x.CornerB.Coordinate, x.CornerC.Coordinate))
-                                                                                    .ToArray();
+                                                                 .Select(x => new Triangle(x.CornerA.Coordinate, x.CornerB.Coordinate, x.CornerC.Coordinate))
+                                                                 .ToArray();
             Image<Rgba32> texture = Image.Load<Rgba32>(geometryModel.Material.Diffusion.TextureMapFileName);
             texturedTriangles.Add(new TexturedTriangles(triangles, triangleTextureCoordinates, texture));
         }
 
-        var camera = new Camera(new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 1, 0), 90.0f, (float)polygonDrawer.Size.X / polygonDrawer.Size.Y);
+        var camera = new Camera(new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 0, -1), 90.0f, (float)polygonDrawer.Size.X / polygonDrawer.Size.Y);
         return new RayTracer(camera, polygonDrawer, texturedTriangles.ToArray());
     }
 
