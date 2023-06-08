@@ -1,8 +1,9 @@
 ﻿using System.Numerics;
+using static Rays._3D.Triangle;
 
 namespace Rays._3D;
 
-public sealed class TexturedTriangles : ITexturedTriangles
+public sealed class TexturedTriangles : ISubDividableTriangleSet
 {
     private readonly Triangle[] _textureTriangles;
     private readonly Image<Rgba32> _texture;
@@ -15,7 +16,38 @@ public sealed class TexturedTriangles : ITexturedTriangles
         _texture = texture;
     }
 
-    public Color GetTriangleIntersectionTextureColor(int triangleIndex, TriangleIntersection triangleIntersection)
+    public bool TryGetIntersection(Ray ray, out (TriangleIntersection intersection, Color color) intersection)
+    {
+        var rayTriangleOptimizedIntersection = new RayTriangleOptimizedIntersection(ray);
+        return TryGetIntersection(rayTriangleOptimizedIntersection, out intersection);
+    }
+
+    public bool TryGetIntersection(RayTriangleOptimizedIntersection rayTriangleOptimizedIntersection, out (TriangleIntersection intersection, Color color) intersection)
+    {
+        intersection = default;
+        float bestDistance = float.MaxValue;
+        for (int i = 0; i < Triangles.Length; i++)
+        {
+            if (!Triangles[i].TryGetIntersection(rayTriangleOptimizedIntersection, out TriangleIntersection triangleIntersection))
+            {
+                continue;
+            }
+
+            float distance = Vector4.DistanceSquared(rayTriangleOptimizedIntersection.Start, triangleIntersection.GetIntersection(rayTriangleOptimizedIntersection));
+            if (distance > bestDistance)
+            {
+                continue;
+            }
+
+            bestDistance = distance;
+            intersection.intersection = triangleIntersection;
+            intersection.color = GetTriangleIntersectionTextureColor(i, triangleIntersection);
+        }
+
+        return bestDistance != float.MaxValue;
+    }
+
+    private Color GetTriangleIntersectionTextureColor(int triangleIndex, TriangleIntersection triangleIntersection)
     {
         var triangleTextureCoordinates = _textureTriangles[triangleIndex];
         Vector3 interpolatedTextureCoordinate = triangleIntersection.Interpolate(triangleTextureCoordinates.CornerA,
@@ -28,7 +60,7 @@ public sealed class TexturedTriangles : ITexturedTriangles
         return new Color(textureColor.R, textureColor.G, textureColor.B, textureColor.A);
     }
 
-    public ITexturedTriangles SubCopy(Func<Triangle, bool> filter)
+    public ISubDividableTriangleSet SubCopy(Func<Triangle, bool> filter)
     {
         List<Triangle> subTriangles = new List<Triangle>();
         List<Triangle> subTextureTriangles = new List<Triangle>();

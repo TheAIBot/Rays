@@ -13,6 +13,6 @@ public sealed class SingleTriangleRayTracerFactory : I3DSceneFactory
         };
         Triangle color = new Triangle(new Vector3(255, 0, 0), new Vector3(0, 255, 0), new Vector3(0, 0, 255));
         var camera = new Camera(new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 1, 0), 90.0f, (float)polygonDrawer.Size.X / polygonDrawer.Size.Y);
-        return new RayTracer(camera, polygonDrawer, new[] { new SimpleColoredTriangles(triangles, color) });
+        return new RayTracer(camera, polygonDrawer, TriangleTreeBuilder.Create(new[] { new SimpleColoredTriangles(triangles, color) }));
     }
 }

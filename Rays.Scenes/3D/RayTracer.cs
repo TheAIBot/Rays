@@ -6,14 +6,14 @@ namespace Rays.Scenes;
 internal sealed class RayTracer : I3DScene
 {
     public Camera Camera { get; }
-    private readonly TriangleTree _triangleTree;
+    private readonly ITriangleSetIntersector _triangleSetIntersector;
     private readonly IPolygonDrawer _polygonDrawer;
 
-    public RayTracer(Camera camera, IPolygonDrawer polygonDrawer, ITexturedTriangles[] texturedTriangles)
+    public RayTracer(Camera camera, IPolygonDrawer polygonDrawer, ITriangleSetIntersector triangleSetIntersector)
     {
         Camera = camera;
         _polygonDrawer = polygonDrawer;
-        _triangleTree = TriangleTreeBuilder.Create(texturedTriangles);
+        _triangleSetIntersector = triangleSetIntersector;
     }
 
     public async Task RenderAsync()
@@ -44,7 +44,7 @@ internal sealed class RayTracer : I3DScene
         Ray ray = rayTraceViewPort.GetRayForPixel(pixelPosition);
 
         Color color = new Color(20, 20, 20, 20);
-        if (_triangleTree.TryGetIntersection(ray, out (TriangleIntersection intersection, Color color) triangleIntersection))
+        if (_triangleSetIntersector.TryGetIntersection(ray, out (TriangleIntersection intersection, Color color) triangleIntersection))
         {
             color = triangleIntersection.color;
         }

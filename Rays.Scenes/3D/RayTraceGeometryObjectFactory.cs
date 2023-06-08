@@ -19,7 +19,7 @@ public sealed class RayTraceGeometryObjectFactory : I3DSceneFactory
         string geometryFolderPath = UnZipFileToDirectory(_zippedGeometryFilePath);
         GeometryObject geometryObject = LoadGeometryObject(geometryFolderPath);
 
-        var texturedTriangles = new List<ITexturedTriangles>();
+        var texturedTriangles = new List<ISubDividableTriangleSet>();
         foreach (var geometryModel in geometryObject.GeometryModels)
         {
             Triangle[] triangles = geometryModel.GetVerticesAsTriangles()
@@ -48,7 +48,7 @@ public sealed class RayTraceGeometryObjectFactory : I3DSceneFactory
         }
 
         var camera = new Camera(new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 0, -1), 90.0f, (float)polygonDrawer.Size.X / polygonDrawer.Size.Y);
-        return new RayTracer(camera, polygonDrawer, texturedTriangles.ToArray());
+        return new RayTracer(camera, polygonDrawer, TriangleTreeBuilder.Create(texturedTriangles.ToArray()));
     }
 
     private static string UnZipFileToDirectory(string zipFilePath)

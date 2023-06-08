@@ -4,7 +4,7 @@ namespace Rays._3D;
 
 public static class TriangleTreeBuilder
 {
-    public static TriangleTree Create(ITexturedTriangles[] texturedTriangleSets)
+    public static TriangleTree Create(ISubDividableTriangleSet[] texturedTriangleSets)
     {
         const int maxTrianglesPerLeaf = 100;
         AxisAlignedBox rootBox = GetBoundingBox(texturedTriangleSets);
@@ -21,7 +21,7 @@ public static class TriangleTreeBuilder
 
             foreach (var childBox in Get8SubBoxes(node.BoundingBox))
             {
-                ITexturedTriangles[] childTexturedTriangleSet = node.TexturedTriangleSets
+                ISubDividableTriangleSet[] childTexturedTriangleSet = node.TexturedTriangleSets
                                                                     .Select(x => x.SubCopy(y => childBox.Intersects(y)))
                                                                     .Where(x => x.Triangles.Length > 0)
                                                                     .ToArray();
@@ -48,7 +48,7 @@ public static class TriangleTreeBuilder
         }
 
         TriangleTree.Node[] treeNodes = new TriangleTree.Node[root.CountNodes()];
-        ITexturedTriangles[][] triangleSets = new ITexturedTriangles[root.CountNodes(x => x.Children.Count == 0)][];
+        ISubDividableTriangleSet[][] triangleSets = new ISubDividableTriangleSet[root.CountNodes(x => x.Children.Count == 0)][];
         int texturedSetsIndex = 0;
         int lastNodeIndex = treeNodes.Length - 1;
         Dictionary<Node, int> nodeToIndex = new Dictionary<Node, int>();
@@ -74,7 +74,7 @@ public static class TriangleTreeBuilder
         return new TriangleTree(treeNodes, triangleSets);
     }
 
-    private sealed record Node(AxisAlignedBox BoundingBox, ITexturedTriangles[] TexturedTriangleSets, List<Node> Children)
+    private sealed record Node(AxisAlignedBox BoundingBox, ISubDividableTriangleSet[] TexturedTriangleSets, List<Node> Children)
     {
         public int CountNodes()
         {
@@ -107,12 +107,12 @@ public static class TriangleTreeBuilder
         }
     }
 
-    private static AxisAlignedBox GetBoundingBox(ITexturedTriangles[] texturedTriangleSets)
+    private static AxisAlignedBox GetBoundingBox(ISubDividableTriangleSet[] texturedTriangleSets)
     {
         return new AxisAlignedBox(GetMinPoint(texturedTriangleSets), GetMaxPoint(texturedTriangleSets));
     }
 
-    private static Vector3 GetMaxPoint(ITexturedTriangles[] texturedTriangleSets)
+    private static Vector3 GetMaxPoint(ISubDividableTriangleSet[] texturedTriangleSets)
     {
         Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
         foreach (var texturedTriangles in texturedTriangleSets)
@@ -128,7 +128,7 @@ public static class TriangleTreeBuilder
         return max;
     }
 
-    private static Vector3 GetMinPoint(ITexturedTriangles[] texturedTriangleSets)
+    private static Vector3 GetMinPoint(ISubDividableTriangleSet[] texturedTriangleSets)
     {
         Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
         foreach (var texturedTriangles in texturedTriangleSets)
