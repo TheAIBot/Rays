@@ -9,25 +9,20 @@
 @inject IJSRuntime jsRuntime
 @implements IAsyncDisposable
 
-
-<BECanvas Width="@(_CanvasSize.X)" Height="@(_CanvasSize.Y)" @ref="CanvasReference"></BECanvas>
-<img id="image" />
+<img id="image" width="@(_CanvasSize.X * 3)" height="@(_CanvasSize.Y * 3)" />
 
 @code {
     private readonly Point _CanvasSize = new Point(300, 400);
     private readonly CancellationTokenSource _cancellationTokenSource = new();
     private Task? _renderTask;
 
-    [AllowNull]
-    protected BECanvasComponent CanvasReference;
     [Inject]
     private I3DSceneFactory sceneFactory { get; set; } = default!;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            var canvas = await CanvasReference.CreateCanvas2DAsync();
             var drawer = new BrowserImageDrawer(_CanvasSize, jsRuntime);
             I3DScene scene = sceneFactory.Create(drawer);
 
@@ -36,7 +31,7 @@
                 var watch = new Stopwatch();
                 try
                 {
-                    scene.Camera.Position = new Vector3(1000, 1000, 1000);
+                    scene.Camera.Position = new Vector3(500, 500, 500);
                     scene.Camera.Direction = Vector3.Normalize(-scene.Camera.Position);
                     using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(50));
                     while (await timer.WaitForNextTickAsync(_cancellationTokenSource.Token))
@@ -54,6 +49,8 @@
                 }
             }, TaskCreationOptions.LongRunning);
         }
+
+        return base.OnAfterRenderAsync(firstRender);
     }
 
     public async ValueTask DisposeAsync()
