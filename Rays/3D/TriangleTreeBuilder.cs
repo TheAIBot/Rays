@@ -115,22 +115,6 @@ public static class TriangleTreeBuilder
         return new AxisAlignedBox(GetMinPoint(texturedTriangleSets), GetMaxPoint(texturedTriangleSets));
     }
 
-    private static Vector3 GetMaxPoint(ISubDividableTriangleSet[] texturedTriangleSets)
-    {
-        Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
-        foreach (var texturedTriangles in texturedTriangleSets)
-        {
-            foreach (var triangle in texturedTriangles.Triangles)
-            {
-                max = Vector3.Max(max, triangle.CornerA);
-                max = Vector3.Max(max, triangle.CornerB);
-                max = Vector3.Max(max, triangle.CornerC);
-            }
-        }
-
-        return max;
-    }
-
     private static Vector3 GetMinPoint(ISubDividableTriangleSet[] texturedTriangleSets)
     {
         Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
@@ -147,13 +131,33 @@ public static class TriangleTreeBuilder
         return min;
     }
 
+    private static Vector3 GetMaxPoint(ISubDividableTriangleSet[] texturedTriangleSets)
+    {
+        Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+        foreach (var texturedTriangles in texturedTriangleSets)
+        {
+            foreach (var triangle in texturedTriangles.Triangles)
+            {
+                max = Vector3.Max(max, triangle.CornerA);
+                max = Vector3.Max(max, triangle.CornerB);
+                max = Vector3.Max(max, triangle.CornerC);
+            }
+        }
+
+        return max;
+    }
+
     private static AxisAlignedBox[] Get8SubBoxes(AxisAlignedBox box)
     {
         static AxisAlignedBox CreateBox(Vector3 minPosition, Vector3 boxSize, int x, int y, int z)
         {
+            // There is rare cases of 8 sub boxes not covering the entire area that the
+            // large box did because of floating point error which is why the boxes will
+            // overlap slightly.
+            Vector3 smallOverlap = new Vector3(0.00001f);
             var axisMove = new Vector3(x, y, z);
             var boxMinPosition = minPosition + axisMove * boxSize;
-            return new AxisAlignedBox(boxMinPosition, boxMinPosition + boxSize);
+            return new AxisAlignedBox(boxMinPosition - smallOverlap, boxMinPosition + boxSize + smallOverlap);
         }
 
         Vector3 halfSize = Vector3.Abs((box.MaxPosition - box.MinPosition) * 0.5f);
