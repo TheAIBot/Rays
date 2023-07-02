@@ -25,8 +25,30 @@ public readonly record struct AxisAlignedBox(Vector3 MinPosition, Vector3 MaxPos
         return tNear <= tFar && tFar >= 0;
     }
 
+    public bool CollidesWith(Triangle triangle)
+    {
+        if (CollidesWith(triangle.CornerA) ||
+            CollidesWith(triangle.CornerB) ||
+            CollidesWith(triangle.CornerC))
+        {
+            return true;
+        }
+
+        return Intersects(triangle);
+    }
+
+    private bool CollidesWith(Vector3 point)
+    {
+        return MinPosition.X <= point.X &&
+               MinPosition.Y <= point.Y &&
+               MinPosition.Z <= point.Z &&
+               MaxPosition.X >= point.X &&
+               MaxPosition.Y >= point.Y &&
+               MaxPosition.Z >= point.Z;
+    }
+
     //https://gist.github.com/StagPoint/76ae48f5d7ca2f9820748d08e55c9806
-    public bool Intersects(Triangle triangle)
+    private bool Intersects(Triangle triangle)
     {
         // From the book "Real-Time Collision Detection" by Christer Ericson, page 169
         // See also the published Errata at http://realtimecollisiondetection.net/books/rtcd/errata/

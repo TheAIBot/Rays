@@ -13,6 +13,7 @@ public static class TriangleTreeBuilder
         Node root = new Node(rootBox, texturedTriangleSets, new List<Node>());
         Stack<Node> nodesToGoThrough = new Stack<Node>();
         nodesToGoThrough.Push(root);
+
         while (nodesToGoThrough.Count > 0)
         {
             Node node = nodesToGoThrough.Pop();
@@ -24,7 +25,7 @@ public static class TriangleTreeBuilder
             foreach (var childBox in Get8SubBoxes(node.BoundingBox))
             {
                 ISubDividableTriangleSet[] childTexturedTriangleSet = node.TexturedTriangleSets
-                                                                    .Select(x => x.SubCopy(y => childBox.Intersects(y)))
+                                                                    .Select(x => x.SubCopy(y => childBox.CollidesWith(y)))
                                                                     .Where(x => x.Triangles.Length > 0)
                                                                     .ToArray();
                 if (childTexturedTriangleSet.Sum(x => x.Triangles.Length) == 0)
