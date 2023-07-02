@@ -9,10 +9,10 @@
 @inject IJSRuntime jsRuntime
 @implements IAsyncDisposable
 
-<img id="image" width="@(_CanvasSize.X * 3)" height="@(_CanvasSize.Y * 3)" />
+<img id="image" width="@(_CanvasSize.X)" height="@(_CanvasSize.Y)" />
 
 @code {
-    private readonly Point _CanvasSize = new Point(300, 400);
+    private readonly Point _CanvasSize = new Point(900, 1200);
     private readonly CancellationTokenSource _cancellationTokenSource = new();
     private Task? _renderTask;
 
