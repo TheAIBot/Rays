@@ -4,6 +4,8 @@ namespace Rays._3D;
 
 public static class TriangleTreeBuilder
 {
+    internal const int MaxChildCount = 8;
+
     public static TriangleTree Create(ISubDividableTriangleSet[] texturedTriangleSets)
     {
         const int maxTrianglesPerLeaf = 100;

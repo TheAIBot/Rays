@@ -27,6 +27,7 @@ public sealed class TriangleTree : ITriangleSetIntersector
 
         var nodesToCheck = new Stack<Node>();
         nodesToCheck.Push(_nodes[0]);
+        Span<NodeScore> maxNodeScores = stackalloc NodeScore[TriangleTreeBuilder.MaxChildCount];
         while (nodesToCheck.Count > 0)
         {
             Node node = nodesToCheck.Pop();
@@ -40,18 +41,26 @@ public sealed class TriangleTree : ITriangleSetIntersector
                 continue;
             }
 
-            var nodeScores = new List<NodeScore>();
+
             var nodeChildren = node.Children.GetAsSpan(_nodes);
+            int nodeScoreCount = 0;
             for (int i = 0; i < nodeChildren.Length; i++)
             {
                 Node child = nodeChildren[i];
                 if (child.BoundingBox.Intersects(optimizedRayBoxIntersection))
                 {
-                    nodeScores.Add(new NodeScore(i, Vector4.DistanceSquared(rayTriangleOptimizedIntersection.Start, new Vector4(child.BoundingBox.Center, 0))));
+                    maxNodeScores[nodeScoreCount++] = new NodeScore(i, Vector4.DistanceSquared(rayTriangleOptimizedIntersection.Start, new Vector4(child.BoundingBox.Center, 0)));
                 }
             }
 
-            foreach (var nodeScore in nodeScores.OrderBy(x => x.Distance))
+            if (nodeScoreCount == 0)
+            {
+                continue;
+            }
+
+            Span<NodeScore> nodeScores = maxNodeScores.Slice(0, nodeScoreCount);
+            nodeScores.Sort();
+            foreach (var nodeScore in nodeScores)
             {
                 nodesToCheck.Push(nodeChildren[nodeScore.Index]);
             }
@@ -85,7 +94,13 @@ public sealed class TriangleTree : ITriangleSetIntersector
         return bestDistance != float.MaxValue;
     }
 
-    private readonly record struct NodeScore(int Index, float Distance);
+    private readonly record struct NodeScore(int Index, float Distance) : IComparable<NodeScore>
+    {
+        public int CompareTo(NodeScore other)
+        {
+            return Distance.CompareTo(other.Distance);
+        }
+    }
 
     public readonly record struct Node(AxisAlignedBox BoundingBox, SpanRange Children, int TexturedTrianglesIndex);
 
