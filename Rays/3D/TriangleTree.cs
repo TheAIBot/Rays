@@ -25,6 +25,9 @@ public sealed class TriangleTree : ITriangleSetIntersector
     {
         var optimizedRayBoxIntersection = new RayAxisAlignBoxOptimizedIntersection(rayTriangleOptimizedIntersection);
 
+        float bestDistance = float.MaxValue;
+        triangleIntersection = default;
+
         var nodesToCheck = new Stack<Node>();
         nodesToCheck.Push(_nodes[0]);
         Span<NodeScore> maxNodeScores = stackalloc NodeScore[TriangleTreeBuilder.MaxChildCount];
@@ -33,11 +36,19 @@ public sealed class TriangleTree : ITriangleSetIntersector
             Node node = nodesToCheck.Pop();
             if (node.TexturedTrianglesIndex != -1)
             {
-                if (TryGetIntersectionWithTriangles(rayTriangleOptimizedIntersection, _nodeTexturedTriangles[node.TexturedTrianglesIndex], out triangleIntersection))
+                if (TryGetIntersectionWithTriangles(rayTriangleOptimizedIntersection, _nodeTexturedTriangles[node.TexturedTrianglesIndex], out var intersection))
                 {
-                    return true;
+                    float distance = Vector4.DistanceSquared(rayTriangleOptimizedIntersection.Start, intersection.intersection.GetIntersection(rayTriangleOptimizedIntersection));
+                    if (distance > bestDistance)
+                    {
+                        continue;
+                    }
+
+                    bestDistance = distance;
+                    triangleIntersection = intersection;
                 }
 
+                // A node either contains leaf nodes or triangles, never both.
                 continue;
             }
 
@@ -66,8 +77,7 @@ public sealed class TriangleTree : ITriangleSetIntersector
             }
         }
 
-        triangleIntersection = default;
-        return false;
+        return bestDistance != float.MaxValue;
     }
 
     private bool TryGetIntersectionWithTriangles(RayTriangleOptimizedIntersection rayTriangleOptimizedIntersection, ITriangleSetIntersector[] texturedTriangleSets, out (TriangleIntersection intersection, Color color) intersection)
