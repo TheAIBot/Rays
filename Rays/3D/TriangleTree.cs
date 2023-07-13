@@ -34,7 +34,7 @@ public sealed class TriangleTree : ITriangleSetIntersector
         while (nodesToCheck.Count > 0)
         {
             Node node = nodesToCheck.Pop();
-            if (node.TexturedTrianglesIndex != -1)
+            if (node.ContainsTriangles)
             {
                 if (TryGetIntersectionWithTriangles(rayTriangleOptimizedIntersection, _nodeTexturedTriangles[node.TexturedTrianglesIndex], out var intersection))
                 {
@@ -48,7 +48,7 @@ public sealed class TriangleTree : ITriangleSetIntersector
                     triangleIntersection = intersection;
                 }
 
-                // A node either contains leaf nodes or triangles, never both.
+                // A node either contain nodes or triangles, never both.
                 continue;
             }
 
@@ -112,7 +112,10 @@ public sealed class TriangleTree : ITriangleSetIntersector
         }
     }
 
-    public readonly record struct Node(AxisAlignedBox BoundingBox, SpanRange Children, int TexturedTrianglesIndex);
+    public readonly record struct Node(AxisAlignedBox BoundingBox, SpanRange Children, int TexturedTrianglesIndex)
+    {
+        public bool ContainsTriangles => TexturedTrianglesIndex != -1;
+    }
 
     public readonly record struct SpanRange(int Index, int Length)
     {

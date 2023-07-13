@@ -28,16 +28,21 @@ public readonly record struct Triangle(Vector3 CornerA, Vector3 CornerB, Vector3
         Vector128<float> E2 = c - a;
         Vector128<float> N = Cross(E1, E2);
         float det = (-Sse41.DotProduct(rayDirection, N, 0b0111_0111)).GetElement(0);
-        float invdet = 1.0f / det;
+        if (det < 1e-6f)
+        {
+            intersection = default;
+            return false;
+        }
+
+        float inversedet = 1.0f / det;
         Vector128<float> AO = Sse.Subtract(rayStart, a);
         Vector128<float> DAO = Cross(AO, rayDirection);
-        float u = (Sse41.DotProduct(E2, DAO, 0b0111_0111).GetElement(0)) * invdet;
-        float v = -(Sse41.DotProduct(E1, DAO, 0b0111_0111).GetElement(0)) * invdet;
-        float t = (Sse41.DotProduct(AO, N, 0b0111_0111).GetElement(0)) * invdet;
+        float u = (Sse41.DotProduct(E2, DAO, 0b0111_0111).GetElement(0)) * inversedet;
+        float v = -(Sse41.DotProduct(E1, DAO, 0b0111_0111).GetElement(0)) * inversedet;
+        float t = (Sse41.DotProduct(AO, N, 0b0111_0111).GetElement(0)) * inversedet;
 
         intersection = new TriangleIntersection(t, u, v);
-        return (float.Abs(det) >= 1e-6f && // changed to float.Abs(det) since det did not work
-                t >= 0.0f &&
+        return (t >= 0.0f &&
                 u >= 0.0f &&
                 v >= 0.0f &&
                 (u + v) <= 1.0f);
@@ -52,6 +57,12 @@ public readonly record struct Triangle(Vector3 CornerA, Vector3 CornerB, Vector3
         Vector3 E2 = CornerC - CornerA;
         Vector3 N = Vector3.Cross(E1, E2);
         float det = -Vector3.Dot(rayDirection, N);
+        if (det < 1e-6f)
+        {
+            intersection = default;
+            return false;
+        }
+
         float invdet = 1.0f / det;
         Vector3 AO = rayStart - CornerA;
         Vector3 DAO = Vector3.Cross(AO, rayDirection);
@@ -60,8 +71,7 @@ public readonly record struct Triangle(Vector3 CornerA, Vector3 CornerB, Vector3
         float t = Vector3.Dot(AO, N) * invdet;
 
         intersection = new TriangleIntersection(t, u, v);
-        return (float.Abs(det) >= 1e-6f && // changed to float.Abs(det) since det did not work
-                t >= 0.0 &&
+        return (t >= 0.0 &&
                 u >= 0.0 &&
                 v >= 0.0 &&
                 (u + v) <= 1.0);
