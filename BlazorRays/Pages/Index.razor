@@ -11,20 +11,22 @@
 
 <img id="image" width="@(_CanvasSize.X)" height="@(_CanvasSize.Y)" />
 
+
+
 @code {
     private readonly Point _CanvasSize = new Point(900, 1200);
     private readonly CancellationTokenSource _cancellationTokenSource = new();
     private Task? _renderTask;
 
-    [Inject]
-    private I3DSceneFactory sceneFactory { get; set; } = default!;
+    [Parameter]
+    public SceneSettings SceneSettings { get; set; } = default!;
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             var drawer = new BrowserImageDrawer(_CanvasSize, jsRuntime);
-            I3DScene scene = sceneFactory.Create(drawer);
+            I3DScene scene = SceneSettings.SceneFactory.Create(SceneSettings.TriangleSetIntersectorFactory.Create(SceneSettings.GeometryModel.ModelFileName), drawer);
 
             _renderTask = Task.Factory.StartNew(async () =>
             {
@@ -37,10 +39,14 @@
                     while (await timer.WaitForNextTickAsync(_cancellationTokenSource.Token))
                     {
                         watch.Restart();
-                        await scene.RenderAsync();
+                        await scene.RenderAsync(_cancellationTokenSource.Token);
                         watch.Stop();
                         Console.WriteLine($"Time: {watch.ElapsedMilliseconds:N2}");
                     }
+                }
+                catch (TaskCanceledException)
+                {
+                    Console.WriteLine("Ended renderer");
                 }
                 catch (Exception e)
                 {

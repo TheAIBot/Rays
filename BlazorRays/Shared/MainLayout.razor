@@ -1,10 +1,11 @@
-﻿@inherits LayoutComponentBase
+﻿@using Rays.Scenes;
+@inherits LayoutComponentBase
 
 <PageTitle>BlazorRays</PageTitle>
 
 <div class="page">
     <div class="sidebar">
-        <NavMenu />
+        <NavMenu OnNewGeometryModelSelected="GeometryModelChanged" />
     </div>
 
     <main>
@@ -13,7 +14,105 @@
         </div>
 
         <article class="content px-4">
-            @Body
+            <InputRadioGroup @bind-Value="_triangleSetIntersectorFactoryName">
+                @foreach (var triangleSetIntersectorFactory in _triangleSetIntersectorFactories)
+                {
+                    <label>
+                        <InputRadio Value="@(triangleSetIntersectorFactory.IntersectionTypeName)" />
+                        <text>&nbsp;</text>@triangleSetIntersectorFactory.IntersectionTypeName
+                    </label>
+                }
+            </InputRadioGroup>
+
+            <InputRadioGroup @bind-Value="_sceneFactoryName">
+                @foreach (var sceneFactory in _sceneFactories)
+                {
+                    <label>
+                        <InputRadio Value="@(sceneFactory.DisplayName)" />
+                        <text>&nbsp;</text>@sceneFactory.DisplayName
+                    </label>
+                }
+            </InputRadioGroup>
+
+            @if (_sceneSettings != null)
+            {
+                <BlazorRays.Pages.Index @key=_sceneSettings SceneSettings="_sceneSettings"></BlazorRays.Pages.Index>
+            }
         </article>
     </main>
 </div>
+
+@code {
+    private SceneSettings? _sceneSettings = null;
+    private GeometryObjectModelFile? _geometryObjectModelFile = default!;
+
+    [Inject]
+    private IEnumerable<ITriangleSetIntersectorFromGeometryObject> _triangleSetIntersectorFactories { get; set; } = default!;
+    private ITriangleSetIntersectorFromGeometryObject? _triangleSetIntersectorFactory { get; set; } = default!;
+    private string _triangleSetIntersectorFactoryName 
+    { 
+        get
+        {
+            return _triangleSetIntersectorFactory?.IntersectionTypeName ?? throw new NullReferenceException();
+        } 
+        set
+        {
+            _triangleSetIntersectorFactory = _triangleSetIntersectorFactories.Single(x => x.IntersectionTypeName == value);
+            if (TryCreateSceneSettings())
+            {
+                StateHasChanged();
+            }
+        }
+    }
+
+    [Inject]
+    private IEnumerable<I3DSceneGeometryObjectFactory> _sceneFactories { get; set; } = default!;
+    private I3DSceneGeometryObjectFactory? _sceneFactory { get; set; } = default!;
+    private string _sceneFactoryName
+    {
+        get
+        {
+            return _sceneFactory?.DisplayName ?? throw new NullReferenceException();
+        }
+        set
+        {
+            _sceneFactory = _sceneFactories.Single(x => x.DisplayName == value);
+            if (TryCreateSceneSettings())
+            {
+                StateHasChanged();
+            }
+        }
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        _triangleSetIntersectorFactoryName = _triangleSetIntersectorFactories.First().IntersectionTypeName;
+        _sceneFactoryName = _sceneFactories.First().DisplayName;
+
+        return base.OnParametersSetAsync();
+    }
+
+    private Task GeometryModelChanged(GeometryObjectModelFile geometryObjectModelFile)
+    {
+        _geometryObjectModelFile = geometryObjectModelFile;
+        if (TryCreateSceneSettings())
+        {
+            StateHasChanged();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private bool TryCreateSceneSettings()
+    {
+        if (_geometryObjectModelFile == null ||
+            _triangleSetIntersectorFactory == null ||
+            _sceneFactory == null)
+        {
+            return false;
+        }
+
+        _sceneSettings = new SceneSettings(_geometryObjectModelFile, _triangleSetIntersectorFactory, _sceneFactory);
+        return true;
+    }
+}

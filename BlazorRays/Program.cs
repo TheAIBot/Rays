@@ -1,45 +1,63 @@
 using Rays.Scenes;
 using System.Reflection;
 
-namespace Company.WebApplication1
+namespace BlazorRays;
+
+public class Program
 {
-    public class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
+        var builder = WebApplication.CreateBuilder(args);
+
+        // Add services to the container.
+        builder.Services.AddRazorPages();
+        builder.Services.AddServerSideBlazor();
+        builder.Services.Add3DRayTracerSceneServices();
+        builder.Services.AddSingleton<SceneSettings>();
+        foreach (var model in Directory.GetFiles(GetModelsFolderPath()))
         {
-            var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-            builder.Services.AddRazorPages();
-            builder.Services.AddServerSideBlazor();
-            builder.Services.AddSingleton<I3DSceneFactory>(_ => new RayTraceGeometryObjectFactory(GetModelPath("Airplane.zip")));
-
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            if (!app.Environment.IsDevelopment())
-            {
-                app.UseExceptionHandler("/Error");
-            }
-
-
-            app.UseStaticFiles();
-
-            app.UseRouting();
-
-            app.MapBlazorHub();
-            app.MapFallbackToPage("/_Host");
-
-            app.Run();
+            builder.Services.AddSingleton(new GeometryObjectModelFile(model));
         }
 
-        private static string GetModelPath(string modelFileName)
-        {
-            string executingFile = Assembly.GetExecutingAssembly().Location;
-            string executingDirectory = Path.GetDirectoryName(executingFile)!;
-            string modelsFolder = Path.Combine(executingDirectory, "Models");
+        var app = builder.Build();
 
-            return Path.Combine(modelsFolder, modelFileName);
+        // Configure the HTTP request pipeline.
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseExceptionHandler("/Error");
         }
+
+
+        app.UseStaticFiles();
+
+        app.UseRouting();
+
+        app.MapBlazorHub();
+        app.MapFallbackToPage("/_Host");
+
+        app.Run();
+    }
+
+    private static string GetModelPath(string modelFileName)
+    {
+        string executingFile = Assembly.GetExecutingAssembly().Location;
+        string executingDirectory = Path.GetDirectoryName(executingFile)!;
+        string modelsFolder = Path.Combine(executingDirectory, "Models");
+
+        return Path.Combine(modelsFolder, modelFileName);
+    }
+
+    private static string GetModelsFolderPath()
+    {
+        string executingFile = Assembly.GetExecutingAssembly().Location;
+        string executingDirectory = Path.GetDirectoryName(executingFile)!;
+        return Path.Combine(executingDirectory, "Models");
     }
 }
+
+public sealed record GeometryObjectModelFile(string ModelFileName)
+{
+    public string CleanFileName => Path.GetFileNameWithoutExtension(ModelFileName);
+}
+
+public sealed record SceneSettings(GeometryObjectModelFile GeometryModel, ITriangleSetIntersectorFromGeometryObject TriangleSetIntersectorFactory, I3DSceneGeometryObjectFactory SceneFactory);

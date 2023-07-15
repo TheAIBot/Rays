@@ -5,18 +5,11 @@ using System.Numerics;
 
 namespace Rays.Scenes;
 
-public sealed class RayTraceGeometryObjectFactory : I3DSceneFactory
+public sealed class TriangleSetsFromGeometryObject
 {
-    private readonly string _zippedGeometryFilePath;
-
-    public RayTraceGeometryObjectFactory(string zippedGeometryFilePath)
+    public ISubDividableTriangleSet[] Load(string zippedGeometryFilePath)
     {
-        _zippedGeometryFilePath = zippedGeometryFilePath;
-    }
-
-    public I3DScene Create(IPolygonDrawer polygonDrawer)
-    {
-        string geometryFolderPath = UnZipFileToDirectory(_zippedGeometryFilePath);
+        string geometryFolderPath = UnZipFileToDirectory(zippedGeometryFilePath);
         GeometryObject geometryObject = LoadGeometryObject(geometryFolderPath);
 
         var texturedTriangles = new List<ISubDividableTriangleSet>();
@@ -47,8 +40,7 @@ public sealed class RayTraceGeometryObjectFactory : I3DSceneFactory
             texturedTriangles.Add(new TexturedTriangles(triangles, triangleTextureCoordinates, texture));
         }
 
-        var camera = new Camera(new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 0, -1), 90.0f, (float)polygonDrawer.Size.X / polygonDrawer.Size.Y);
-        return new RayTracer(camera, polygonDrawer, TriangleTreeBuilder.Create(texturedTriangles.ToArray()));
+        return texturedTriangles.ToArray();
     }
 
     private static string UnZipFileToDirectory(string zipFilePath)

@@ -16,12 +16,13 @@ internal sealed class RayTracer : I3DScene
         _triangleSetIntersector = triangleSetIntersector;
     }
 
-    public async Task RenderAsync()
+    public async Task RenderAsync(CancellationToken cancellationToken)
     {
         await _polygonDrawer.ClearAsync();
         RayTraceViewPort rayTraceViewPort = Camera.GetRayTraceViewPort(_polygonDrawer.Size);
         var parallel = new ActionBlock<Point>(position => RaySetPixelColor(rayTraceViewPort, position), new ExecutionDataflowBlockOptions()
         {
+            CancellationToken = cancellationToken,
             MaxDegreeOfParallelism = Math.Max(1, Environment.ProcessorCount - 1)
         });
 
@@ -29,7 +30,7 @@ internal sealed class RayTracer : I3DScene
         {
             for (int x = 0; x < _polygonDrawer.Size.X; x++)
             {
-                await parallel.SendAsync(new Point(x, y));
+                await parallel.SendAsync(new Point(x, y), cancellationToken);
             }
         }
 

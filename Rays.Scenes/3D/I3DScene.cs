@@ -4,5 +4,5 @@ public interface I3DScene
 {
     Camera Camera { get; }
 
-    Task RenderAsync();
+    Task RenderAsync(CancellationToken cancellationToken);
 }
