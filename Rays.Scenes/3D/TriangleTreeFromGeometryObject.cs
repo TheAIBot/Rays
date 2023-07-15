@@ -6,8 +6,6 @@ public sealed class TriangleTreeFromGeometryObject : ITriangleSetIntersectorFrom
 {
     private readonly TriangleSetsFromGeometryObject _triangleSetsFromObject;
 
-    public string IntersectionTypeName => "Triangle Tree";
-
     public TriangleTreeFromGeometryObject(TriangleSetsFromGeometryObject triangleSetsFromObject)
     {
         _triangleSetsFromObject = triangleSetsFromObject;

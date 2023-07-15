@@ -6,8 +6,6 @@ public sealed class RayTracerFromGeometryObjectFactory : I3DSceneGeometryObjectF
 {
     private readonly CameraFactory _cameraFactory;
 
-    public string DisplayName => "Default";
-
     public RayTracerFromGeometryObjectFactory(CameraFactory cameraFactory)
     {
         _cameraFactory = cameraFactory;

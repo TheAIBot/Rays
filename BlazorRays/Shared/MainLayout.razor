@@ -21,8 +21,8 @@
                         @foreach (var triangleSetIntersectorFactory in _triangleSetIntersectorFactories)
                         {
                             <label>
-                                <InputRadio Value="@(triangleSetIntersectorFactory.IntersectionTypeName)" />
-                                <text>&nbsp;</text>@triangleSetIntersectorFactory.IntersectionTypeName
+                                <InputRadio Value="@(triangleSetIntersectorFactory.DisplayName)" />
+                                <text>&nbsp;</text>@triangleSetIntersectorFactory.DisplayName
                             </label>
                         }
                     </InputRadioGroup>
@@ -55,17 +55,17 @@
     private GeometryObjectModelFile? _geometryObjectModelFile = default!;
 
     [Inject]
-    private IEnumerable<ITriangleSetIntersectorFromGeometryObject> _triangleSetIntersectorFactories { get; set; } = default!;
-    private ITriangleSetIntersectorFromGeometryObject? _triangleSetIntersectorFactory { get; set; } = default!;
+    private IEnumerable<DisplayableOption<ITriangleSetIntersectorFromGeometryObject>> _triangleSetIntersectorFactories { get; set; } = default!;
+    private DisplayableOption<ITriangleSetIntersectorFromGeometryObject>? _triangleSetIntersectorFactory { get; set; } = default!;
     private string _triangleSetIntersectorFactoryName 
     { 
         get
         {
-            return _triangleSetIntersectorFactory?.IntersectionTypeName ?? throw new NullReferenceException();
+            return _triangleSetIntersectorFactory?.DisplayName ?? throw new NullReferenceException();
         } 
         set
         {
-            _triangleSetIntersectorFactory = _triangleSetIntersectorFactories.Single(x => x.IntersectionTypeName == value);
+            _triangleSetIntersectorFactory = _triangleSetIntersectorFactories.Single(x => x.DisplayName == value);
             if (TryCreateSceneSettings())
             {
                 StateHasChanged();
@@ -74,8 +74,8 @@
     }
 
     [Inject]
-    private IEnumerable<I3DSceneGeometryObjectFactory> _sceneFactories { get; set; } = default!;
-    private I3DSceneGeometryObjectFactory? _sceneFactory { get; set; } = default!;
+    private IEnumerable<DisplayableOption<I3DSceneGeometryObjectFactory>> _sceneFactories { get; set; } = default!;
+    private DisplayableOption<I3DSceneGeometryObjectFactory>? _sceneFactory { get; set; } = default!;
     private string _sceneFactoryName
     {
         get
@@ -94,8 +94,8 @@
 
     protected override Task OnParametersSetAsync()
     {
-        _triangleSetIntersectorFactoryName = _triangleSetIntersectorFactories.First().IntersectionTypeName;
-        _sceneFactoryName = _sceneFactories.First().DisplayName;
+        _triangleSetIntersectorFactoryName = _triangleSetIntersectorFactories.Single(x => x.IsDefault).DisplayName;
+        _sceneFactoryName = _sceneFactories.Single(x => x.IsDefault).DisplayName;
 
         return base.OnParametersSetAsync();
     }
@@ -120,7 +120,7 @@
             return false;
         }
 
-        _sceneSettings = new SceneSettings(_geometryObjectModelFile, _triangleSetIntersectorFactory, _sceneFactory);
+        _sceneSettings = new SceneSettings(_geometryObjectModelFile, _triangleSetIntersectorFactory.Value, _sceneFactory.Value);
         return true;
     }
 }

@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace BlazorRays;
 
-public class Program
+public static class Program
 {
     public static void Main(string[] args)
     {
@@ -12,8 +12,14 @@ public class Program
         // Add services to the container.
         builder.Services.AddRazorPages();
         builder.Services.AddServerSideBlazor();
-        builder.Services.Add3DRayTracerSceneServices();
-        builder.Services.AddSingleton<SceneSettings>();
+
+        builder.Services.AddSingleton<CameraFactory>();
+        builder.Services.AddSingleton<TriangleSetsFromGeometryObject>();
+        builder.Services.AddDisplayableOption<ITriangleSetIntersectorFromGeometryObject, TriangleTreeFromGeometryObject>("Triangle Tree", true);
+        builder.Services.AddDisplayableOption<ITriangleSetIntersectorFromGeometryObject, TriangleListFromGeometryObject>("Triangle List", false);
+        builder.Services.AddDisplayableOption<I3DSceneGeometryObjectFactory, RayTracerFromGeometryObjectFactory>("Default", true);
+        builder.Services.AddDisplayableOption<I3DSceneGeometryObjectFactory, DisplayDepthRayTracerFromGeometryObjectFactory>("Depth", false);
+
         foreach (var model in Directory.GetFiles(GetModelsFolderPath()))
         {
             builder.Services.AddSingleton(new GeometryObjectModelFile(model));
@@ -53,7 +59,16 @@ public class Program
         string executingDirectory = Path.GetDirectoryName(executingFile)!;
         return Path.Combine(executingDirectory, "Models");
     }
+
+    private static void AddDisplayableOption<TInterface, TImplementation>(this IServiceCollection services, string displayName, bool isDefault)
+        where TImplementation : class, TInterface
+    {
+        services.AddSingleton<TImplementation>();
+        services.AddSingleton(x => new DisplayableOption<TInterface>(x.GetRequiredService<TImplementation>(), displayName, isDefault));
+    }
 }
+
+public sealed record DisplayableOption<T>(T Value, string DisplayName, bool IsDefault);
 
 public sealed record GeometryObjectModelFile(string ModelFileName)
 {

@@ -6,8 +6,6 @@ public sealed class DisplayDepthRayTracerFromGeometryObjectFactory : I3DSceneGeo
 {
     private readonly CameraFactory _cameraFactory;
 
-    public string DisplayName => "Depth";
-
     public DisplayDepthRayTracerFromGeometryObjectFactory(CameraFactory cameraFactory)
     {
         _cameraFactory = cameraFactory;
