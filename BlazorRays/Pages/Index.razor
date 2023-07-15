@@ -138,7 +138,7 @@
 
             // rotate the camera direction and up direction
             _scene.Camera.Direction = Vector3.Normalize(Vector3.Transform(_scene.Camera.Direction, rotation));
-            _scene.Camera.UpDirection = Vector3.Normalize(Vector3.Transform(_scene.Camera.UpDirection, rotation));
+            // _scene.Camera.UpDirection = Vector3.Normalize(Vector3.Transform(_scene.Camera.UpDirection, rotation));
 
             // reset the initial mouse position for the next frame
             _initialMousePosition = currentMousePosition;
