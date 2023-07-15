@@ -50,11 +50,13 @@ public sealed class TexturedTriangles : ISubDividableTriangleSet
     private Color GetTriangleIntersectionTextureColor(int triangleIndex, TriangleIntersection triangleIntersection)
     {
         var triangleTextureCoordinates = _textureTriangles[triangleIndex];
-        Vector3 interpolatedTextureCoordinate = triangleIntersection.Interpolate(triangleTextureCoordinates.CornerA,
-                                                                                 triangleTextureCoordinates.CornerB,
-                                                                                 triangleTextureCoordinates.CornerC);
+        // Yeah so i don't know why but the textures are only correct if the texture points are provided in this weird order
+        Vector3 interpolatedTextureCoordinate = triangleIntersection.Interpolate(triangleTextureCoordinates.CornerB,
+                                                                                 triangleTextureCoordinates.CornerC,
+                                                                                 triangleTextureCoordinates.CornerA);
         int texturePositionX = (int)(interpolatedTextureCoordinate.X * _texture.Width);
-        int texturePositionY = (int)(interpolatedTextureCoordinate.Y * _texture.Height);
+        // I have no idea why i need to flip the y axis but the textures are otherwise inverted
+        int texturePositionY = (int)((1.0f - interpolatedTextureCoordinate.Y) * _texture.Height);
 
         Rgba32 textureColor = _texture[texturePositionX, texturePositionY];
         return new Color(textureColor.R, textureColor.G, textureColor.B, textureColor.A);
