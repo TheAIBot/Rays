@@ -9,24 +9,41 @@
 @inject IJSRuntime jsRuntime
 @implements IAsyncDisposable
 
-<img id="image" width="@(_CanvasSize.X)" height="@(_CanvasSize.Y)" />
-
-
+<div @ref="_divRef" @onkeydown="HandleKeyPress" 
+     style="width: 100vw; height: 100vh;" tabindex="0">
+    <img id="image"
+         class="no-drag"
+         @onpointerdown="StartDrag"
+         @onpointerup="EndDrag"
+         @onpointermove="Drag"
+         width="@(_CanvasSize.X)"
+         height="@(_CanvasSize.Y)" />
+</div>
 
 @code {
     private readonly Point _CanvasSize = new Point(900, 1200);
     private readonly CancellationTokenSource _cancellationTokenSource = new();
     private Task? _renderTask;
+    private I3DScene? _scene;
+
+    private ElementReference _divRef;
+    private float _step = 5;
+    private bool _dragging = false;
+    private Vector2 _initialMousePosition = new Vector2();
 
     [Parameter]
     public SceneSettings SceneSettings { get; set; } = default!;
 
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            await _divRef.FocusAsync();
+
             var drawer = new BrowserImageDrawer(_CanvasSize, jsRuntime);
             I3DScene scene = SceneSettings.SceneFactory.Create(SceneSettings.TriangleSetIntersectorFactory.Create(SceneSettings.GeometryModel.ModelFileName), drawer);
+            _scene = scene;
+            StateHasChanged();
 
             _renderTask = Task.Factory.StartNew(async () =>
             {
@@ -56,7 +73,75 @@
             }, TaskCreationOptions.LongRunning);
         }
 
-        return base.OnAfterRenderAsync(firstRender);
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (_scene == null)
+        {
+            return;
+        }
+
+        var rightDirection = Vector3.Cross(_scene.Camera.Direction, _scene.Camera.UpDirection);
+        switch (e.Key.ToLower())
+        {
+            case "w":
+                _scene.Camera.Position += _scene.Camera.Direction * _step;
+                break;
+            case "s":
+                _scene.Camera.Position -= _scene.Camera.Direction * _step;
+                break;
+            case "a":
+                _scene.Camera.Position -= rightDirection * _step;
+                break;
+            case "d":
+                _scene.Camera.Position += rightDirection * _step;
+                break;
+        }
+    }
+
+    private void StartDrag(PointerEventArgs e)
+    {
+        _dragging = true;
+        _initialMousePosition = new Vector2((float)e.ClientX, (float)e.ClientY);
+    }
+
+    private void EndDrag(PointerEventArgs e)
+    {
+        _dragging = false;
+    }
+
+    private void Drag(PointerEventArgs e)
+    {
+        if (_scene == null)
+        {
+            return;
+        }
+
+
+        if (_dragging)
+        {
+            Vector2 currentMousePosition = new Vector2((float)e.ClientX, (float)e.ClientY);
+            Vector2 mouseDelta = currentMousePosition - _initialMousePosition;
+
+            // scale factor for mouse sensitivity
+            float scale = 0.01f; // you may want to adjust this
+            mouseDelta *= scale;
+
+            // calculate rotation quaternions
+            var rightDirection = Vector3.Cross(_scene.Camera.Direction, _scene.Camera.UpDirection);
+            Quaternion pitchRotation = Quaternion.CreateFromAxisAngle(rightDirection, -mouseDelta.Y);
+            Quaternion yawRotation = Quaternion.CreateFromAxisAngle(_scene.Camera.UpDirection, mouseDelta.X);
+            Quaternion rotation = Quaternion.Multiply(pitchRotation, yawRotation);
+
+            // rotate the camera direction and up direction
+            _scene.Camera.Direction = Vector3.Normalize(Vector3.Transform(_scene.Camera.Direction, rotation));
+            _scene.Camera.UpDirection = Vector3.Normalize(Vector3.Transform(_scene.Camera.UpDirection, rotation));
+
+            // reset the initial mouse position for the next frame
+            _initialMousePosition = currentMousePosition;
+        }
     }
 
     public async ValueTask DisposeAsync()

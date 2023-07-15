@@ -39,7 +39,7 @@ public sealed class Camera
     public Camera(Vector3 position, Vector3 direction, Vector3 upDirection, float fieldOfView, float aspectRatio)
     {
         Position = position;
-        Direction = direction;
+        Direction = Vector3.Normalize(direction);
         UpDirection = upDirection;
         FieldOfView = fieldOfView;
         AspectRatio = aspectRatio;
