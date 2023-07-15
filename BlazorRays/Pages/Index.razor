@@ -12,7 +12,8 @@
 <div @ref="_divRef" @onkeydown="HandleKeyPress" 
      style="width: 100vw; height: 100vh;" tabindex="0">
     <img id="image"
-         class="no-drag"
+         draggable="false"
+         @ondragstart="@(e => Task.FromResult(false))"
          @onpointerdown="StartDrag"
          @onpointerup="EndDrag"
          @onpointermove="Drag"
@@ -40,7 +41,7 @@
         {
             await _divRef.FocusAsync();
 
-            var drawer = new BrowserImageDrawer(_CanvasSize, jsRuntime);
+            var drawer = new BrowserImageDrawer(_CanvasSize / 4, jsRuntime);
             I3DScene scene = SceneSettings.SceneFactory.Create(SceneSettings.TriangleSetIntersectorFactory.Create(SceneSettings.GeometryModel.ModelFileName), drawer);
             _scene = scene;
             StateHasChanged();

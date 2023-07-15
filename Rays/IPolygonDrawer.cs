@@ -22,4 +22,7 @@ public readonly record struct Color(byte Red, byte Green, byte Blue, byte Alpha)
     public Color(int red, int green, int blue, int alpha) : this((byte)red, (byte)green, (byte)blue, (byte)alpha) { }
 }
 
-public readonly record struct Point(int X, int Y);
+public readonly record struct Point(int X, int Y)
+{
+    public static Point operator /(Point p1, int divider) => new Point(p1.X / divider, p1.Y / divider);
+}
