@@ -35,6 +35,9 @@
     [Parameter]
     public SceneSettings SceneSettings { get; set; } = default!;
 
+    [Inject]
+    private ILogger<Index> _logger { get; set; } = default!;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -59,16 +62,17 @@
                         watch.Restart();
                         await scene.RenderAsync(_cancellationTokenSource.Token);
                         watch.Stop();
-                        Console.WriteLine($"Time: {watch.ElapsedMilliseconds:N2}");
+
+                        _logger.LogInformation($"Time: {watch.ElapsedMilliseconds:N2}");
                     }
                 }
                 catch (TaskCanceledException)
                 {
-                    Console.WriteLine("Ended renderer");
+                    _logger.LogInformation("Ended renderer");
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    _logger.LogError(e, "Unexpected error");
                     throw;
                 }
             }, TaskCreationOptions.LongRunning);
