@@ -44,15 +44,6 @@ public static class Program
         app.Run();
     }
 
-    private static string GetModelPath(string modelFileName)
-    {
-        string executingFile = Assembly.GetExecutingAssembly().Location;
-        string executingDirectory = Path.GetDirectoryName(executingFile)!;
-        string modelsFolder = Path.Combine(executingDirectory, "Models");
-
-        return Path.Combine(modelsFolder, modelFileName);
-    }
-
     private static string GetModelsFolderPath()
     {
         string executingFile = Assembly.GetExecutingAssembly().Location;
