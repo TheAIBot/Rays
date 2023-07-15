@@ -14,25 +14,33 @@
         </div>
 
         <article class="content px-4">
-            <InputRadioGroup @bind-Value="_triangleSetIntersectorFactoryName">
-                @foreach (var triangleSetIntersectorFactory in _triangleSetIntersectorFactories)
-                {
-                    <label>
-                        <InputRadio Value="@(triangleSetIntersectorFactory.IntersectionTypeName)" />
-                        <text>&nbsp;</text>@triangleSetIntersectorFactory.IntersectionTypeName
-                    </label>
-                }
-            </InputRadioGroup>
+            <div class="radio-button-container">
+                <div class="radio-group">
+                    <h3>Triangle Set Intersector</h3>
+                    <InputRadioGroup @bind-Value="_triangleSetIntersectorFactoryName">
+                        @foreach (var triangleSetIntersectorFactory in _triangleSetIntersectorFactories)
+                        {
+                            <label>
+                                <InputRadio Value="@(triangleSetIntersectorFactory.IntersectionTypeName)" />
+                                <text>&nbsp;</text>@triangleSetIntersectorFactory.IntersectionTypeName
+                            </label>
+                        }
+                    </InputRadioGroup>
+                </div>
 
-            <InputRadioGroup @bind-Value="_sceneFactoryName">
-                @foreach (var sceneFactory in _sceneFactories)
-                {
-                    <label>
-                        <InputRadio Value="@(sceneFactory.DisplayName)" />
-                        <text>&nbsp;</text>@sceneFactory.DisplayName
-                    </label>
-                }
-            </InputRadioGroup>
+                <div class="radio-group">
+                    <h3>Render Mode</h3>
+                    <InputRadioGroup @bind-Value="_sceneFactoryName">
+                        @foreach (var sceneFactory in _sceneFactories)
+                        {
+                            <label>
+                                <InputRadio Value="@(sceneFactory.DisplayName)" />
+                                <text>&nbsp;</text>@sceneFactory.DisplayName
+                            </label>
+                        }
+                    </InputRadioGroup>
+                </div>
+            </div>
 
             @if (_sceneSettings != null)
             {

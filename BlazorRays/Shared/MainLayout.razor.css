@@ -68,3 +68,32 @@ main {
         padding-right: 1.5rem !important;
     }
 }
+
+label {
+    display: block;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+label:hover {
+    background-color: #e9ecef;
+}
+
+.radio-button-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.radio-group {
+    flex-basis: 45%; /* change this to control the width of radio button lists */
+}
+
+.radio-group-title {
+    color: #333;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
