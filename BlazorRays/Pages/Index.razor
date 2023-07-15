@@ -6,7 +6,6 @@
 @using Rays.Polygons
 @using Rays.Scenes;
 @using System.Diagnostics;
-@inject IJSRuntime jsRuntime
 @implements IAsyncDisposable
 
 <div @ref="_divRef" @onkeydown="HandleKeyPress" 
@@ -38,16 +37,18 @@
     [Inject]
     private ILogger<Index> _logger { get; set; } = default!;
 
+    [Inject]
+    private IJSRuntime _jsRuntime { get; set; } = default!;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             await _divRef.FocusAsync();
 
-            var drawer = new BrowserImageDrawer(_CanvasSize / 4, jsRuntime);
+            var drawer = new BrowserImageDrawer(_CanvasSize / 4, _jsRuntime);
             I3DScene scene = SceneSettings.SceneFactory.Create(SceneSettings.TriangleSetIntersectorFactory.Create(SceneSettings.GeometryModel.ModelFileName), drawer);
             _scene = scene;
-            StateHasChanged();
 
             _renderTask = Task.Factory.StartNew(async () =>
             {
@@ -123,7 +124,6 @@
         {
             return;
         }
-
 
         if (_dragging)
         {
