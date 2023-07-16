@@ -133,7 +133,11 @@ public sealed class GeometryObjectBuilder
                         }
                         if (currentModelBuilder == null)
                         {
-                            throw new InvalidOperationException("Object group must be defined before setting material.");
+                            // Inject default model only if none were defined yet.
+                            // Apparently it is valid to not define a geometry object but
+                            // we store everything in geometry objects here which is why
+                            // a default is created for such cases.
+                            currentModelBuilder = objectBuilder.AddGeometryModel("__Default__");
                         }
                         if (!materials.TryGetValue(lineTokens.Current.ToString(), out Material? material))
                         {
