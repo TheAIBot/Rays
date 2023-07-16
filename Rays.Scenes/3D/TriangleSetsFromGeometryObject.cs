@@ -15,11 +15,10 @@ public sealed class TriangleSetsFromGeometryObject
         var texturedTriangles = new List<ISubDividableTriangleSet>();
         foreach (var geometryModel in geometryObject.GeometryModels)
         {
-            Triangle[] triangles = geometryModel.GetVerticesAsTriangles()
-                                                .Select(x => new Triangle(ToVector3(x.CornerA.Value), ToVector3(x.CornerB.Value), ToVector3(x.CornerC.Value)))
-                                                .ToArray();
-
-            if (geometryModel.Material.Diffusion.TextureMapFileName == null)
+            Triangle[] singleColorVertices = geometryModel.GetOneColorVertices()
+                                                          .Select(x => new Triangle(ToVector3(x.CornerA.Value), ToVector3(x.CornerB.Value), ToVector3(x.CornerC.Value)))
+                                                          .ToArray();
+            if (singleColorVertices.Length != 0)
             {
                 if (geometryModel.Material.Diffusion.Color == null)
                 {
@@ -29,7 +28,19 @@ public sealed class TriangleSetsFromGeometryObject
                 Vector3 color = new Vector3(geometryModel.Material.Diffusion.Color.Value.X * 255,
                                             geometryModel.Material.Diffusion.Color.Value.Y * 255,
                                             geometryModel.Material.Diffusion.Color.Value.Z * 255);
-                texturedTriangles.Add(new SimpleColoredTriangles(triangles, new Triangle(color, color, color)));
+                texturedTriangles.Add(new SimpleColoredTriangles(singleColorVertices, new Triangle(color, color, color)));
+            }
+
+            if (geometryModel.Material.Diffusion.TextureMapFileName == null)
+            {
+                continue;
+            }
+
+            Triangle[] texturedVertices = geometryModel.GetTexturedVertices()
+                                                       .Select(x => new Triangle(ToVector3(x.CornerA.Value), ToVector3(x.CornerB.Value), ToVector3(x.CornerC.Value)))
+                                                       .ToArray();
+            if (texturedVertices.Length == 0)
+            {
                 continue;
             }
 
@@ -37,7 +48,7 @@ public sealed class TriangleSetsFromGeometryObject
                                                                  .Select(x => new Triangle(x.CornerA.Coordinate, x.CornerB.Coordinate, x.CornerC.Coordinate))
                                                                  .ToArray();
             Image<Rgba32> texture = Image.Load<Rgba32>(geometryModel.Material.Diffusion.TextureMapFileName);
-            texturedTriangles.Add(new TexturedTriangles(triangles, triangleTextureCoordinates, texture));
+            texturedTriangles.Add(new TexturedTriangles(texturedVertices, triangleTextureCoordinates, texture));
         }
 
         return texturedTriangles.ToArray();

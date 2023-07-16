@@ -22,10 +22,25 @@ public sealed class GeometryModel : IEquatable<GeometryModel>
         this.geometryObject = geometryObject;
     }
 
-    public IEnumerable<Triangle<Vertex>> GetVerticesAsTriangles()
+    public IEnumerable<Triangle<Vertex>> GetOneColorVertices()
+    {
+        return GetVerticesAsTriangles(x => x.TextureCoordinateIndexes == null);
+    }
+
+    public IEnumerable<Triangle<Vertex>> GetTexturedVertices()
+    {
+        return GetVerticesAsTriangles(x => x.TextureCoordinateIndexes != null);
+    }
+
+    private IEnumerable<Triangle<Vertex>> GetVerticesAsTriangles(Func<Face, bool> condition)
     {
         foreach (var face in Faces)
         {
+            if (!condition(face))
+            {
+                continue;
+            }
+
             int index1 = face.VertexIndexes[0] - 1;
             Vertex value1 = geometryObject.Vertices[index1];
 
@@ -48,7 +63,7 @@ public sealed class GeometryModel : IEquatable<GeometryModel>
         {
             if (face.TextureCoordinateIndexes == null)
             {
-                throw new InvalidOperationException();
+                continue;
             }
 
             int index1 = face.TextureCoordinateIndexes[0] - 1;
