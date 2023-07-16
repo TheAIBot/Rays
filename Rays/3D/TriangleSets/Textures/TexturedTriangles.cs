@@ -58,6 +58,11 @@ public sealed class TexturedTriangles : ISubDividableTriangleSet
         // I have no idea why i need to flip the y axis but the textures are otherwise inverted
         int texturePositionY = (int)((1.0f - interpolatedTextureCoordinate.Y) * _texture.Height);
 
+        // Not sure which strategy to use. Can either use wrapping or clamping logic.
+        // Went for clamping since it is simpler to implement for now.
+        texturePositionX = Math.Clamp(texturePositionX, 0, _texture.Width - 1);
+        texturePositionY = Math.Clamp(texturePositionY, 0, _texture.Height - 1);
+
         Rgba32 textureColor = _texture[texturePositionX, texturePositionY];
         return new Color(textureColor.R, textureColor.G, textureColor.B, textureColor.A);
     }
