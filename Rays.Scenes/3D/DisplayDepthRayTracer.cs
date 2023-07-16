@@ -22,6 +22,8 @@ internal sealed class DisplayDepthRayTracer : I3DScene
     public async Task RenderAsync(CancellationToken cancellationToken)
     {
         await _polygonDrawer.ClearAsync();
+        Array.Clear(_depthMap);
+
         RayTraceViewPort rayTraceViewPort = Camera.GetRayTraceViewPort(_polygonDrawer.Size);
         var parallel = new ActionBlock<Point>(position => RaySetPixelColor(rayTraceViewPort, position), new ExecutionDataflowBlockOptions()
         {
