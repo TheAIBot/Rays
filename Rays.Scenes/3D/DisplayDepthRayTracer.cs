@@ -7,13 +7,15 @@ namespace Rays.Scenes;
 internal sealed class DisplayDepthRayTracer : I3DScene
 {
     public Camera Camera { get; }
+    public SceneInformation Information { get; }
     private readonly ITriangleSetIntersector _triangleSetIntersector;
     private readonly IPolygonDrawer _polygonDrawer;
     private float[,] _depthMap;
 
-    public DisplayDepthRayTracer(Camera camera, IPolygonDrawer polygonDrawer, ITriangleSetIntersector triangleSetIntersector)
+    public DisplayDepthRayTracer(Camera camera, SceneInformation sceneInformation, IPolygonDrawer polygonDrawer, ITriangleSetIntersector triangleSetIntersector)
     {
         Camera = camera;
+        Information = sceneInformation;
         _polygonDrawer = polygonDrawer;
         _triangleSetIntersector = triangleSetIntersector;
         _depthMap = new float[polygonDrawer.Size.X, polygonDrawer.Size.Y];

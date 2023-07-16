@@ -14,6 +14,7 @@ public static class Program
         builder.Services.AddServerSideBlazor();
 
         builder.Services.AddSingleton<CameraFactory>();
+        builder.Services.AddSingleton<SceneInformationFactory>();
         builder.Services.AddSingleton<TriangleSetsFromGeometryObject>();
         builder.Services.AddDisplayableOption<ITriangleSetIntersectorFromGeometryObject, TriangleTreeFromGeometryObject>("Triangle Tree", true);
         builder.Services.AddDisplayableOption<ITriangleSetIntersectorFromGeometryObject, TriangleListFromGeometryObject>("Triangle List", false);

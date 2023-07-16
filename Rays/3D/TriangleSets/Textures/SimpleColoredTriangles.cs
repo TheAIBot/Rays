@@ -64,4 +64,9 @@ public sealed class SimpleColoredTriangles : ISubDividableTriangleSet
 
         return new SimpleColoredTriangles(subTriangles.ToArray(), _triangleColor);
     }
+
+    public IEnumerable<Triangle> GetTriangles()
+    {
+        return Triangles;
+    }
 }

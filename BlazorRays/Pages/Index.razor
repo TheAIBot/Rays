@@ -49,14 +49,13 @@
             var drawer = new BrowserImageDrawer(_CanvasSize / 4, _jsRuntime);
             I3DScene scene = SceneSettings.SceneFactory.Create(SceneSettings.TriangleSetIntersectorFactory.Create(SceneSettings.GeometryModel.ModelFileName), drawer);
             _scene = scene;
+            _step = Vector3.Distance(Vector3.Zero, _scene.Information.BoundingBox.Size) / 100.0f;
 
             _renderTask = Task.Factory.StartNew(async () =>
             {
                 var watch = new Stopwatch();
                 try
                 {
-                    scene.Camera.Position = new Vector3(500, 500, 500);
-                    scene.Camera.Direction = Vector3.Normalize(-scene.Camera.Position);
                     using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(50));
                     while (await timer.WaitForNextTickAsync(_cancellationTokenSource.Token))
                     {

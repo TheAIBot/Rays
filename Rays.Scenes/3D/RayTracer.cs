@@ -6,12 +6,14 @@ namespace Rays.Scenes;
 internal sealed class RayTracer : I3DScene
 {
     public Camera Camera { get; }
+    public SceneInformation Information { get; }
     private readonly ITriangleSetIntersector _triangleSetIntersector;
     private readonly IPolygonDrawer _polygonDrawer;
 
-    public RayTracer(Camera camera, IPolygonDrawer polygonDrawer, ITriangleSetIntersector triangleSetIntersector)
+    public RayTracer(Camera camera, SceneInformation sceneInformation, IPolygonDrawer polygonDrawer, ITriangleSetIntersector triangleSetIntersector)
     {
         Camera = camera;
+        Information = sceneInformation;
         _polygonDrawer = polygonDrawer;
         _triangleSetIntersector = triangleSetIntersector;
     }

@@ -4,15 +4,19 @@ namespace Rays.Scenes;
 
 public sealed class DisplayDepthRayTracerFromGeometryObjectFactory : I3DSceneGeometryObjectFactory
 {
+    private readonly SceneInformationFactory _sceneInformationFactory;
     private readonly CameraFactory _cameraFactory;
 
-    public DisplayDepthRayTracerFromGeometryObjectFactory(CameraFactory cameraFactory)
+    public DisplayDepthRayTracerFromGeometryObjectFactory(SceneInformationFactory sceneInformationFactory, CameraFactory cameraFactory)
     {
+        _sceneInformationFactory = sceneInformationFactory;
         _cameraFactory = cameraFactory;
     }
 
     public I3DScene Create(ITriangleSetIntersector triangleSetIntersector, IPolygonDrawer polygonDrawer)
     {
-        return new DisplayDepthRayTracer(_cameraFactory.Create(polygonDrawer), polygonDrawer, triangleSetIntersector);
+        SceneInformation sceneInformation = _sceneInformationFactory.Create(triangleSetIntersector);
+        Camera camera = _cameraFactory.Create(sceneInformation, polygonDrawer);
+        return new DisplayDepthRayTracer(camera, sceneInformation, polygonDrawer, triangleSetIntersector);
     }
 }

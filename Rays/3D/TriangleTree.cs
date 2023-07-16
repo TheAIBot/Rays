@@ -104,6 +104,11 @@ public sealed class TriangleTree : ITriangleSetIntersector
         return bestDistance != float.MaxValue;
     }
 
+    public IEnumerable<Triangle> GetTriangles()
+    {
+        return _nodeTexturedTriangles.SelectMany(x => x.SelectMany(y => y.GetTriangles()));
+    }
+
     private readonly record struct NodeScore(int Index, float Distance) : IComparable<NodeScore>
     {
         public int CompareTo(NodeScore other)

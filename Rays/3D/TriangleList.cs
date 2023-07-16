@@ -41,4 +41,9 @@ public sealed class TriangleList : ITriangleSetIntersector
 
         return bestDistance != float.MaxValue;
     }
+
+    public IEnumerable<Triangle> GetTriangles()
+    {
+        return _texturedTriangles.SelectMany(x => x.GetTriangles());
+    }
 }

@@ -82,4 +82,9 @@ public sealed class TexturedTriangles : ISubDividableTriangleSet
 
         return new TexturedTriangles(subTriangles.ToArray(), subTextureTriangles.ToArray(), _texture);
     }
+
+    public IEnumerable<Triangle> GetTriangles()
+    {
+        return Triangles;
+    }
 }

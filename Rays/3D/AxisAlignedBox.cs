@@ -7,6 +7,8 @@ public readonly record struct AxisAlignedBox(Vector3 MinPosition, Vector3 MaxPos
 {
     public Vector3 Center => MinPosition + ((MaxPosition - MinPosition) * 0.5f);
 
+    public Vector3 Size => MaxPosition - MinPosition;
+
 
     public bool Intersects(Ray ray)
     {
@@ -45,6 +47,24 @@ public readonly record struct AxisAlignedBox(Vector3 MinPosition, Vector3 MaxPos
                MaxPosition.X >= point.X &&
                MaxPosition.Y >= point.Y &&
                MaxPosition.Z >= point.Z;
+    }
+
+    public static AxisAlignedBox GetBoundingBoxForTriangles(IEnumerable<Triangle> triangles)
+    {
+        Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+        Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+        foreach (var triangle in triangles)
+        {
+            min = Vector3.Min(min, triangle.CornerA);
+            min = Vector3.Min(min, triangle.CornerB);
+            min = Vector3.Min(min, triangle.CornerC);
+
+            max = Vector3.Max(max, triangle.CornerA);
+            max = Vector3.Max(max, triangle.CornerB);
+            max = Vector3.Max(max, triangle.CornerC);
+        }
+
+        return new AxisAlignedBox(min, max);
     }
 
     //https://gist.github.com/StagPoint/76ae48f5d7ca2f9820748d08e55c9806

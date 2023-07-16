@@ -9,7 +9,7 @@ public static class TriangleTreeBuilder
     public static TriangleTree Create(ISubDividableTriangleSet[] texturedTriangleSets)
     {
         const int maxTrianglesPerLeaf = 100;
-        AxisAlignedBox rootBox = GetBoundingBox(texturedTriangleSets);
+        AxisAlignedBox rootBox = AxisAlignedBox.GetBoundingBoxForTriangles(texturedTriangleSets.SelectMany(x => x.GetTriangles()));
         Node root = new Node(rootBox, texturedTriangleSets, new List<Node>());
         Stack<Node> nodesToGoThrough = new Stack<Node>();
         nodesToGoThrough.Push(root);
@@ -33,7 +33,7 @@ public static class TriangleTreeBuilder
                     continue;
                 }
 
-                AxisAlignedBox fullSizedBox = GetBoundingBox(childTexturedTriangleSet);
+                AxisAlignedBox fullSizedBox = AxisAlignedBox.GetBoundingBoxForTriangles(childTexturedTriangleSet.SelectMany(x => x.GetTriangles()));
                 Vector3 childBoxSize = Vector3.Abs(childBox.MaxPosition - childBox.MinPosition);
                 float childBoxVolume = childBoxSize.X * childBoxSize.Y * childBoxSize.Z;
                 Vector3 fulLSizeBoxSize = Vector3.Abs(fullSizedBox.MaxPosition - fullSizedBox.MinPosition);
@@ -108,43 +108,6 @@ public static class TriangleTreeBuilder
         {
             return BreadthFirstOrder().Reverse<Node>();
         }
-    }
-
-    private static AxisAlignedBox GetBoundingBox(ISubDividableTriangleSet[] texturedTriangleSets)
-    {
-        return new AxisAlignedBox(GetMinPoint(texturedTriangleSets), GetMaxPoint(texturedTriangleSets));
-    }
-
-    private static Vector3 GetMinPoint(ISubDividableTriangleSet[] texturedTriangleSets)
-    {
-        Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-        foreach (var texturedTriangles in texturedTriangleSets)
-        {
-            foreach (var triangle in texturedTriangles.Triangles)
-            {
-                min = Vector3.Min(min, triangle.CornerA);
-                min = Vector3.Min(min, triangle.CornerB);
-                min = Vector3.Min(min, triangle.CornerC);
-            }
-        }
-
-        return min;
-    }
-
-    private static Vector3 GetMaxPoint(ISubDividableTriangleSet[] texturedTriangleSets)
-    {
-        Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
-        foreach (var texturedTriangles in texturedTriangleSets)
-        {
-            foreach (var triangle in texturedTriangles.Triangles)
-            {
-                max = Vector3.Max(max, triangle.CornerA);
-                max = Vector3.Max(max, triangle.CornerB);
-                max = Vector3.Max(max, triangle.CornerC);
-            }
-        }
-
-        return max;
     }
 
     private static AxisAlignedBox[] Get8SubBoxes(AxisAlignedBox box)

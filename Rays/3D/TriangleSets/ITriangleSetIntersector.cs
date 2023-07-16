@@ -6,4 +6,6 @@ public interface ITriangleSetIntersector
 {
     bool TryGetIntersection(Ray ray, out (TriangleIntersection intersection, Color color) triangleIntersection);
     bool TryGetIntersection(RayTriangleOptimizedIntersection rayTriangleOptimizedIntersection, out (TriangleIntersection intersection, Color color) triangleIntersection);
+
+    IEnumerable<Triangle> GetTriangles();
 }
