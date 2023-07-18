@@ -28,12 +28,11 @@ public sealed class TriangleTree : ITriangleSetIntersector
         float bestDistance = float.MaxValue;
         triangleIntersection = default;
 
-        var nodesToCheck = new Stack<Node>();
-        nodesToCheck.Push(_nodes[0]);
-        Span<NodeScore> maxNodeScores = stackalloc NodeScore[TriangleTreeBuilder.MaxChildCount];
+        var nodesToCheck = new PriorityQueue<int, float>();
+        nodesToCheck.Enqueue(0, 0);
         while (nodesToCheck.Count > 0)
         {
-            Node node = nodesToCheck.Pop();
+            Node node = _nodes[nodesToCheck.Dequeue()];
             if (node.ContainsTriangles)
             {
                 if (TryGetIntersectionWithTriangles(rayTriangleOptimizedIntersection, _nodeTexturedTriangles[node.TexturedTrianglesIndex], out var intersection))
@@ -54,26 +53,14 @@ public sealed class TriangleTree : ITriangleSetIntersector
 
 
             var nodeChildren = node.Children.GetAsSpan(_nodes);
-            int nodeScoreCount = 0;
             for (int i = 0; i < nodeChildren.Length; i++)
             {
                 Node child = nodeChildren[i];
                 if (child.BoundingBox.Intersects(optimizedRayBoxIntersection))
                 {
-                    maxNodeScores[nodeScoreCount++] = new NodeScore(i, Vector4.DistanceSquared(rayTriangleOptimizedIntersection.Start, new Vector4(child.BoundingBox.Center, 0)));
+                    float distance = Vector4.DistanceSquared(rayTriangleOptimizedIntersection.Start, new Vector4(child.BoundingBox.Center, 0));
+                    nodesToCheck.Enqueue(node.Children.Index + i, distance);
                 }
-            }
-
-            if (nodeScoreCount == 0)
-            {
-                continue;
-            }
-
-            Span<NodeScore> nodeScores = maxNodeScores.Slice(0, nodeScoreCount);
-            nodeScores.Sort();
-            foreach (var nodeScore in nodeScores)
-            {
-                nodesToCheck.Push(nodeChildren[nodeScore.Index]);
             }
         }
 
