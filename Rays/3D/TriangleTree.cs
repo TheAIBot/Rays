@@ -168,9 +168,9 @@ public readonly record struct HistoricalStatistics<T>(int MaxHistoryLength) wher
 {
     private readonly Queue<Statistics<T>> _statistics = new Queue<Statistics<T>>();
 
-    public T Min => _statistics.LastOrDefault()?.Min ?? default;
-    public T Average => _statistics.LastOrDefault()?.Average ?? default;
-    public T Max => _statistics.LastOrDefault()?.Max ?? default;
+    public T Min => CalculateMin();
+    public T Average => CalculateAverage();
+    public T Max => CalculateMax();
 
     public void AddNewEntry()
     {
@@ -190,6 +190,44 @@ public readonly record struct HistoricalStatistics<T>(int MaxHistoryLength) wher
     public void Clear()
     {
         _statistics.Clear();
+    }
+
+    private T CalculateMin()
+    {
+        if (_statistics.Count == 0)
+        {
+            return default;
+        }
+
+        return _statistics.Min(x => x.Min);
+    }
+
+    private T CalculateAverage()
+    {
+        if (_statistics.Count == 0)
+        {
+            return default;
+        }
+
+        T sum = default;
+        T count = default;
+        foreach (var statistic in _statistics)
+        {
+            sum += statistic.Average;
+            count++;
+        }
+
+        return sum / count;
+    }
+
+    private T CalculateMax()
+    {
+        if (_statistics.Count == 0)
+        {
+            return default;
+        }
+
+        return _statistics.Max(x => x.Max);
     }
 }
 

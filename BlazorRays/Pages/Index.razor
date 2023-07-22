@@ -34,6 +34,12 @@
         </thead>
         <tbody>
             <tr>
+                <td class="left">Frame Time:</td>
+                <td class="numeric">@_frameTime.Min.ToString("N1")</td>
+                <td class="numeric">@_frameTime.Average.ToString("N1")</td>
+                <td class="numeric">@_frameTime.Max.ToString("N1")</td>
+            </tr>
+            <tr>
                 <td class="left">Nodes Traversed:</td>
                 <td class="numeric">@_statistics.NodesTraversed.Min.ToString("N1")</td>
                 <td class="numeric">@_statistics.NodesTraversed.Average.ToString("N1")</td>
@@ -66,6 +72,8 @@
     private bool _dragging = false;
     private Vector2 _initialMousePosition = new Vector2();
 
+    private readonly HistoricalStatistics<long> _frameTime = new HistoricalStatistics<long>(20);
+
     [Parameter]
     public SceneSettings SceneSettings { get; set; } = default!;
 
@@ -94,6 +102,7 @@
                 var watch = new Stopwatch();
                 try
                 {
+
                     using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(50));
                     while (await timer.WaitForNextTickAsync(_cancellationTokenSource.Token))
                     {
@@ -102,6 +111,8 @@
                         watch.Stop();
 
                         _logger.LogInformation($"Time: {watch.ElapsedMilliseconds:N2}");
+                        _frameTime.AddNewEntry();
+                        _frameTime.UpdateLatestEntry(watch.ElapsedMilliseconds);
 
                         _statistics.ProcessStatistics();
                         await InvokeAsync(() => StateHasChanged());
