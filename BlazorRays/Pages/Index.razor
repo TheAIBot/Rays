@@ -92,7 +92,7 @@
         {
             await _divRef.FocusAsync();
 
-            var drawer = new BrowserImageDrawer(_CanvasSize / 4, _jsRuntime);
+            var drawer = new BrowserImageDrawer(_CanvasSize / 2, _jsRuntime);
             I3DScene scene = SceneSettings.SceneFactory.Create(SceneSettings.TriangleSetIntersectorFactory.Create(SceneSettings.GeometryModel.ModelFileName), drawer);
             _scene = scene;
             _step = Vector3.Distance(Vector3.Zero, _scene.Information.BoundingBox.Size) / 100.0f;

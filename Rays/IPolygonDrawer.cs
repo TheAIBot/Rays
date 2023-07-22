@@ -9,7 +9,7 @@ public interface IPolygonDrawer
     Task DrawAsync(Rectangle rectangle);
     Task DrawAsync(Wall Wall);
     Task DrawAsync(Line line);
-    Task DrawPixelAsync(int x, int y, Color color);
+    ValueTask DrawPixelAsync(int x, int y, Color color);
 
     Task ClearAsync();
 

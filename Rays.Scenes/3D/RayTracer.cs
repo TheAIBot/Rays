@@ -1,5 +1,4 @@
 ﻿using Rays._3D;
-using System.Threading.Tasks.Dataflow;
 
 namespace Rays.Scenes;
 
@@ -22,27 +21,23 @@ internal sealed class RayTracer : I3DScene
     {
         await _polygonDrawer.ClearAsync();
         RayTraceViewPort rayTraceViewPort = Camera.GetRayTraceViewPort(_polygonDrawer.Size);
-        var parallel = new ActionBlock<Point>(position => RaySetPixelColor(rayTraceViewPort, position), new ExecutionDataflowBlockOptions()
-        {
-            CancellationToken = cancellationToken,
-            MaxDegreeOfParallelism = Math.Max(1, Environment.ProcessorCount - 1)
-        });
-
-        for (int y = 0; y < _polygonDrawer.Size.Y; y++)
-        {
-            for (int x = 0; x < _polygonDrawer.Size.X; x++)
-            {
-                await parallel.SendAsync(new Point(x, y), cancellationToken);
-            }
-        }
-
-        parallel.Complete();
-        await parallel.Completion;
+        await Parallel.ForEachAsync(GetPixelPositions(_polygonDrawer.Size), (position, _) => RaySetPixelColor(rayTraceViewPort, position));
 
         await _polygonDrawer.RenderAsync();
     }
 
-    private Task RaySetPixelColor(RayTraceViewPort rayTraceViewPort, Point pixelPosition)
+    private IEnumerable<Point> GetPixelPositions(Point screenSize)
+    {
+        for (int y = 0; y < screenSize.Y; y++)
+        {
+            for (int x = 0; x < screenSize.X; x++)
+            {
+                yield return new Point(x, y);
+            }
+        }
+    }
+
+    private ValueTask RaySetPixelColor(RayTraceViewPort rayTraceViewPort, Point pixelPosition)
     {
         Ray ray = rayTraceViewPort.GetRayForPixel(pixelPosition);
 
