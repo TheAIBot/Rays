@@ -71,6 +71,7 @@
     private float _step = 5;
     private bool _dragging = false;
     private Vector2 _initialMousePosition = new Vector2();
+    private bool _updateUI = false;
 
     private readonly HistoricalStatistics<long> _frameTime = new HistoricalStatistics<long>(20);
 
@@ -86,6 +87,13 @@
     [Inject]
     private CombinedTriangleTreeStatistics _statistics { get; set; } = default!;
 
+    protected override bool ShouldRender()
+    {
+        bool shouldUpdateUI = _updateUI;
+        _updateUI = false;
+        return shouldUpdateUI;
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -99,10 +107,9 @@
 
             _renderTask = Task.Factory.StartNew(async () =>
             {
-                var watch = new Stopwatch();
                 try
                 {
-
+                    var watch = new Stopwatch();
                     using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(50));
                     while (await timer.WaitForNextTickAsync(_cancellationTokenSource.Token))
                     {
@@ -114,7 +121,9 @@
                         _frameTime.UpdateLatestEntry(watch.ElapsedMilliseconds);
 
                         _statistics.ProcessStatistics();
-                        await InvokeAsync(() => StateHasChanged());
+
+                        _updateUI = true;
+                        await InvokeAsync(StateHasChanged);
                     }
                 }
                 catch (OperationCanceledException)
