@@ -12,6 +12,7 @@ public readonly record struct Triangle(Vector3 CornerA, Vector3 CornerB, Vector3
     }
 
     // https://stackoverflow.com/a/42752998
+
     public bool TryGetIntersection(RayTriangleOptimizedIntersection optimizedRay, out TriangleIntersection intersection)
     {
         if (!Sse41.IsSupported)
@@ -34,18 +35,25 @@ public readonly record struct Triangle(Vector3 CornerA, Vector3 CornerB, Vector3
             return false;
         }
 
-        float inversedet = 1.0f / det;
         Vector128<float> AO = Sse.Subtract(rayStart, a);
         Vector128<float> DAO = Cross(AO, rayDirection);
-        float u = (Sse41.DotProduct(E2, DAO, 0b0111_0111).GetElement(0)) * inversedet;
-        float v = -(Sse41.DotProduct(E1, DAO, 0b0111_0111).GetElement(0)) * inversedet;
-        float t = (Sse41.DotProduct(AO, N, 0b0111_0111).GetElement(0)) * inversedet;
+        float u = (Sse41.DotProduct(E2, DAO, 0b0111_0111).GetElement(0));
+        float v = -(Sse41.DotProduct(E1, DAO, 0b0111_0111).GetElement(0));
+        float t = (Sse41.DotProduct(AO, N, 0b0111_0111).GetElement(0));
+        if (t < 0.0f ||
+            u < 0.0f ||
+            v < 0.0f)
+        {
+            intersection = default;
+            return false;
+        }
 
+        float inversedet = 1.0f / det;
+        t *= inversedet;
+        u *= inversedet;
+        v *= inversedet;
         intersection = new TriangleIntersection(t, u, v);
-        return (t >= 0.0f &&
-                u >= 0.0f &&
-                v >= 0.0f &&
-                (u + v) <= 1.0f);
+        return ((u + v) <= 1.0f);
     }
 
     // https://stackoverflow.com/a/42752998
