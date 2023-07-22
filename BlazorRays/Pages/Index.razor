@@ -110,7 +110,6 @@
                         await scene.RenderAsync(_cancellationTokenSource.Token);
                         watch.Stop();
 
-                        _logger.LogInformation($"Time: {watch.ElapsedMilliseconds:N2}");
                         _frameTime.AddNewEntry();
                         _frameTime.UpdateLatestEntry(watch.ElapsedMilliseconds);
 
