@@ -7,7 +7,7 @@ public readonly record struct AxisAlignedBox(Vector3 MinPosition, Vector3 MaxPos
 {
     public Vector3 Center => MinPosition + ((MaxPosition - MinPosition) * 0.5f);
 
-    public Vector3 Size => MaxPosition - MinPosition;
+    public Vector3 Size => Vector3.Abs(MaxPosition - MinPosition);
 
 
     public bool Intersects(Ray ray)

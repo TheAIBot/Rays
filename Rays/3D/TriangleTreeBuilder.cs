@@ -13,42 +13,35 @@ public class TriangleTreeBuilder
 
     public TriangleTree Create(ISubDividableTriangleSet[] texturedTriangleSets)
     {
-        const int maxTrianglesPerLeaf = 100;
         AxisAlignedBox rootBox = AxisAlignedBox.GetBoundingBoxForTriangles(texturedTriangleSets.SelectMany(x => x.GetTriangles()));
-        Node root = new Node(rootBox, texturedTriangleSets, new List<Node>());
+        Node root = new Node(null, rootBox, texturedTriangleSets, new List<Node>());
         Stack<Node> nodesToGoThrough = new Stack<Node>();
         nodesToGoThrough.Push(root);
 
         while (nodesToGoThrough.Count > 0)
         {
             Node node = nodesToGoThrough.Pop();
-            if (node.TexturedTriangleSets.Sum(x => x.Triangles.Length) <= maxTrianglesPerLeaf)
-            {
-                continue;
-            }
 
+            int trianglesInParent = node.TexturedTriangleSets.Sum(x => x.Triangles.Length);
             foreach (var childBox in Get8SubBoxes(node.BoundingBox))
             {
                 ISubDividableTriangleSet[] childTexturedTriangleSet = node.TexturedTriangleSets
                                                                     .Select(x => x.SubCopy(y => childBox.CollidesWith(y)))
                                                                     .Where(x => x.Triangles.Length > 0)
                                                                     .ToArray();
-                if (childTexturedTriangleSet.Sum(x => x.Triangles.Length) == 0)
+                int trianglesInChild = childTexturedTriangleSet.Sum(x => x.Triangles.Length);
+                if (trianglesInChild == 0)
                 {
                     continue;
                 }
 
                 AxisAlignedBox fullSizedBox = AxisAlignedBox.GetBoundingBoxForTriangles(childTexturedTriangleSet.SelectMany(x => x.GetTriangles()));
-                Vector3 childBoxSize = Vector3.Abs(childBox.MaxPosition - childBox.MinPosition);
-                float childBoxVolume = childBoxSize.X * childBoxSize.Y * childBoxSize.Z;
-                Vector3 fulLSizeBoxSize = Vector3.Abs(fullSizedBox.MaxPosition - fullSizedBox.MinPosition);
-                float fullSizeBoxVolume = fulLSizeBoxSize.X * fulLSizeBoxSize.Y * fulLSizeBoxSize.Z;
-                var childNode = new Node(fullSizedBox, childTexturedTriangleSet, new List<Node>());
+                AxisAlignedBox noLargerThanChildBox = new AxisAlignedBox(Vector3.Max(childBox.MinPosition, fullSizedBox.MinPosition), Vector3.Min(childBox.MaxPosition, fullSizedBox.MaxPosition));
+                var childNode = new Node(node, noLargerThanChildBox, childTexturedTriangleSet, new List<Node>());
                 node.Children.Add(childNode);
 
-                // Only add child node if the node is small enough. If it's not small enough
-                // then splitting it up further will not help any further.
-                if (fullSizeBoxVolume <= childBoxVolume * 4)
+                int minTrianglesPerNode = 500;
+                if (trianglesInChild < trianglesInParent && trianglesInChild > minTrianglesPerNode)
                 {
                     nodesToGoThrough.Push(childNode);
                 }
@@ -82,7 +75,7 @@ public class TriangleTreeBuilder
         return new TriangleTree(treeNodes, triangleSets, _combinedTriangleTreeStatistics);
     }
 
-    private sealed record Node(AxisAlignedBox BoundingBox, ISubDividableTriangleSet[] TexturedTriangleSets, List<Node> Children)
+    private sealed record Node(Node? Parent, AxisAlignedBox BoundingBox, ISubDividableTriangleSet[] TexturedTriangleSets, List<Node> Children)
     {
         public int CountNodes()
         {
