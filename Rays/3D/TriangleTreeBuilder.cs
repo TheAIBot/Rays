@@ -2,11 +2,16 @@
 
 namespace Rays._3D;
 
-public static class TriangleTreeBuilder
+public class TriangleTreeBuilder
 {
-    internal const int MaxChildCount = 8;
+    private readonly CombinedTriangleTreeStatistics _combinedTriangleTreeStatistics;
 
-    public static TriangleTree Create(ISubDividableTriangleSet[] texturedTriangleSets)
+    public TriangleTreeBuilder(CombinedTriangleTreeStatistics combinedTriangleTreeStatistics)
+    {
+        _combinedTriangleTreeStatistics = combinedTriangleTreeStatistics;
+    }
+
+    public TriangleTree Create(ISubDividableTriangleSet[] texturedTriangleSets)
     {
         const int maxTrianglesPerLeaf = 100;
         AxisAlignedBox rootBox = AxisAlignedBox.GetBoundingBoxForTriangles(texturedTriangleSets.SelectMany(x => x.GetTriangles()));
@@ -74,7 +79,7 @@ public static class TriangleTreeBuilder
             }
         }
 
-        return new TriangleTree(treeNodes, triangleSets);
+        return new TriangleTree(treeNodes, triangleSets, _combinedTriangleTreeStatistics);
     }
 
     private sealed record Node(AxisAlignedBox BoundingBox, ISubDividableTriangleSet[] TexturedTriangleSets, List<Node> Children)

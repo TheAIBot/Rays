@@ -1,3 +1,4 @@
+using Rays._3D;
 using Rays.Scenes;
 using System.Reflection;
 
@@ -13,6 +14,8 @@ public static class Program
         builder.Services.AddRazorPages();
         builder.Services.AddServerSideBlazor();
 
+        builder.Services.AddSingleton<CombinedTriangleTreeStatistics>();
+        builder.Services.AddSingleton<TriangleTreeBuilder>();
         builder.Services.AddSingleton<CameraFactory>();
         builder.Services.AddSingleton<SceneInformationFactory>();
         builder.Services.AddSingleton<TriangleSetsFromGeometryObject>();
