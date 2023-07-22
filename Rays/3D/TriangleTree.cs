@@ -96,14 +96,6 @@ public sealed class TriangleTree : ITriangleSetIntersector
         return _nodeTexturedTriangles.SelectMany(x => x.SelectMany(y => y.GetTriangles()));
     }
 
-    private readonly record struct NodeScore(int Index, float Distance) : IComparable<NodeScore>
-    {
-        public int CompareTo(NodeScore other)
-        {
-            return Distance.CompareTo(other.Distance);
-        }
-    }
-
     public readonly record struct Node(AxisAlignedBox BoundingBox, SpanRange Children, int TexturedTrianglesIndex)
     {
         public bool ContainsTriangles => TexturedTrianglesIndex != -1;
