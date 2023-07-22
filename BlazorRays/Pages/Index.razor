@@ -117,7 +117,7 @@
                         await InvokeAsync(() => StateHasChanged());
                     }
                 }
-                catch (TaskCanceledException)
+                catch (OperationCanceledException)
                 {
                     _logger.LogInformation("Ended renderer");
                 }
