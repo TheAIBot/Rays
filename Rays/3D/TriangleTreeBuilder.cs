@@ -40,7 +40,7 @@ public class TriangleTreeBuilder
                 var childNode = new Node(node, noLargerThanChildBox, childTexturedTriangleSet, new List<Node>());
                 node.Children.Add(childNode);
 
-                int minTrianglesPerNode = 500;
+                int minTrianglesPerNode = 50;
                 if (trianglesInChild < trianglesInParent && trianglesInChild > minTrianglesPerNode)
                 {
                     nodesToGoThrough.Push(childNode);
