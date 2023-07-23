@@ -7,13 +7,23 @@ namespace Rays._3D;
 
 public sealed class TriangleTree : ITriangleSetIntersector
 {
-    private readonly Node[] _nodes;
+    private readonly AxisAlignedBox[] _nodeBoundingBoxes;
+    private readonly SpanRange[] _nodeChildren;
+    private readonly int[] _nodeTexturedTriangleIndexes;
     private readonly ITriangleSetIntersector[][] _nodeTexturedTriangles;
     private readonly CombinedTriangleTreeStatistics _treeStatistics;
 
-    internal TriangleTree(Node[] nodes, ITriangleSetIntersector[][] nodeTexturedTriangles, CombinedTriangleTreeStatistics treeStatistics)
+
+
+    internal TriangleTree(AxisAlignedBox[] nodeBoundingBoxes,
+                          SpanRange[] nodeChildren,
+                          int[] nodeTexturedTrianglesIndexes,
+                          ITriangleSetIntersector[][] nodeTexturedTriangles,
+                          CombinedTriangleTreeStatistics treeStatistics)
     {
-        _nodes = nodes;
+        _nodeBoundingBoxes = nodeBoundingBoxes;
+        _nodeChildren = nodeChildren;
+        _nodeTexturedTriangleIndexes = nodeTexturedTrianglesIndexes;
         _nodeTexturedTriangles = nodeTexturedTriangles;
         _treeStatistics = treeStatistics;
     }
@@ -29,7 +39,7 @@ public sealed class TriangleTree : ITriangleSetIntersector
         var optimizedRayBoxIntersection = new RayAxisAlignBoxOptimizedIntersection(rayTriangleOptimizedIntersection);
 
         triangleIntersection = default;
-        if (!_nodes[0].BoundingBox.Intersects(optimizedRayBoxIntersection))
+        if (!_nodeBoundingBoxes[0].Intersects(optimizedRayBoxIntersection))
         {
             return false;
         }
@@ -41,11 +51,12 @@ public sealed class TriangleTree : ITriangleSetIntersector
         nodesToCheck.Enqueue(0, 0);
         while (nodesToCheck.Count > 0)
         {
-            Node node = _nodes[nodesToCheck.Dequeue()];
+            int nodeIndex = nodesToCheck.Dequeue();
+            int nodeTexturedTriangleIndex = _nodeTexturedTriangleIndexes[nodeIndex];
             statistics.NodesTraversed++;
-            if (node.ContainsTriangles)
+            if (nodeTexturedTriangleIndex != -1)
             {
-                if (TryGetIntersectionWithTriangles(ref statistics, rayTriangleOptimizedIntersection, _nodeTexturedTriangles[node.TexturedTrianglesIndex], out var intersection))
+                if (TryGetIntersectionWithTriangles(ref statistics, rayTriangleOptimizedIntersection, _nodeTexturedTriangles[nodeTexturedTriangleIndex], out var intersection))
                 {
                     float distance = Vector4.DistanceSquared(rayTriangleOptimizedIntersection.Start, intersection.intersection.GetIntersection(rayTriangleOptimizedIntersection));
                     if (distance > bestDistance)
@@ -61,15 +72,14 @@ public sealed class TriangleTree : ITriangleSetIntersector
                 continue;
             }
 
-
-            var nodeChildren = node.Children.GetAsSpan(_nodes);
-            for (int i = 0; i < nodeChildren.Length; i++)
+            SpanRange nodeChildSpan = _nodeChildren[nodeIndex];
+            var nodeChildrenBoundingBoxes = nodeChildSpan.GetAsSpan(_nodeBoundingBoxes);
+            for (int i = 0; i < nodeChildrenBoundingBoxes.Length; i++)
             {
-                Node child = nodeChildren[i];
-                if (child.BoundingBox.Intersects(optimizedRayBoxIntersection))
+                if (nodeChildrenBoundingBoxes[i].Intersects(optimizedRayBoxIntersection))
                 {
-                    float distance = Vector4.DistanceSquared(rayTriangleOptimizedIntersection.Start, child.BoundingBox.Center);
-                    nodesToCheck.Enqueue(node.Children.Index + i, distance);
+                    float distance = Vector4.DistanceSquared(rayTriangleOptimizedIntersection.Start, nodeChildrenBoundingBoxes[i].Center);
+                    nodesToCheck.Enqueue(nodeChildSpan.Index + i, distance);
                 }
             }
         }
@@ -107,11 +117,6 @@ public sealed class TriangleTree : ITriangleSetIntersector
     public IEnumerable<Triangle> GetTriangles()
     {
         return _nodeTexturedTriangles.SelectMany(x => x.SelectMany(y => y.GetTriangles()));
-    }
-
-    public readonly record struct Node(AxisAlignedBox BoundingBox, SpanRange Children, int TexturedTrianglesIndex)
-    {
-        public bool ContainsTriangles => TexturedTrianglesIndex != -1;
     }
 
     public readonly record struct SpanRange(int Index, int Length)
