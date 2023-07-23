@@ -23,7 +23,6 @@ internal sealed class DisplayDepthRayTracer : I3DScene
     public async Task RenderAsync(CancellationToken cancellationToken)
     {
         await _polygonDrawer.ClearAsync();
-        Array.Clear(_depthMap);
 
         RayTraceViewPort rayTraceViewPort = Camera.GetRayTraceViewPort(_polygonDrawer.Size);
         await Parallel.ForEachAsync(GetPixelPositions(_polygonDrawer.Size), (position, _) => RaySetPixelColor(rayTraceViewPort, position));
@@ -34,6 +33,11 @@ internal sealed class DisplayDepthRayTracer : I3DScene
         {
             for (int x = 0; x < _polygonDrawer.Size.X; x++)
             {
+                if (float.IsNaN(_depthMap[x, y]))
+                {
+                    continue;
+                }
+
                 min = MathF.Min(min, _depthMap[x, y]);
                 max = MathF.Max(max, _depthMap[x, y]);
             }
@@ -49,7 +53,7 @@ internal sealed class DisplayDepthRayTracer : I3DScene
                 Color color = backgroundColor;
                 if (!float.IsNaN(_depthMap[x, y]))
                 {
-                    byte colorValue = (byte)((_depthMap[x, y] + min) / scalingToByteRange);
+                    byte colorValue = (byte)Math.Clamp((_depthMap[x, y] - min) / scalingToByteRange, byte.MinValue, byte.MaxValue);
                     color = new Color(colorValue, colorValue, colorValue, colorValue);
                 }
 
@@ -77,13 +81,11 @@ internal sealed class DisplayDepthRayTracer : I3DScene
 
         if (_triangleSetIntersector.TryGetIntersection(ray, out (TriangleIntersection intersection, Color color) triangleIntersection))
         {
-            if (triangleIntersection.intersection == default)
-            {
-                _depthMap[pixelPosition.X, pixelPosition.Y] = float.NaN;
-                return ValueTask.CompletedTask;
-            }
-
             _depthMap[pixelPosition.X, pixelPosition.Y] = Vector3.Distance(triangleIntersection.intersection.GetIntersection(ray), ray.Start);
+        }
+        else
+        {
+            _depthMap[pixelPosition.X, pixelPosition.Y] = float.NaN;
         }
 
         return ValueTask.CompletedTask;
