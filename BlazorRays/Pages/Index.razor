@@ -11,7 +11,7 @@
 
 <div @ref="_divRef" @onkeydown="HandleKeyPress" 
      style="width: 100%; height: 100%;" tabindex="0">
-    <img id="image"
+    <canvas id="image"
          draggable="false"
          @ondragstart="@(e => Task.FromResult(false))"
          @onpointerdown="StartDrag"

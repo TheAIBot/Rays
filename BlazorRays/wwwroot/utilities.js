@@ -1,10 +1,9 @@
-﻿window.setImage = async function(imageElementId, imageStream) {
-    const arrayBuffer = await imageStream.arrayBuffer();
-    const blob = new Blob([arrayBuffer]);
-    const url = URL.createObjectURL(blob);
-    const image = document.getElementById(imageElementId);
-    image.onload = () => {
-        URL.revokeObjectURL(url);
-    }
-    image.src = url;
+﻿window.setImage = function (byteArray) {
+    const canvas = document.getElementById("image");
+    let context = canvas.getContext("2d");
+
+    let imageData = new ImageData(new Uint8ClampedArray(byteArray), canvas.width, canvas.height);
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.putImageData(imageData, 0, 0);
 }

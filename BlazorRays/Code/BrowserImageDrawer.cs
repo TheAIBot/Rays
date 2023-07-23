@@ -1,15 +1,15 @@
 ﻿using Microsoft.JSInterop;
 using Rays;
 using Rays.Polygons;
+using System.Runtime.InteropServices;
 
 namespace BlazorRays.Code
 {
     public sealed class BrowserImageDrawer : IPolygonDrawer
     {
         private readonly IJSRuntime _runtime;
-        private readonly DotNetStreamReference _imageStream;
-        private Rgba32[] _writeImageData;
-        private Rgba32[] _readImageData;
+        private byte[] _writeImageData;
+        private byte[] _readImageData;
         private Image<Rgba32> _image;
         private Task? _sendingToBrowser;
 
@@ -18,11 +18,10 @@ namespace BlazorRays.Code
         public BrowserImageDrawer(Rays.Point imageSize, IJSRuntime runtime)
         {
             Size = imageSize;
-            _writeImageData = new Rgba32[Size.X * Size.Y];
-            _readImageData = new Rgba32[Size.X * Size.Y];
+            _writeImageData = new byte[Size.X * Size.Y * Marshal.SizeOf<Rgba32>()];
+            _readImageData = new byte[Size.X * Size.Y * Marshal.SizeOf<Rgba32>()];
             _runtime = runtime;
             _image = Image.WrapMemory<Rgba32>(_writeImageData, Size.X, Size.Y);
-            _imageStream = new DotNetStreamReference(new MemoryStream(), true);
         }
 
         public Task ClearAsync()
@@ -62,11 +61,7 @@ namespace BlazorRays.Code
             SwapImageBuffers();
             _sendingToBrowser = Task.Factory.StartNew(async () =>
             {
-                Image<Rgba32> image = Image.WrapMemory<Rgba32>(_readImageData, Size.X, Size.Y);
-                _imageStream.Stream.Seek(0, SeekOrigin.Begin);
-                image.SaveAsPng(_imageStream.Stream);
-                _imageStream.Stream.Seek(0, SeekOrigin.Begin);
-                await _runtime.InvokeVoidAsync("setImage", "image", _imageStream).AsTask();
+                await _runtime.InvokeVoidAsync("setImage", _readImageData);
             });
         }
 
