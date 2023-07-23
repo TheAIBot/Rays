@@ -72,6 +72,7 @@
     private bool _dragging = false;
     private Vector2 _initialMousePosition = new Vector2();
     private bool _updateUI = false;
+    private int _renderScale = 1;
 
     private readonly HistoricalStatistics<long> _frameTime = new HistoricalStatistics<long>(20);
 
@@ -100,7 +101,7 @@
         {
             await _divRef.FocusAsync();
 
-            var drawer = new BrowserImageDrawer(_CanvasSize / 2, _jsRuntime);
+            var drawer = new BrowserImageDrawer(_CanvasSize / _renderScale, _jsRuntime);
             I3DScene scene = SceneSettings.SceneFactory.Create(SceneSettings.TriangleSetIntersectorFactory.Create(SceneSettings.GeometryModel.ModelFileName), drawer);
             _scene = scene;
             _step = Vector3.Distance(Vector3.Zero, _scene.Information.BoundingBox.Size) / 100.0f;
