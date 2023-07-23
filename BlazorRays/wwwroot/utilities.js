@@ -1,9 +1,11 @@
-﻿window.setImage = function (byteArray) {
-    const canvas = document.getElementById("image");
-    let context = canvas.getContext("2d");
+﻿window.setImage = async function (byteArray, canvasElementId, width, height) {
+    const canvas = document.getElementById(canvasElementId);
+    const context = canvas.getContext("2d");
 
-    let imageData = new ImageData(new Uint8ClampedArray(byteArray), canvas.width, canvas.height);
+    const imageData = new ImageData(new Uint8ClampedArray(byteArray), width, height);
+    const imageBitmap = await createImageBitmap(imageData);
 
     context.clearRect(0, 0, canvas.width, canvas.height);
-    context.putImageData(imageData, 0, 0);
+    context.drawImage(imageBitmap, 0, 0, canvas.width, canvas.height);
+    imageBitmap.close();
 }

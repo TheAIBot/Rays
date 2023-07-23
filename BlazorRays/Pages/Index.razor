@@ -9,9 +9,9 @@
 @using Rays._3D;
 @implements IAsyncDisposable
 
-<div @ref="_divRef" @onkeydown="HandleKeyPress" 
+<div @onkeydown="HandleKeyPress" 
      style="width: 100%; height: 100%;" tabindex="0">
-    <canvas id="image"
+    <canvas id="@_canvasElementId"
          draggable="false"
          @ondragstart="@(e => Task.FromResult(false))"
          @onpointerdown="StartDrag"
@@ -66,8 +66,8 @@
     private readonly CancellationTokenSource _cancellationTokenSource = new();
     private Task? _renderTask;
     private I3DScene? _scene;
+    private string _canvasElementId = "renderTarget";
 
-    private ElementReference _divRef;
     private float _step = 5;
     private bool _dragging = false;
     private Vector2 _initialMousePosition = new Vector2();
@@ -99,9 +99,7 @@
     {
         if (firstRender)
         {
-            await _divRef.FocusAsync();
-
-            var drawer = new BrowserImageDrawer(_CanvasSize / _renderScale, _jsRuntime);
+            var drawer = new BrowserImageDrawer(_CanvasSize / _renderScale, _canvasElementId, _jsRuntime);
             I3DScene scene = SceneSettings.SceneFactory.Create(SceneSettings.TriangleSetIntersectorFactory.Create(SceneSettings.GeometryModel.ModelFileName), drawer);
             _scene = scene;
             _step = Vector4.Distance(Vector4.Zero, _scene.Information.BoundingBox.Size) / 100.0f;

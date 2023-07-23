@@ -7,6 +7,7 @@ namespace BlazorRays.Code
 {
     public sealed class BrowserImageDrawer : IPolygonDrawer
     {
+        private readonly string _canvasElementId;
         private readonly IJSRuntime _runtime;
         private byte[] _writeImageData;
         private byte[] _readImageData;
@@ -15,9 +16,10 @@ namespace BlazorRays.Code
 
         public Rays.Point Size { get; }
 
-        public BrowserImageDrawer(Rays.Point imageSize, IJSRuntime runtime)
+        public BrowserImageDrawer(Rays.Point imageSize, string canvasElementId, IJSRuntime runtime)
         {
             Size = imageSize;
+            _canvasElementId = canvasElementId;
             _writeImageData = new byte[Size.X * Size.Y * Marshal.SizeOf<Rgba32>()];
             _readImageData = new byte[Size.X * Size.Y * Marshal.SizeOf<Rgba32>()];
             _runtime = runtime;
@@ -59,7 +61,7 @@ namespace BlazorRays.Code
             }
 
             SwapImageBuffers();
-            _sendingToBrowser = Task.Run(() => _runtime.InvokeVoidAsync("setImage", _readImageData));
+            _sendingToBrowser = Task.Run(() => _runtime.InvokeVoidAsync("setImage", _readImageData, _canvasElementId, Size.X, Size.Y));
         }
 
         public void SwapImageBuffers()
