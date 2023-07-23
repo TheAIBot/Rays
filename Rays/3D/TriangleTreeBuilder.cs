@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using static Rays._3D.TriangleTree;
 
 namespace Rays._3D;
 
@@ -50,8 +51,7 @@ public class TriangleTreeBuilder
 
         int nodeCount = root.CountNodes();
         AxisAlignedBox[] nodeBoundingBoxes = new AxisAlignedBox[nodeCount];
-        TriangleTree.SpanRange[] nodeChildren = new TriangleTree.SpanRange[nodeCount];
-        int[] nodeTexturedTrianglesIndexes = new int[nodeCount];
+        NodeInformation[] nodeInformation = new NodeInformation[nodeCount];
         ISubDividableTriangleSet[][] triangleSets = new ISubDividableTriangleSet[root.CountNodes(x => x.Children.Count == 0)][];
         int texturedSetsIndex = 0;
         int lastNodeIndex = nodeCount - 1;
@@ -61,8 +61,7 @@ public class TriangleTreeBuilder
             if (node.Children.Count == 0)
             {
                 nodeBoundingBoxes[lastNodeIndex] = node.BoundingBox;
-                nodeChildren[lastNodeIndex] = new TriangleTree.SpanRange(0, 0);
-                nodeTexturedTrianglesIndexes[lastNodeIndex] = texturedSetsIndex;
+                nodeInformation[lastNodeIndex] = NodeInformation.CreateLeafNode(texturedSetsIndex);
                 triangleSets[texturedSetsIndex] = node.TexturedTriangleSets;
                 nodeToIndex.Add(node, lastNodeIndex);
                 lastNodeIndex--;
@@ -72,14 +71,13 @@ public class TriangleTreeBuilder
             {
                 int firstChildIndex = nodeToIndex[node.Children[0]];
                 nodeBoundingBoxes[lastNodeIndex] = node.BoundingBox;
-                nodeChildren[lastNodeIndex] = new TriangleTree.SpanRange(firstChildIndex, node.Children.Count);
-                nodeTexturedTrianglesIndexes[lastNodeIndex] = -1;
+                nodeInformation[lastNodeIndex] = NodeInformation.CreateParentNode(firstChildIndex, node.Children.Count);
                 nodeToIndex.Add(node, lastNodeIndex);
                 lastNodeIndex--;
             }
         }
 
-        return new TriangleTree(nodeBoundingBoxes, nodeChildren, nodeTexturedTrianglesIndexes, triangleSets, _combinedTriangleTreeStatistics);
+        return new TriangleTree(nodeBoundingBoxes, nodeInformation, triangleSets, _combinedTriangleTreeStatistics);
     }
 
     private sealed record Node(Node? Parent, AxisAlignedBox BoundingBox, ISubDividableTriangleSet[] TexturedTriangleSets, List<Node> Children)

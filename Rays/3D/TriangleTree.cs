@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using static Rays._3D.AxisAlignedBox;
 using static Rays._3D.Triangle;
 
@@ -8,22 +9,19 @@ namespace Rays._3D;
 public sealed class TriangleTree : ITriangleSetIntersector
 {
     private readonly AxisAlignedBox[] _nodeBoundingBoxes;
-    private readonly SpanRange[] _nodeChildren;
-    private readonly int[] _nodeTexturedTriangleIndexes;
+    private readonly NodeInformation[] _nodeInformation;
     private readonly ITriangleSetIntersector[][] _nodeTexturedTriangles;
     private readonly CombinedTriangleTreeStatistics _treeStatistics;
 
 
 
     internal TriangleTree(AxisAlignedBox[] nodeBoundingBoxes,
-                          SpanRange[] nodeChildren,
-                          int[] nodeTexturedTrianglesIndexes,
+                          NodeInformation[] nodeInformation,
                           ITriangleSetIntersector[][] nodeTexturedTriangles,
                           CombinedTriangleTreeStatistics treeStatistics)
     {
         _nodeBoundingBoxes = nodeBoundingBoxes;
-        _nodeChildren = nodeChildren;
-        _nodeTexturedTriangleIndexes = nodeTexturedTrianglesIndexes;
+        _nodeInformation = nodeInformation;
         _nodeTexturedTriangles = nodeTexturedTriangles;
         _treeStatistics = treeStatistics;
     }
@@ -52,11 +50,11 @@ public sealed class TriangleTree : ITriangleSetIntersector
         while (nodesToCheck.Count > 0)
         {
             int nodeIndex = nodesToCheck.Dequeue();
-            int nodeTexturedTriangleIndex = _nodeTexturedTriangleIndexes[nodeIndex];
+            NodeInformation nodeInformation = _nodeInformation[nodeIndex];
             statistics.NodesTraversed++;
-            if (nodeTexturedTriangleIndex != -1)
+            if (nodeInformation.IsLeafNode)
             {
-                if (TryGetIntersectionWithTriangles(ref statistics, rayTriangleOptimizedIntersection, _nodeTexturedTriangles[nodeTexturedTriangleIndex], out var intersection))
+                if (TryGetIntersectionWithTriangles(ref statistics, rayTriangleOptimizedIntersection, _nodeTexturedTriangles[nodeInformation.TexturedTriangleIndex], out var intersection))
                 {
                     float distance = Vector4.DistanceSquared(rayTriangleOptimizedIntersection.Start, intersection.intersection.GetIntersection(rayTriangleOptimizedIntersection));
                     if (distance > bestDistance)
@@ -72,14 +70,15 @@ public sealed class TriangleTree : ITriangleSetIntersector
                 continue;
             }
 
-            SpanRange nodeChildSpan = _nodeChildren[nodeIndex];
-            var nodeChildrenBoundingBoxes = nodeChildSpan.GetAsSpan(_nodeBoundingBoxes);
-            for (int i = 0; i < nodeChildrenBoundingBoxes.Length; i++)
+            int nodeChildStartIndex = nodeInformation.ChildStartIndex;
+            int nodeChildCount = nodeInformation.ChildCount;
+            for (int i = 0; i < nodeChildCount; i++)
             {
-                if (nodeChildrenBoundingBoxes[i].Intersects(optimizedRayBoxIntersection))
+                int childIndex = nodeChildStartIndex + i;
+                if (_nodeBoundingBoxes[childIndex].Intersects(optimizedRayBoxIntersection))
                 {
-                    float distance = Vector4.DistanceSquared(rayTriangleOptimizedIntersection.Start, nodeChildrenBoundingBoxes[i].Center);
-                    nodesToCheck.Enqueue(nodeChildSpan.Index + i, distance);
+                    float distance = Vector4.DistanceSquared(rayTriangleOptimizedIntersection.Start, _nodeBoundingBoxes[childIndex].Center);
+                    nodesToCheck.Enqueue(childIndex, distance);
                 }
             }
         }
@@ -119,11 +118,55 @@ public sealed class TriangleTree : ITriangleSetIntersector
         return _nodeTexturedTriangles.SelectMany(x => x.SelectMany(y => y.GetTriangles()));
     }
 
-    public readonly record struct SpanRange(int Index, int Length)
+    public readonly struct NodeInformation
     {
-        public Span<T> GetAsSpan<T>(T[] array)
+        private const uint _isLeafNodeMask = 0b10000000_00000000_00000000_00000000;
+        private const int _isLeafNodeShift = 31;
+        private const uint _childCountMask = 0b01111111_00000000_00000000_00000000;
+        private const int _childCountShift = 24;
+        private const uint _childStartMask = 0b00000000_11111111_11111111_11111111;
+        private const int _childStartShift = 0;
+        private const uint _trianglesMask_ = 0b01111111_11111111_11111111_11111111;
+        private const int _trianglesShift_ = 0;
+        private readonly uint _value;
+
+        public bool IsLeafNode => ((_value & _isLeafNodeMask) >> _isLeafNodeShift) == 1;
+
+        public int ChildStartIndex => (int)((_value & _childStartMask) >> _childStartShift);
+
+        public int ChildCount => (int)((_value & _childCountMask) >> _childCountShift);
+
+        public int TexturedTriangleIndex => (int)((_value & _trianglesMask_) >> _trianglesShift_);
+
+        public static NodeInformation CreateLeafNode(int texturedTrianglesIndex)
         {
-            return array.AsSpan(Index, Length);
+            return new NodeInformation(true, 0, 0, texturedTrianglesIndex);
+        }
+
+        public static NodeInformation CreateParentNode(int childStartIndex, int childCount)
+        {
+            return new NodeInformation(false, childStartIndex, childCount, 0);
+        }
+
+        private NodeInformation(bool isLeafNode, int childStartIndex, int childCount, int texturedTrianglesIndex)
+        {
+            WithinBounds(childStartIndex, _childStartMask, _childStartShift);
+            WithinBounds(childCount, _childCountMask, _childCountShift);
+            WithinBounds(texturedTrianglesIndex, _trianglesMask_, _trianglesShift_);
+
+            _value = (isLeafNode ? 1u : 0u) << _isLeafNodeShift;
+            _value |= ((uint)childCount << _childCountShift) & _childCountMask;
+            _value |= ((uint)childStartIndex << _childStartShift) & _childStartMask;
+            _value |= ((uint)texturedTrianglesIndex << _trianglesShift_) & _trianglesMask_;
+        }
+
+        private static void WithinBounds(int value, uint mask, int shift, [CallerArgumentExpression(nameof(value))] string? name = null)
+        {
+            int maxValue = (int)(mask >> shift);
+            if (value > maxValue || value < 0)
+            {
+                throw new ArgumentOutOfRangeException(name, $"Value must be within 0 to {maxValue} but had value {value}.");
+            }
         }
     }
 }
