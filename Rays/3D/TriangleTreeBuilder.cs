@@ -36,7 +36,7 @@ public class TriangleTreeBuilder
                 }
 
                 AxisAlignedBox fullSizedBox = AxisAlignedBox.GetBoundingBoxForTriangles(childTexturedTriangleSet.SelectMany(x => x.GetTriangles()));
-                AxisAlignedBox noLargerThanChildBox = new AxisAlignedBox(Vector3.Max(childBox.MinPosition, fullSizedBox.MinPosition), Vector3.Min(childBox.MaxPosition, fullSizedBox.MaxPosition));
+                AxisAlignedBox noLargerThanChildBox = new AxisAlignedBox(Vector4.Max(childBox.MinPosition, fullSizedBox.MinPosition), Vector4.Min(childBox.MaxPosition, fullSizedBox.MaxPosition));
                 var childNode = new Node(node, noLargerThanChildBox, childTexturedTriangleSet, new List<Node>());
                 node.Children.Add(childNode);
 
@@ -110,18 +110,18 @@ public class TriangleTreeBuilder
 
     private static AxisAlignedBox[] Get8SubBoxes(AxisAlignedBox box)
     {
-        static AxisAlignedBox CreateBox(Vector3 minPosition, Vector3 boxSize, int x, int y, int z)
+        static AxisAlignedBox CreateBox(Vector4 minPosition, Vector4 boxSize, int x, int y, int z)
         {
             // There is rare cases of 8 sub boxes not covering the entire area that the
             // large box did because of floating point error which is why the boxes will
             // overlap slightly.
-            Vector3 smallOverlap = new Vector3(0.00001f);
-            var axisMove = new Vector3(x, y, z);
+            Vector4 smallOverlap = new Vector4(0.00001f);
+            var axisMove = new Vector4(x, y, z, 0);
             var boxMinPosition = minPosition + axisMove * boxSize;
             return new AxisAlignedBox(boxMinPosition - smallOverlap, boxMinPosition + boxSize + smallOverlap);
         }
 
-        Vector3 halfSize = Vector3.Abs((box.MaxPosition - box.MinPosition) * 0.5f);
+        Vector4 halfSize = Vector4.Abs((box.MaxPosition - box.MinPosition) * 0.5f);
         return new AxisAlignedBox[]
         {
             CreateBox(box.MinPosition, halfSize, 0, 0, 0),

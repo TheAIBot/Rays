@@ -68,7 +68,7 @@ public sealed class TriangleTree : ITriangleSetIntersector
                 Node child = nodeChildren[i];
                 if (child.BoundingBox.Intersects(optimizedRayBoxIntersection))
                 {
-                    float distance = Vector4.DistanceSquared(rayTriangleOptimizedIntersection.Start, new Vector4(child.BoundingBox.Center, 0));
+                    float distance = Vector4.DistanceSquared(rayTriangleOptimizedIntersection.Start, child.BoundingBox.Center);
                     nodesToCheck.Enqueue(node.Children.Index + i, distance);
                 }
             }

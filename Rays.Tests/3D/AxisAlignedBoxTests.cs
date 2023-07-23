@@ -23,8 +23,8 @@ public sealed class AxisAlignedBoxTests
         float rayStartX, float rayStartY, float rayStartZ,
         float rayDirectionX, float rayDirectionY, float rayDirectionZ)
     {
-        var minPosition = new Vector3(0, 0, 0);
-        var maxPosition = new Vector3(2, 2, 2);
+        var minPosition = new Vector4(0, 0, 0, 0);
+        var maxPosition = new Vector4(2, 2, 2, 0);
         var box = new AxisAlignedBox(minPosition, maxPosition);
 
         var rayStart = new Vector3(rayStartX, rayStartY, rayStartZ);
@@ -45,8 +45,8 @@ public sealed class AxisAlignedBoxTests
         float rayStartX, float rayStartY, float rayStartZ,
         float rayDirectionX, float rayDirectionY, float rayDirectionZ)
     {
-        var minPosition = new Vector3(0, 0, 0);
-        var maxPosition = new Vector3(2, 2, 2);
+        var minPosition = new Vector4(0, 0, 0, 0);
+        var maxPosition = new Vector4(2, 2, 2, 0);
         var box = new AxisAlignedBox(minPosition, maxPosition);
 
         var rayStart = new Vector3(rayStartX, rayStartY, rayStartZ);
