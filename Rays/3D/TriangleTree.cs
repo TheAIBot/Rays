@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.CompilerServices;
 using static Rays._3D.AxisAlignedBox;
 using static Rays._3D.Triangle;
@@ -12,8 +11,6 @@ public sealed class TriangleTree : ITriangleSetIntersector
     private readonly NodeInformation[] _nodeInformation;
     private readonly ITriangleSetIntersector[][] _nodeTexturedTriangles;
     private readonly CombinedTriangleTreeStatistics _treeStatistics;
-
-
 
     internal TriangleTree(AxisAlignedBox[] nodeBoundingBoxes,
                           NodeInformation[] nodeInformation,
@@ -169,142 +166,5 @@ public sealed class TriangleTree : ITriangleSetIntersector
                 throw new ArgumentOutOfRangeException(name, $"Value must be within 0 to {maxValue} but had value {value}.");
             }
         }
-    }
-}
-
-public record struct TriangleTreeStatistics(float NodesTraversed, float TrianglesChecked, float IntersectionsFound);
-
-public sealed class CombinedTriangleTreeStatistics
-{
-    private readonly ConcurrentQueue<TriangleTreeStatistics> _unprocessedStatistics = new ConcurrentQueue<TriangleTreeStatistics>();
-
-    public HistoricalStatistics<float> NodesTraversed { get; } = new HistoricalStatistics<float>(20);
-    public HistoricalStatistics<float> TrianglesChecked { get; } = new HistoricalStatistics<float>(20);
-    public HistoricalStatistics<float> IntersectionsFound { get; } = new HistoricalStatistics<float>(20);
-
-    public void AddStatistic(TriangleTreeStatistics statistics)
-    {
-        _unprocessedStatistics.Enqueue(statistics);
-    }
-
-    public void ProcessStatistics()
-    {
-        NodesTraversed.AddNewEntry();
-        TrianglesChecked.AddNewEntry();
-        IntersectionsFound.AddNewEntry();
-
-        int itemCount = _unprocessedStatistics.Count;
-        for (int i = 0; i < itemCount; i++)
-        {
-            TriangleTreeStatistics statistics;
-            _unprocessedStatistics.TryDequeue(out statistics);
-
-            NodesTraversed.UpdateLatestEntry(statistics.NodesTraversed);
-            TrianglesChecked.UpdateLatestEntry(statistics.TrianglesChecked);
-            IntersectionsFound.UpdateLatestEntry(statistics.IntersectionsFound);
-        }
-    }
-
-    public void Clear()
-    {
-        NodesTraversed.Clear();
-        TrianglesChecked.Clear();
-        IntersectionsFound.Clear();
-    }
-}
-
-public readonly record struct HistoricalStatistics<T>(int MaxHistoryLength) where T : struct, INumber<T>
-{
-    private readonly Queue<Statistics<T>> _statistics = new Queue<Statistics<T>>();
-
-    public T Min => CalculateMin();
-    public T Average => CalculateAverage();
-    public T Max => CalculateMax();
-
-    public void AddNewEntry()
-    {
-        if (_statistics.Count == MaxHistoryLength)
-        {
-            _statistics.Dequeue();
-        }
-
-        _statistics.Enqueue(new Statistics<T>());
-    }
-
-    public void UpdateLatestEntry(T value)
-    {
-        _statistics.Last().Update(value);
-    }
-
-    public void Clear()
-    {
-        _statistics.Clear();
-    }
-
-    private T CalculateMin()
-    {
-        if (_statistics.Count == 0)
-        {
-            return default;
-        }
-
-        return _statistics.Min(x => x.Min);
-    }
-
-    private T CalculateAverage()
-    {
-        if (_statistics.Count == 0)
-        {
-            return default;
-        }
-
-        T sum = default;
-        T count = default;
-        foreach (var statistic in _statistics)
-        {
-            sum += statistic.Average;
-            count++;
-        }
-
-        return sum / count;
-    }
-
-    private T CalculateMax()
-    {
-        if (_statistics.Count == 0)
-        {
-            return default;
-        }
-
-        return _statistics.Max(x => x.Max);
-    }
-}
-
-
-public sealed class Statistics<T> where T : struct, INumber<T>
-{
-    private T _min;
-    private T _sum;
-    private T _count;
-    private T _max;
-
-    public T Min => _min;
-    public T Average => _count == default ? default : _sum / _count;
-    public T Max => _max;
-
-    public void Update(T value)
-    {
-        _min = _min == default ? value : T.Min(_min, value);
-        _sum += value;
-        _count++;
-        _max = T.Max(_max, value);
-    }
-
-    public void Clear()
-    {
-        _min = default;
-        _sum = default;
-        _count = default;
-        _max = default;
     }
 }
