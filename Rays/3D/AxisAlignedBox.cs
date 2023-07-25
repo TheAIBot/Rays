@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using static Rays._3D.Triangle;
 
@@ -27,18 +26,10 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
 
         Vector4 tMin = (MinPosition - optimizedRay.Start) * optimizedRay.InverseDirection;
         Vector4 tMax = (MaxPosition - optimizedRay.Start) * optimizedRay.InverseDirection;
-        Vector128<float> t1 = Vector4.Min(tMin, tMax).AsVector128();
-        Vector128<float> t2 = Vector4.Max(tMin, tMax).AsVector128();
+        float tNear = Vector4.Min(tMin, tMax).HorizontalMax();
+        float tFar = Vector4.Max(tMin, tMax).HorizontalMin();
 
-        Vector128<float> tNear = Sse.Max(Sse.Max(Sse.MoveHighToLow(t1, t1),
-                                                 Sse.Shuffle(t1, t1, 0b00_00_11_01)),
-                                         t1);
-
-        Vector128<float> tFar = Sse.Min(Sse.Min(Sse.MoveHighToLow(t2, t2),
-                                                Sse.Shuffle(t2, t2, 0b00_00_11_01)),
-                                        t2);
-
-        return tNear.GetElement(0) <= tFar.GetElement(0) && tFar.GetElement(0) >= 0;
+        return tNear <= tFar && tFar >= 0;
     }
 
     //https://gist.github.com/DomNomNom/46bb1ce47f68d255fd5d
