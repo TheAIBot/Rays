@@ -46,14 +46,21 @@ public sealed class TriangleTree : ITriangleSetIntersector
         nodesToCheck.Enqueue(0, 0);
         while (nodesToCheck.Count > 0)
         {
-            int nodeIndex = nodesToCheck.Dequeue();
+            int nodeIndex;
+            float nodeDistance;
+            nodesToCheck.TryDequeue(out nodeIndex, out nodeDistance);
+            if (nodeDistance > bestDistance)
+            {
+                continue;
+            }
+
             NodeInformation nodeInformation = _nodeInformation[nodeIndex];
             statistics.NodesTraversed++;
             if (nodeInformation.IsLeafNode)
             {
                 if (TryGetIntersectionWithTriangles(ref statistics, rayTriangleOptimizedIntersection, _nodeTexturedTriangles[nodeInformation.TexturedTriangleIndex], out var intersection))
                 {
-                    float distance = Vector4.DistanceSquared(rayTriangleOptimizedIntersection.Start, intersection.intersection.GetIntersection(rayTriangleOptimizedIntersection));
+                    float distance = ManhattanDistance(rayTriangleOptimizedIntersection.Start, intersection.intersection.GetIntersection(rayTriangleOptimizedIntersection));
                     if (distance > bestDistance)
                     {
                         continue;
@@ -75,7 +82,7 @@ public sealed class TriangleTree : ITriangleSetIntersector
                 ref readonly AxisAlignedBox childBoundingBox = ref _nodeBoundingBoxes[childIndex];
                 if (childBoundingBox.Intersects(optimizedRayBoxIntersection))
                 {
-                    float distance = Vector4.DistanceSquared(rayTriangleOptimizedIntersection.Start, childBoundingBox.Center);
+                    float distance = ManhattanDistance(Vector4.Abs(rayTriangleOptimizedIntersection.Start - childBoundingBox.Center), childBoundingBox.Size);
                     nodesToCheck.Enqueue(childIndex, distance);
                 }
             }
@@ -83,6 +90,12 @@ public sealed class TriangleTree : ITriangleSetIntersector
 
         _treeStatistics.AddStatistic(statistics);
         return bestDistance != float.MaxValue;
+    }
+
+    private static float ManhattanDistance(Vector4 a, Vector4 b)
+    {
+        Vector4 distance = Vector4.Abs(a - b);
+        return Vector4.Dot(distance, Vector4.One);
     }
 
     private bool TryGetIntersectionWithTriangles(ref TriangleTreeStatistics statistics, RayTriangleOptimizedIntersection rayTriangleOptimizedIntersection, ITriangleSetIntersector[] texturedTriangleSets, out (TriangleIntersection intersection, Color color) intersection)
