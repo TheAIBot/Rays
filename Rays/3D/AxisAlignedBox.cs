@@ -1,4 +1,6 @@
 ﻿using System.Numerics;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 using static Rays._3D.Triangle;
 
 namespace Rays._3D;
@@ -20,11 +22,18 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
     {
         Vector4 tMin = (MinPosition - optimizedRay.Start) * optimizedRay.InverseDirection;
         Vector4 tMax = (MaxPosition - optimizedRay.Start) * optimizedRay.InverseDirection;
-        Vector4 t1 = Vector4.Min(tMin, tMax);
-        Vector4 t2 = Vector4.Max(tMin, tMax);
-        float tNear = float.Max(float.Max(t1.X, t1.Y), t1.Z);
-        float tFar = float.Min(float.Min(t2.X, t2.Y), t2.Z);
-        return tNear <= tFar && tFar >= 0;
+        Vector128<float> t1 = Vector4.Min(tMin, tMax).AsVector128();
+        Vector128<float> t2 = Vector4.Max(tMin, tMax).AsVector128();
+
+        Vector128<float> tNear = Sse.Max(Sse.Max(Sse.MoveHighToLow(t1, t1),
+                                                 Sse.Shuffle(t1, t1, 0b00_00_11_01)),
+                                         t1);
+
+        Vector128<float> tFar = Sse.Min(Sse.Min(Sse.MoveHighToLow(t2, t2),
+                                                Sse.Shuffle(t2, t2, 0b00_00_11_01)),
+                                        t2);
+
+        return tNear.GetElement(0) <= tFar.GetElement(0) && tFar.GetElement(0) >= 0;
     }
 
     public bool CollidesWith(Triangle triangle)
