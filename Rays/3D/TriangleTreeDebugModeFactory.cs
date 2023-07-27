@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Threading.Tasks.Dataflow;
 using static Rays._3D.TriangleTree;
 
 namespace Rays._3D;
@@ -14,43 +15,55 @@ public sealed class TriangleTreeDebugModeFactory
 
     public TriangleTreeDebugMode Create(TriangleTree triangleTree)
     {
-        TriangleTree[] trees = GetLayerBoundingBoxes(triangleTree.Nodes.ToArray()).Select(GetTrianglesForLayerBoundingBoxes)
-                                                                                  .Select(_triangleTreeBuilder.Create)
-                                                                                  .ToArray();
-        return new TriangleTreeDebugMode(trees);
+        IEnumerable<LayerBoundingBoxes> layerBoundingBoxes = GetLayerBoundingBoxes(triangleTree.Nodes.ToArray());
+        var transformer = new TransformBlock<LayerBoundingBoxes, TriangleTree>(x => _triangleTreeBuilder.Create(GetTrianglesForLayerBoundingBoxes(x)),
+            new ExecutionDataflowBlockOptions()
+            {
+                EnsureOrdered = true,
+                MaxDegreeOfParallelism = Environment.ProcessorCount
+            });
+
+        foreach (var layerBoxes in layerBoundingBoxes)
+        {
+            transformer.Post(layerBoxes);
+        }
+        transformer.Complete();
+
+        var triangleTrees = transformer.ReceiveAllAsync().ToBlockingEnumerable().ToArray();
+        return new TriangleTreeDebugMode(triangleTrees);
     }
 
     private static IEnumerable<LayerBoundingBoxes> GetLayerBoundingBoxes((AxisAlignedBox Box, NodeInformation NodeInformation)[] nodes)
     {
-        Queue<((AxisAlignedBox Box, NodeInformation NodeInformation), int NodeLayer)> nodesToCheck = new Queue<((AxisAlignedBox Box, NodeInformation NodeInformation), int Layer)>();
-        nodesToCheck.Enqueue((nodes[0], 1));
+        Queue<NodeLayer> nodesToCheck = new Queue<NodeLayer>();
+        nodesToCheck.Enqueue(new NodeLayer(nodes[0].Box, nodes[0].NodeInformation, 1));
         int currentLayer = 1;
 
         List<AxisAlignedBox> boxesInLayer = new List<AxisAlignedBox>();
         while (nodesToCheck.Count > 0)
         {
-            ((AxisAlignedBox box, NodeInformation nodeInformation), int nodeLayer) = nodesToCheck.Dequeue();
-            if (nodeLayer != currentLayer)
+            NodeLayer node = nodesToCheck.Dequeue();
+            if (node.Layer != currentLayer)
             {
 
                 yield return new LayerBoundingBoxes(currentLayer, boxesInLayer.ToArray());
                 boxesInLayer.Clear();
-                currentLayer = nodeLayer;
+                currentLayer = node.Layer;
             }
 
-            boxesInLayer.Add(box);
+            boxesInLayer.Add(node.Box);
 
-            if (nodeInformation.IsLeafNode)
+            if (node.Information.IsLeafNode)
             {
                 continue;
             }
 
-            int nodeChildStartIndex = nodeInformation.ChildStartIndex;
-            int nodeChildCount = nodeInformation.ChildCount;
+            int nodeChildStartIndex = node.Information.ChildStartIndex;
+            int nodeChildCount = node.Information.ChildCount;
             for (int i = 0; i < nodeChildCount; i++)
             {
                 int childIndex = nodeChildStartIndex + i;
-                nodesToCheck.Enqueue((nodes[childIndex], nodeLayer + 1));
+                nodesToCheck.Enqueue(new NodeLayer(nodes[childIndex].Box, nodes[childIndex].NodeInformation, node.Layer + 1));
             }
         }
 
@@ -125,6 +138,8 @@ public sealed class TriangleTreeDebugModeFactory
         boundingBoxTriangles[5] = CreateSideTriangles(new Vector3(0, 0, 1), box, new Vector4(0, 0, 1, 0), new Vector4(0, 1, 0, 0), new Vector4(1, 0, 0, 0), false);
         return boundingBoxTriangles;
     }
+
+    private sealed record NodeLayer(AxisAlignedBox Box, NodeInformation Information, int Layer);
 
     private sealed record LayerBoundingBoxes(int Layer, AxisAlignedBox[] BoundingBoxes);
 }
