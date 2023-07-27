@@ -74,7 +74,7 @@
     private bool _updateUI = false;
     private int _renderScale = 1;
 
-    private readonly HistoricalStatistics<long> _frameTime = new HistoricalStatistics<long>(20);
+    private readonly HistoricalStatistics<long> _frameTime = new HistoricalStatistics<long>(60);
 
     [Parameter]
     public SceneSettings SceneSettings { get; set; } = default!;
