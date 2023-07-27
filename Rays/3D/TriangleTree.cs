@@ -44,7 +44,8 @@ public sealed class TriangleTree : ITriangleSetIntersector
         float bestDistance = float.MaxValue;
         var statistics = new TriangleTreeStatistics();
 
-        var nodesToCheck = new Stack<(int, float)>();
+        Span<(int, float)> defaultNodeSpace = stackalloc (int, float)[20];
+        var nodesToCheck = new StackStack<(int, float)>(defaultNodeSpace);
         nodesToCheck.Push((0, 0));
         while (nodesToCheck.Count > 0)
         {
@@ -127,6 +128,41 @@ public sealed class TriangleTree : ITriangleSetIntersector
     public IEnumerable<Triangle> GetTriangles()
     {
         return _nodeTexturedTriangles.SelectMany(x => x.SelectMany(y => y.GetTriangles()));
+    }
+
+    private ref struct StackStack<T> where T : struct
+    {
+        private Span<T> _items;
+        private int _count;
+
+        public int Count => _count;
+
+        public StackStack(Span<T> itemsContainer)
+        {
+            _items = itemsContainer;
+        }
+
+        public void Push(T item)
+        {
+            if (_count >= _items.Length)
+            {
+                Span<T> largerItemContainer = new T[_items.Length * 2];
+                _items.CopyTo(largerItemContainer);
+                _items = largerItemContainer;
+            }
+
+            _items[_count++] = item;
+        }
+
+        public T Pop()
+        {
+            if (_count == 0)
+            {
+                throw new InvalidOperationException("No items left to pop of the stack.");
+            }
+
+            return _items[--_count];
+        }
     }
 
     public readonly struct NodeInformation
