@@ -21,7 +21,7 @@ internal sealed class RayTracer : I3DScene
     {
         await _polygonDrawer.ClearAsync();
         RayTraceViewPort rayTraceViewPort = Camera.GetRayTraceViewPort(_polygonDrawer.Size);
-        await Parallel.ForEachAsync(GetPixelPositions(_polygonDrawer.Size), (position, _) => RaySetPixelColor(rayTraceViewPort, position));
+        await Parallel.ForEachAsync(GetPixelPositions(_polygonDrawer.Size).Chunk(10_000).ToArray(), (position, _) => RaySetPixelColor(rayTraceViewPort, position));
 
         await _polygonDrawer.RenderAsync();
     }
@@ -37,16 +37,19 @@ internal sealed class RayTracer : I3DScene
         }
     }
 
-    private ValueTask RaySetPixelColor(RayTraceViewPort rayTraceViewPort, Point pixelPosition)
+    private async ValueTask RaySetPixelColor(RayTraceViewPort rayTraceViewPort, Point[] pixelPositions)
     {
-        Ray ray = rayTraceViewPort.GetRayForPixel(pixelPosition);
-
-        Color color = new Color(20, 20, 20, 20);
-        if (_triangleSetIntersector.TryGetIntersection(ray, out (TriangleIntersection intersection, Color color) triangleIntersection))
+        foreach (var pixelPosition in pixelPositions)
         {
-            color = triangleIntersection.color;
-        }
+            Ray ray = rayTraceViewPort.GetRayForPixel(pixelPosition);
 
-        return _polygonDrawer.DrawPixelAsync(pixelPosition.X, pixelPosition.Y, color);
+            Color color = new Color(20, 20, 20, 20);
+            if (_triangleSetIntersector.TryGetIntersection(ray, out (TriangleIntersection intersection, Color color) triangleIntersection))
+            {
+                color = triangleIntersection.color;
+            }
+
+            await _polygonDrawer.DrawPixelAsync(pixelPosition.X, pixelPosition.Y, color);
+        }
     }
 }
