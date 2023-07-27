@@ -61,7 +61,7 @@ public sealed class TriangleTree : ITriangleSetIntersector
             {
                 if (TryGetIntersectionWithTriangles(ref statistics, rayTriangleOptimizedIntersection, _nodeTexturedTriangles[nodeInformation.TexturedTriangleIndex], out var intersection))
                 {
-                    float distance = ManhattanDistance(rayTriangleOptimizedIntersection.Start, intersection.intersection.GetIntersection(rayTriangleOptimizedIntersection));
+                    float distance = Vector4.Distance(rayTriangleOptimizedIntersection.Start, intersection.intersection.GetIntersection(rayTriangleOptimizedIntersection));
                     if (distance > bestDistance)
                     {
                         continue;
@@ -83,7 +83,7 @@ public sealed class TriangleTree : ITriangleSetIntersector
                 ref readonly AxisAlignedBox childBoundingBox = ref _nodeBoundingBoxes[childIndex];
                 if (childBoundingBox.Intersects(optimizedRayBoxIntersection))
                 {
-                    float distance = ManhattanDistance(Vector4.Abs(rayTriangleOptimizedIntersection.Start - childBoundingBox.Center), childBoundingBox.Size);
+                    float distance = Vector4.Distance(rayTriangleOptimizedIntersection.Start, childBoundingBox.Center) - childBoundingBox.Size.Length();
                     nodesToCheck.Push((childIndex, distance));
                 }
             }
@@ -91,12 +91,6 @@ public sealed class TriangleTree : ITriangleSetIntersector
 
         _treeStatistics.AddStatistic(statistics);
         return bestDistance != float.MaxValue;
-    }
-
-    private static float ManhattanDistance(Vector4 a, Vector4 b)
-    {
-        Vector4 distance = Vector4.Abs(a - b);
-        return Vector4.Dot(distance, Vector4.One);
     }
 
     private bool TryGetIntersectionWithTriangles(ref TriangleTreeStatistics statistics, RayTriangleOptimizedIntersection rayTriangleOptimizedIntersection, ITriangleSetIntersector[] texturedTriangleSets, out (TriangleIntersection intersection, Color color) intersection)
