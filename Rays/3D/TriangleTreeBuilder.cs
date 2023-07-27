@@ -15,7 +15,7 @@ public class TriangleTreeBuilder
     public TriangleTree Create(ISubDividableTriangleSet[] texturedTriangleSets)
     {
         AxisAlignedBox rootBox = AxisAlignedBox.GetBoundingBoxForTriangles(texturedTriangleSets.SelectMany(x => x.GetTriangles()));
-        Node root = new Node(null, rootBox, texturedTriangleSets, new List<Node>());
+        Node root = new Node(rootBox, texturedTriangleSets, new List<Node>());
         Stack<Node> nodesToGoThrough = new Stack<Node>();
         nodesToGoThrough.Push(root);
 
@@ -38,7 +38,7 @@ public class TriangleTreeBuilder
 
                 AxisAlignedBox fullSizedBox = AxisAlignedBox.GetBoundingBoxForTriangles(childTexturedTriangleSet.SelectMany(x => x.GetTriangles()));
                 AxisAlignedBox noLargerThanChildBox = new AxisAlignedBox(Vector4.Max(childBox.MinPosition, fullSizedBox.MinPosition), Vector4.Min(childBox.MaxPosition, fullSizedBox.MaxPosition));
-                var childNode = new Node(node, noLargerThanChildBox, childTexturedTriangleSet, new List<Node>());
+                var childNode = new Node(noLargerThanChildBox, childTexturedTriangleSet, new List<Node>());
                 node.Children.Add(childNode);
 
                 int minTrianglesPerNode = 50;
@@ -78,7 +78,7 @@ public class TriangleTreeBuilder
         return new TriangleTree(nodeBoundingBoxes, nodeInformation, triangleSets, _combinedTriangleTreeStatistics);
     }
 
-    private sealed record Node(Node? Parent, AxisAlignedBox BoundingBox, ISubDividableTriangleSet[] TexturedTriangleSets, List<Node> Children)
+    private sealed record Node(AxisAlignedBox BoundingBox, ISubDividableTriangleSet[] TexturedTriangleSets, List<Node> Children)
     {
         public int CountNodes()
         {
