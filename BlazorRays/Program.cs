@@ -16,6 +16,7 @@ public static class Program
 
         builder.Services.AddSingleton<CombinedTriangleTreeStatistics>();
         builder.Services.AddSingleton<TriangleTreeBuilder>();
+        builder.Services.AddSingleton<TriangleTreeDebugModeFactory>();
         builder.Services.AddSingleton<CameraFactory>();
         builder.Services.AddSingleton<SceneInformationFactory>();
         builder.Services.AddSingleton<TriangleSetsFromGeometryObject>();

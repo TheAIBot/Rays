@@ -12,6 +12,8 @@ public sealed class TriangleTree : ITriangleSetIntersector
     private readonly ITriangleSetIntersector[][] _nodeTexturedTriangles;
     private readonly CombinedTriangleTreeStatistics _treeStatistics;
 
+    internal IEnumerable<(AxisAlignedBox Box, NodeInformation NodeInformation)> Nodes => _nodeBoundingBoxes.Zip(_nodeInformation);
+
     internal TriangleTree(AxisAlignedBox[] nodeBoundingBoxes,
                           NodeInformation[] nodeInformation,
                           ITriangleSetIntersector[][] nodeTexturedTriangles,
