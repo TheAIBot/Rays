@@ -44,13 +44,11 @@ public sealed class TriangleTree : ITriangleSetIntersector
         float bestDistance = float.MaxValue;
         var statistics = new TriangleTreeStatistics();
 
-        var nodesToCheck = new PriorityQueue<int, float>();
-        nodesToCheck.Enqueue(0, 0);
+        var nodesToCheck = new Stack<(int, float)>();
+        nodesToCheck.Push((0, 0));
         while (nodesToCheck.Count > 0)
         {
-            int nodeIndex;
-            float nodeDistance;
-            nodesToCheck.TryDequeue(out nodeIndex, out nodeDistance);
+            (int nodeIndex, float nodeDistance) = nodesToCheck.Pop();
             if (nodeDistance > bestDistance)
             {
                 continue;
@@ -85,7 +83,7 @@ public sealed class TriangleTree : ITriangleSetIntersector
                 if (childBoundingBox.Intersects(optimizedRayBoxIntersection))
                 {
                     float distance = ManhattanDistance(Vector4.Abs(rayTriangleOptimizedIntersection.Start - childBoundingBox.Center), childBoundingBox.Size);
-                    nodesToCheck.Enqueue(childIndex, distance);
+                    nodesToCheck.Push((childIndex, distance));
                 }
             }
         }
