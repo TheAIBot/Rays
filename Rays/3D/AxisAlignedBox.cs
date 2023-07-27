@@ -84,6 +84,19 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
         return new AxisAlignedBox(min.ToZeroExtendedVector4(), max.ToZeroExtendedVector4());
     }
 
+    public static AxisAlignedBox GetBoundingBoxForBoxes(IEnumerable<AxisAlignedBox> boxes)
+    {
+        Vector4 min = new Vector4(float.MaxValue);
+        Vector4 max = new Vector4(float.MinValue);
+        foreach (var box in boxes)
+        {
+            min = Vector4.Min(min, box.MinPosition);
+            max = Vector4.Max(max, box.MaxPosition);
+        }
+
+        return new AxisAlignedBox(min, max);
+    }
+
     //https://gist.github.com/StagPoint/76ae48f5d7ca2f9820748d08e55c9806
     private bool Intersects(Triangle triangle)
     {

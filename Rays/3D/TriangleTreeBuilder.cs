@@ -41,7 +41,7 @@ public class TriangleTreeBuilder
                 var childNode = new Node(node, noLargerThanChildBox, childTexturedTriangleSet, new List<Node>());
                 node.Children.Add(childNode);
 
-                int minTrianglesPerNode = 20;
+                int minTrianglesPerNode = 50;
                 if (trianglesInChild < trianglesInParent && trianglesInChild > minTrianglesPerNode)
                 {
                     nodesToGoThrough.Push(childNode);
@@ -60,21 +60,19 @@ public class TriangleTreeBuilder
         {
             if (node.Children.Count == 0)
             {
-                nodeBoundingBoxes[lastNodeIndex] = node.BoundingBox;
+                nodeBoundingBoxes[lastNodeIndex] = AxisAlignedBox.GetBoundingBoxForTriangles(node.TexturedTriangleSets.SelectMany(x => x.GetTriangles()));
                 nodeInformation[lastNodeIndex] = NodeInformation.CreateLeafNode(texturedSetsIndex);
                 triangleSets[texturedSetsIndex] = node.TexturedTriangleSets;
-                nodeToIndex.Add(node, lastNodeIndex);
-                lastNodeIndex--;
                 texturedSetsIndex++;
             }
             else
             {
                 int firstChildIndex = nodeToIndex[node.Children[0]];
-                nodeBoundingBoxes[lastNodeIndex] = node.BoundingBox;
+                nodeBoundingBoxes[lastNodeIndex] = AxisAlignedBox.GetBoundingBoxForBoxes(node.Children.Select(x => nodeToIndex[x]).Select(x => nodeBoundingBoxes[x]));
                 nodeInformation[lastNodeIndex] = NodeInformation.CreateParentNode(firstChildIndex, node.Children.Count);
-                nodeToIndex.Add(node, lastNodeIndex);
-                lastNodeIndex--;
             }
+            nodeToIndex.Add(node, lastNodeIndex);
+            lastNodeIndex--;
         }
 
         return new TriangleTree(nodeBoundingBoxes, nodeInformation, triangleSets, _combinedTriangleTreeStatistics);
