@@ -6,15 +6,19 @@ public sealed class TriangleTreeFromGeometryObject : ITriangleSetIntersectorFrom
 {
     private readonly TriangleSetsFromGeometryObject _triangleSetsFromObject;
     private readonly TriangleTreeBuilder _treeBuilder;
+    private readonly CustomNodeClusterBuilder _customNodeClusterBuilder;
 
-    public TriangleTreeFromGeometryObject(TriangleSetsFromGeometryObject triangleSetsFromObject, TriangleTreeBuilder treeBuilder)
+    public TriangleTreeFromGeometryObject(TriangleSetsFromGeometryObject triangleSetsFromObject, TriangleTreeBuilder treeBuilder, CustomNodeClusterBuilder customNodeClusterBuilder)
     {
         _triangleSetsFromObject = triangleSetsFromObject;
         _treeBuilder = treeBuilder;
+        _customNodeClusterBuilder = customNodeClusterBuilder;
     }
 
     public ITriangleSetIntersector Create(string zippedGeometryFilePath)
     {
-        return _treeBuilder.Create(_triangleSetsFromObject.Load(zippedGeometryFilePath));
+        var texturedTriangles = _triangleSetsFromObject.Load(zippedGeometryFilePath);
+        var rootNode = _customNodeClusterBuilder.Create(texturedTriangles);
+        return _treeBuilder.Create(rootNode);
     }
 }

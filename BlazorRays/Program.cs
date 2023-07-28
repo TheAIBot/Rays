@@ -15,6 +15,7 @@ public static class Program
         builder.Services.AddServerSideBlazor();
 
         builder.Services.AddSingleton<CombinedTriangleTreeStatistics>();
+        builder.Services.AddSingleton<CustomNodeClusterBuilder>();
         builder.Services.AddSingleton<TriangleTreeBuilder>();
         builder.Services.AddSingleton<TriangleTreeDebugModeFactory>();
         builder.Services.AddSingleton<CameraFactory>();

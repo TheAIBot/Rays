@@ -7,29 +7,37 @@ namespace Rays._3D;
 public sealed class TriangleTreeDebugModeFactory
 {
     private readonly TriangleTreeBuilder _triangleTreeBuilder;
+    private readonly CustomNodeClusterBuilder _customNodeClusterBuilder;
 
-    public TriangleTreeDebugModeFactory(TriangleTreeBuilder triangleTreeBuilder)
+    public TriangleTreeDebugModeFactory(TriangleTreeBuilder triangleTreeBuilder, CustomNodeClusterBuilder customNodeClusterBuilder)
     {
         _triangleTreeBuilder = triangleTreeBuilder;
+        _customNodeClusterBuilder = customNodeClusterBuilder;
     }
 
-    public TriangleTreeDebugMode Create(TriangleTree triangleTree)
+    public async Task<TriangleTreeDebugMode> CreateAsync(TriangleTree triangleTree, CancellationToken cancellationToken)
     {
         IEnumerable<LayerBoundingBoxes> layerBoundingBoxes = GetLayerBoundingBoxes(triangleTree.Nodes.ToArray());
-        var transformer = new TransformBlock<LayerBoundingBoxes, TriangleTree>(x => _triangleTreeBuilder.Create(GetTrianglesForLayerBoundingBoxes(x)),
+        var transformer = new TransformBlock<LayerBoundingBoxes, TriangleTree>(x =>
+        {
+            var texturedTriangles = GetTrianglesForLayerBoundingBoxes(x);
+            var rootNode = _customNodeClusterBuilder.Create(texturedTriangles);
+            return _triangleTreeBuilder.Create(rootNode);
+        },
             new ExecutionDataflowBlockOptions()
             {
                 EnsureOrdered = true,
-                MaxDegreeOfParallelism = Environment.ProcessorCount
+                MaxDegreeOfParallelism = Environment.ProcessorCount,
+                CancellationToken = cancellationToken
             });
 
         foreach (var layerBoxes in layerBoundingBoxes)
         {
-            transformer.Post(layerBoxes);
+            await transformer.SendAsync(layerBoxes, cancellationToken);
         }
         transformer.Complete();
 
-        var triangleTrees = transformer.ReceiveAllAsync().ToBlockingEnumerable().ToArray();
+        var triangleTrees = await transformer.ReceiveAllAsync(cancellationToken).ToArrayAsync(cancellationToken);
         return new TriangleTreeDebugMode(triangleTrees);
     }
 
