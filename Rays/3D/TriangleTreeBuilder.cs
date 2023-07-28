@@ -24,6 +24,8 @@ public class TriangleTreeBuilder
             Node node = nodesToGoThrough.Pop();
 
             int trianglesInParent = node.TexturedTriangleSets.Sum(x => x.Triangles.Length);
+            List<Node> children = new List<Node>();
+            List<Node> wantToSplitUp = new List<Node>();
             foreach (var childBox in Get8SubBoxes(node.BoundingBox))
             {
                 ISubDividableTriangleSet[] childTexturedTriangleSet = node.TexturedTriangleSets
@@ -39,13 +41,24 @@ public class TriangleTreeBuilder
                 AxisAlignedBox fullSizedBox = AxisAlignedBox.GetBoundingBoxForTriangles(childTexturedTriangleSet.SelectMany(x => x.GetTriangles()));
                 AxisAlignedBox noLargerThanChildBox = new AxisAlignedBox(Vector4.Max(childBox.MinPosition, fullSizedBox.MinPosition), Vector4.Min(childBox.MaxPosition, fullSizedBox.MaxPosition));
                 var childNode = new Node(noLargerThanChildBox, childTexturedTriangleSet, new List<Node>());
-                node.Children.Add(childNode);
+                children.Add(childNode);
 
-                int minTrianglesPerNode = 50;
+                const int minTrianglesPerNode = 50;
                 if (trianglesInChild < trianglesInParent && trianglesInChild > minTrianglesPerNode)
                 {
-                    nodesToGoThrough.Push(childNode);
+                    wantToSplitUp.Add(childNode);
                 }
+            }
+
+            if (TooManyDuplicateTriangles(children))
+            {
+                continue;
+            }
+
+            node.Children.AddRange(children);
+            foreach (var nodeToSplitUp in wantToSplitUp)
+            {
+                nodesToGoThrough.Push(nodeToSplitUp);
             }
         }
 
@@ -76,6 +89,16 @@ public class TriangleTreeBuilder
         }
 
         return new TriangleTree(nodeBoundingBoxes, nodeInformation, triangleSets, _combinedTriangleTreeStatistics);
+    }
+
+    private static bool TooManyDuplicateTriangles(List<Node> children)
+    {
+        int childTotalTriangleCount = children.Sum(x => x.TexturedTriangleSets.Sum(y => y.Triangles.Length));
+        int UniqueTrianglesInChildrenCount = children.SelectMany(x => x.TexturedTriangleSets.SelectMany(y => y.Triangles)).Distinct().Count();
+        float duplicateTrianglesRatio = 1.0f - (UniqueTrianglesInChildrenCount / (float)childTotalTriangleCount);
+        const float maxAllowedDuplicateTrianglesRatio = 0.4f;
+
+        return duplicateTrianglesRatio > maxAllowedDuplicateTrianglesRatio;
     }
 
     private sealed record Node(AxisAlignedBox BoundingBox, ISubDividableTriangleSet[] TexturedTriangleSets, List<Node> Children)
