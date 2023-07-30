@@ -1,4 +1,6 @@
-﻿namespace Rays._3D;
+﻿using System.Threading.Tasks.Dataflow;
+
+namespace Rays._3D;
 
 public sealed class KMeansClusteringAlgorithm
 {
@@ -31,7 +33,7 @@ public sealed class KMeansClusteringAlgorithm
     private KMeansCluster<T>[] UpdateClusters<T>(KMeansCluster<T>[] clusters, KMeansClusterItems<T> items)
     {
         KMeansCluster<T>[] updatedClusters = clusters.Select(x => new KMeansCluster<T>(items, x.CalculatePosition())).ToArray();
-        for (int itemIndex = 0; itemIndex < items.Count; itemIndex++)
+        var transformer = new TransformBlock<int, (int ClusterIndex, int ItemIndex)>(itemIndex =>
         {
             int bestClusterIndex = -1;
             float bestClusterScore = float.MaxValue;
@@ -47,7 +49,22 @@ public sealed class KMeansClusteringAlgorithm
                 bestClusterIndex = i;
             }
 
-            updatedClusters[bestClusterIndex].AddItem(itemIndex);
+            return (bestClusterIndex, itemIndex);
+        }, new ExecutionDataflowBlockOptions()
+        {
+            MaxDegreeOfParallelism = Environment.ProcessorCount,
+            SingleProducerConstrained = true
+        });
+
+        for (int i = 0; i < items.Count; i++)
+        {
+            transformer.Post(i);
+        }
+        transformer.Complete();
+
+        foreach ((int clusterIndex, int itemIndex) in transformer.ReceiveAllAsync().ToBlockingEnumerable())
+        {
+            updatedClusters[clusterIndex].AddItem(itemIndex);
         }
 
         //Random random = new Random();
