@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 
 namespace Rays._3D;
 
@@ -8,6 +9,7 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
 
     public KMeansCluster<T>[] InitializeClusters<T>(KMeansClusterItems<T> items, int clusterCount)
     {
+        Stopwatch timer = Stopwatch.StartNew();
         List<KMeansCluster<T>> clusters = new List<KMeansCluster<T>>();
         HashSet<int> itemIndexesUsed = new HashSet<int>();
 
@@ -23,17 +25,20 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
         {
             List<int> sample = GetUniqueRandomValues(itemIndexesUsed, sampleSize, 0, items.Count).ToList();
 
-            Parallel.For(0, sampleSize, sampleIndex =>
+            Parallel.ForEach(Enumerable.Range(0, sampleSize).Chunk(1), sampleIndexes =>
             {
-                Vector4 itemPosition = items.Positions[sample[sampleIndex]];
-
-                float bestDistance = float.MaxValue;
-                for (int clusterIndex = 0; clusterIndex < clusters.Count; clusterIndex++)
+                foreach (var sampleIndex in sampleIndexes)
                 {
-                    bestDistance = Math.Min(bestDistance, Vector4.DistanceSquared(clusters[clusterIndex].Position, itemPosition));
-                }
+                    Vector4 itemPosition = items.Positions[sample[sampleIndex]];
 
-                distances[sampleIndex] = bestDistance;
+                    float bestDistance = float.MaxValue;
+                    for (int clusterIndex = 0; clusterIndex < clusters.Count; clusterIndex++)
+                    {
+                        bestDistance = Math.Min(bestDistance, Vector4.DistanceSquared(clusters[clusterIndex].Position, itemPosition));
+                    }
+
+                    distances[sampleIndex] = bestDistance;
+                }
             });
 
             float totalDistance = distances.Sum();
@@ -51,10 +56,13 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
                 }
             }
 
+            //Console.WriteLine($"Cluster: {i}/{clusterCount - 1}");
             clusters.Add(new KMeansCluster<T>(items, items.Positions[sample[chosenSampleIndex]]));
             itemIndexesUsed.Add(sample[chosenSampleIndex]);
         }
 
+        timer.Stop();
+        Console.WriteLine($"Initialization time: {timer.ElapsedMilliseconds:N0}");
         return clusters.ToArray();
     }
 
