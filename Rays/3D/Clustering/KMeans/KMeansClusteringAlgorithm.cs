@@ -11,7 +11,7 @@ public sealed class KMeansClusteringAlgorithm
         _calculateScore = calculateScore;
     }
 
-    public KMeansCluster<T>[] CreateClusters<T>(KMeansClusterItem<T>[] items, int clusterCount)
+    public KMeansCluster<T>[] CreateClusters<T>(KMeansClusterItems<T> items, int clusterCount)
     {
         KMeansCluster<T>[] clusters;
         KMeansCluster<T>[] updatedClusters = _initialization.InitializeClusters(items, clusterCount);
@@ -20,7 +20,7 @@ public sealed class KMeansClusteringAlgorithm
             clusters = updatedClusters;
             updatedClusters = UpdateClusters(clusters, items);
 
-            int[] awdija = updatedClusters.Select(x => x.ValuesInCluster.Count).Order().ToArray();
+            int[] awdija = updatedClusters.Select(x => x.ItemCount).Order().ToArray();
             Console.WriteLine($"Updated clusters {awdija.Skip(0).First()}, {awdija.Skip(updatedClusters.Length / 2).First()}, {awdija.Skip(awdija.Length - 1).First()}");
         } while (HasClustersChanged(clusters, updatedClusters));
 
@@ -28,16 +28,16 @@ public sealed class KMeansClusteringAlgorithm
         return updatedClusters;
     }
 
-    private KMeansCluster<T>[] UpdateClusters<T>(KMeansCluster<T>[] clusters, KMeansClusterItem<T>[] items)
+    private KMeansCluster<T>[] UpdateClusters<T>(KMeansCluster<T>[] clusters, KMeansClusterItems<T> items)
     {
-        KMeansCluster<T>[] updatedClusters = clusters.Select(x => new KMeansCluster<T>(x.CalculatePosition())).ToArray();
-        foreach (var item in items)
+        KMeansCluster<T>[] updatedClusters = clusters.Select(x => new KMeansCluster<T>(items, x.CalculatePosition())).ToArray();
+        for (int itemIndex = 0; itemIndex < items.Count; itemIndex++)
         {
             int bestClusterIndex = -1;
             float bestClusterScore = float.MaxValue;
             for (int i = 0; i < updatedClusters.Length; i++)
             {
-                float score = _calculateScore.ClusterScore(updatedClusters[i], item);
+                float score = _calculateScore.ClusterScore(updatedClusters[i], items, itemIndex);
                 if (score >= bestClusterScore)
                 {
                     continue;
@@ -47,7 +47,7 @@ public sealed class KMeansClusteringAlgorithm
                 bestClusterIndex = i;
             }
 
-            updatedClusters[bestClusterIndex].AddItem(item);
+            updatedClusters[bestClusterIndex].AddItem(itemIndex);
         }
 
         //Random random = new Random();
@@ -70,7 +70,7 @@ public sealed class KMeansClusteringAlgorithm
     {
         for (int i = 0; i < oldClusters.Length; i++)
         {
-            if (!oldClusters[i].ValuesInCluster.Select(x => x.Item).SequenceEqual(updatedClusters[i].ValuesInCluster.Select(x => x.Item)))
+            if (!oldClusters[i].Items.SequenceEqual(updatedClusters[i].Items))
             {
                 return true;
             }

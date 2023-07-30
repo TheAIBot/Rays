@@ -4,21 +4,25 @@ namespace Rays._3D;
 
 public sealed class KMeansCluster<T>
 {
-    private readonly List<KMeansClusterItem<T>> _valuesInCluster = new List<KMeansClusterItem<T>>();
+    private readonly List<int> _valuesInCluster = new List<int>();
+    private readonly KMeansClusterItems<T> _items;
     private readonly Vector4 _position;
 
-    public IReadOnlyList<KMeansClusterItem<T>> ValuesInCluster => _valuesInCluster;
     public Vector4 Position => _position;
+    public IEnumerable<Vector4> Positions => _valuesInCluster.Select(x => _items.Positions[x]);
+    public IEnumerable<T> Items => _valuesInCluster.Select(x => _items.Items[x]);
+    public int ItemCount => _valuesInCluster.Count;
 
 
-    public KMeansCluster(Vector4 position)
+    public KMeansCluster(KMeansClusterItems<T> items, Vector4 position)
     {
+        _items = items;
         _position = position;
     }
 
-    public void AddItem(KMeansClusterItem<T> item)
+    public void AddItem(int itemIndex)
     {
-        _valuesInCluster.Add(item);
+        _valuesInCluster.Add(itemIndex);
     }
 
     public Vector4 CalculatePosition()
@@ -31,7 +35,7 @@ public sealed class KMeansCluster<T>
         Vector4 sum = Vector4.Zero;
         for (int i = 0; i < _valuesInCluster.Count; i++)
         {
-            sum += _valuesInCluster[i].Position;
+            sum += _items.Positions[_valuesInCluster[i]];
         }
 
         Vector4 medianPosition = sum / _valuesInCluster.Count;
