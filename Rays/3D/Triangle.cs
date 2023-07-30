@@ -6,6 +6,8 @@ namespace Rays._3D;
 
 public readonly record struct Triangle(Vector3 CornerA, Vector3 CornerB, Vector3 CornerC)
 {
+    public Vector3 Center => (CornerA + CornerB + CornerC) / 3.0f;
+
     public bool TryGetIntersection(Ray ray, out TriangleIntersection intersection)
     {
         return TryGetIntersection(new RayTriangleOptimizedIntersection(ray), out intersection);

@@ -1,6 +1,6 @@
 ﻿namespace Rays._3D;
 
-public sealed record Node(AxisAlignedBox BoundingBox, ISubDividableTriangleSet[] TexturedTriangleSets, List<Node> Children)
+public sealed record Node(ISubDividableTriangleSet[] TexturedTriangleSets, List<Node> Children)
 {
     public int CountNodes()
     {

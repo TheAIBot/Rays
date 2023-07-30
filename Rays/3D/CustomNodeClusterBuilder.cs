@@ -7,18 +7,18 @@ public sealed class CustomNodeClusterBuilder : INodeClusterBuilder
     public Node Create(ISubDividableTriangleSet[] texturedTriangleSets)
     {
         AxisAlignedBox rootBox = AxisAlignedBox.GetBoundingBoxForTriangles(texturedTriangleSets.SelectMany(x => x.GetTriangles()));
-        var root = new Node(rootBox, texturedTriangleSets, new List<Node>());
-        var nodesToGoThrough = new Stack<Node>();
-        nodesToGoThrough.Push(root);
+        var root = new Node(texturedTriangleSets, new List<Node>());
+        var nodesToGoThrough = new Stack<(Node, AxisAlignedBox)>();
+        nodesToGoThrough.Push((root, rootBox));
 
         while (nodesToGoThrough.Count > 0)
         {
-            var node = nodesToGoThrough.Pop();
+            (var node, var boundingBox) = nodesToGoThrough.Pop();
 
             int trianglesInParent = node.TexturedTriangleSets.Sum(x => x.Triangles.Length);
             var children = new List<Node>();
-            var wantToSplitUp = new List<Node>();
-            foreach (var childBox in Get8SubBoxes(node.BoundingBox))
+            var wantToSplitUp = new List<(Node, AxisAlignedBox)>();
+            foreach (var childBox in Get8SubBoxes(rootBox))
             {
                 ISubDividableTriangleSet[] childTexturedTriangleSet = node.TexturedTriangleSets
                                                                     .Select(x => x.SubCopy(y => childBox.CollidesWith(y)))
@@ -32,13 +32,13 @@ public sealed class CustomNodeClusterBuilder : INodeClusterBuilder
 
                 AxisAlignedBox fullSizedBox = AxisAlignedBox.GetBoundingBoxForTriangles(childTexturedTriangleSet.SelectMany(x => x.GetTriangles()));
                 AxisAlignedBox noLargerThanChildBox = new AxisAlignedBox(Vector4.Max(childBox.MinPosition, fullSizedBox.MinPosition), Vector4.Min(childBox.MaxPosition, fullSizedBox.MaxPosition));
-                var childNode = new Node(noLargerThanChildBox, childTexturedTriangleSet, new List<Node>());
+                var childNode = new Node(childTexturedTriangleSet, new List<Node>());
                 children.Add(childNode);
 
                 const int minTrianglesPerNode = 50;
                 if (trianglesInChild < trianglesInParent && trianglesInChild > minTrianglesPerNode)
                 {
-                    wantToSplitUp.Add(childNode);
+                    wantToSplitUp.Add((childNode, noLargerThanChildBox));
                 }
             }
 

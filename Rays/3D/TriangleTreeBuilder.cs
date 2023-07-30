@@ -35,6 +35,7 @@ public class TriangleTreeBuilder
                 nodeBoundingBoxes[lastNodeIndex] = AxisAlignedBox.GetBoundingBoxForBoxes(node.Children.Select(x => nodeToIndex[x]).Select(x => nodeBoundingBoxes[x]));
                 nodeInformation[lastNodeIndex] = NodeInformation.CreateParentNode(firstChildIndex, node.Children.Count);
             }
+
             nodeToIndex.Add(node, lastNodeIndex);
             lastNodeIndex--;
         }
