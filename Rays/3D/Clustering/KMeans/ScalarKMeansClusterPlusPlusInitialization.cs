@@ -17,7 +17,7 @@ public sealed class ScalarKMeansClusterPlusPlusInitialization : IKMeansClusterIn
         int dataPointCount = items.Count; // Number of data points
         int overSamplingFactor = clusterCount; // Oversampling factor, can be adjusted
 
-        KMeansCluster<T>[] clusters = kMeansClusterPlusPlusInitialization.InitializeClusters(items, (int)(overSamplingFactor * Math.Log(dataPointCount)));
+        KMeansCluster<T>[] clusters = kMeansClusterPlusPlusInitialization.InitializeClusters(items, Math.Min(items.Count, (int)(overSamplingFactor * Math.Log(dataPointCount))));
 
         // Phase 2: Weighted reduction to k centers
         // Assign weights to each cluster
@@ -37,8 +37,6 @@ public sealed class ScalarKMeansClusterPlusPlusInitialization : IKMeansClusterIn
                 }
             }
             weights[nearestClusterIndex] += 1;
-
-            Console.WriteLine($"Weighing: {dataPointIndex}/{dataPointCount}");
         }
 
         // Use the weights to reduce to k clusters
@@ -60,8 +58,6 @@ public sealed class ScalarKMeansClusterPlusPlusInitialization : IKMeansClusterIn
             }
             finalClusters.Add(clusters[chosenIndex]);
             weights[chosenIndex] = 0; // Avoid choosing the same cluster again
-
-            Console.WriteLine($"Choosing: {selectedClusterIndex}/{clusterCount}");
         }
 
         return finalClusters.ToArray();

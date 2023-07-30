@@ -21,7 +21,7 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
         availableItemIndexes[firstIndex] = false;
 
         int sampleSize = Math.Min(items.Count, clusterCount * 3);  // Set sample size as needed
-        int[] samples = new int[sampleSize];
+        int[] sassmples = new int[sampleSize];
 
         float[] newClusterItemDistances = new float[items.Count];
         (float Distance, int Index)[] bestClusterItemDistanceIndexes = new (float, int)[items.Count];
@@ -32,7 +32,7 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
             newClusterItemDistances = CalculateClusterItemDistances(newClusterItemDistances, clusters[i - 1], items);
             UpdateBestClusterItemDistanceIndexes(newClusterItemDistances, i - 1, bestClusterItemDistanceIndexes);
 
-            samples = GetUniqueRandomValues(samples, availableIndexes.AsSpan(0, availableIndexes.Length - i), availableItemIndexes);
+            Span<int> samples = GetUniqueRandomValues(sassmples, availableIndexes.AsSpan(0, availableIndexes.Length - i), availableItemIndexes);
 
             float totalDistance = 0;
             for (int sampleIndex = 0; sampleIndex < samples.Length; sampleIndex++)
@@ -90,7 +90,7 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
         }
     }
 
-    private static int[] GetUniqueRandomValues(int[] samples, Span<int> availableIndexes, bool[] availableItemIndexes)
+    private static Span<int> GetUniqueRandomValues(int[] samples, Span<int> availableIndexes, bool[] availableItemIndexes)
     {
         int addedValues = 0;
         for (int i = 0; i < availableItemIndexes.Length; i++)
@@ -101,8 +101,9 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
             }
         }
 
+        int length = Math.Min(samples.Length, availableIndexes.Length);
         // Pick random elements from availableIndexes to fill samples
-        for (int i = 0; i < samples.Length; i++)
+        for (int i = 0; i < length; i++)
         {
             int randomIndex = _random.Next(availableIndexes.Length);
             samples[i] = availableIndexes[randomIndex];
@@ -110,7 +111,7 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
             availableIndexes = availableIndexes.Slice(0, availableIndexes.Length - 1);
         }
 
-        return samples;
+        return samples.AsSpan(0, length);
     }
 
     private static int[] GetUniquesssRandomValues(int[] samples, HashSet<int> itemIndexesUsed, int lowerBound, int upperBound)

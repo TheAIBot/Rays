@@ -68,17 +68,7 @@ public sealed class KMeansClusteringAlgorithm
         }
 
         //Random random = new Random();
-        //float minItemsInCluster = (items.Length / clusters.Length) * 0.1f;
-        //int updatedClusterCount = 0;
-        //KMeansCluster<T>[] biggestClusters = updatedClusters.OrderByDescending(x => x.ValuesInCluster.Count).ToArray();
-        //for (int i = 0; i < updatedClusters.Length; i++)
-        //{
-        //    if (updatedClusters[i].ValuesInCluster.Count < minItemsInCluster)
-        //    {
-        //        updatedClusters[i] = new KMeansCluster<T>(biggestClusters[updatedClusterCount].ValuesInCluster[random.Next(0, biggestClusters[updatedClusterCount].ValuesInCluster.Count)].Position);
-        //        updatedClusterCount++;
-        //    }
-        //}
+        //float minItemsInCluster = (items.Count / clusters.Length) * 0.1f;
 
         return updatedClusters;
     }

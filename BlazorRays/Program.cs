@@ -21,7 +21,7 @@ public static class Program
         builder.Services.AddSingleton<IKMeansClusterInitialization, KMeansClusterRandomInitialization>();
         builder.Services.AddSingleton<IKMeansClusterInitialization, KMeansClusterPlusPlusInitialization>();
         builder.Services.AddSingleton<KMeansClusterPlusPlusInitialization>();
-        //builder.Services.AddSingleton<IKMeansClusterInitialization, ScalarKMeansClusterPlusPlusInitialization>();
+        builder.Services.AddSingleton<IKMeansClusterInitialization, ScalarKMeansClusterPlusPlusInitialization>();
         builder.Services.AddSingleton<IKMeansClusterScore, KMeansClusterEuclidianScore>();
         builder.Services.AddSingleton<KMeansClusteringAlgorithm>();
         builder.Services.AddSingleton<KMeansNodeClusterBuilder>();
