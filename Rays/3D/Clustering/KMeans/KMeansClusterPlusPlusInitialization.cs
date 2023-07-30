@@ -39,20 +39,20 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
             float totalDistance = distances.Sum();
             float targetDistance = _random.NextSingle() * totalDistance;
             float cumulativeDistance = 0;
-            int chosenIndex = 0;
+            int chosenSampleIndex = 0;
 
             for (int sampleIndex = 0; sampleIndex < sample.Count; sampleIndex++)
             {
                 cumulativeDistance += distances[sampleIndex];
                 if (cumulativeDistance >= targetDistance)
                 {
-                    chosenIndex = sampleIndex;
+                    chosenSampleIndex = sampleIndex;
                     break;
                 }
             }
-            Console.WriteLine($"{i}/{clusterCount - 1}");
-            clusters.Add(new KMeansCluster<T>(items, items.Positions[sample[chosenIndex]]));
-            itemIndexesUsed.Add(sample[chosenIndex]);
+
+            clusters.Add(new KMeansCluster<T>(items, items.Positions[sample[chosenSampleIndex]]));
+            itemIndexesUsed.Add(sample[chosenSampleIndex]);
         }
 
         return clusters.ToArray();

@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Threading.Tasks.Dataflow;
 
 namespace Rays._3D;
 
@@ -18,11 +19,7 @@ public sealed class KMeansNodeClusterBuilder : INodeClusterBuilder
         const int averageTrianglesPerNode = 50;
         int clusterCountToReachAverageTrianglePerNode = (allTriangles.Length + (averageTrianglesPerNode - 1)) / averageTrianglesPerNode;
         KMeansCluster<Triangle>[] clusters = _clusteringAlgorithm.CreateClusters(triangleClusterItems, clusterCountToReachAverageTrianglePerNode);
-        Node[] leafNodes = clusters.Select(x => x.Items.ToHashSet())
-                                   .Select(x => new Node(texturedTriangleSets.Select(y => y.SubCopy(z => x.Contains(z)))
-                                                                             .Where(y => y.Triangles.Length > 0)
-                                                                             .ToArray(), new List<Node>()))
-                                   .ToArray();
+        Node[] leafNodes = CreateLeafNodes(clusters, texturedTriangleSets);
         Dictionary<Node, Vector4> nodeToPosition = clusters.Zip(leafNodes).ToDictionary(x => x.Second, x => x.First.Position);
         Node[] lowestLevelNodes = leafNodes;
         while (lowestLevelNodes.Length != 1)
@@ -44,5 +41,32 @@ public sealed class KMeansNodeClusterBuilder : INodeClusterBuilder
         }
 
         return lowestLevelNodes.Single();
+    }
+
+    private static Node[] CreateLeafNodes(KMeansCluster<Triangle>[] clusters, ISubDividableTriangleSet[] texturedTriangleSets)
+    {
+        var leafNodeCreator = new TransformBlock<KMeansCluster<Triangle>, Node>(cluster =>
+        {
+            var clusterTriangles = cluster.Items.ToHashSet();
+            var clusterTexturedTriangles = texturedTriangleSets.Select(x => x.SubCopy(y => clusterTriangles.Contains(y)))
+                                                               .Where(x => x.Triangles.Length > 0)
+                                                               .ToArray();
+            return new Node(clusterTexturedTriangles, new List<Node>());
+        }, new ExecutionDataflowBlockOptions()
+        {
+            EnsureOrdered = true,
+            MaxDegreeOfParallelism = Environment.ProcessorCount,
+            SingleProducerConstrained = true,
+        });
+
+        foreach (var cluster in clusters)
+        {
+            leafNodeCreator.Post(cluster);
+        }
+        leafNodeCreator.Complete();
+
+        return leafNodeCreator.ReceiveAllAsync()
+                              .ToBlockingEnumerable()
+                              .ToArray();
     }
 }
