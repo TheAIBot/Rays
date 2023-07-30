@@ -19,36 +19,32 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
         itemIndexesUsed.Add(firstIndex);
 
         int sampleSize = Math.Min(items.Count, clusterCount * 3);  // Set sample size as needed
+        int[] samples = new int[sampleSize];
 
-        float[] distances = new float[sampleSize];
+        float[] newClusterItemDistances = new float[items.Count];
+        (float Distance, int Index)[] bestClusterItemDistanceIndexes = new (float, int)[items.Count];
+        Array.Fill(bestClusterItemDistanceIndexes, (float.MaxValue, -1));
+
         for (int i = 1; i < clusterCount; i++)
         {
-            List<int> sample = GetUniqueRandomValues(itemIndexesUsed, sampleSize, 0, items.Count).ToList();
+            newClusterItemDistances = CalculateClusterItemDistances(newClusterItemDistances, clusters[i - 1], items);
+            UpdateBestClusterItemDistanceIndexes(newClusterItemDistances, i - 1, bestClusterItemDistanceIndexes);
 
-            Parallel.ForEach(Enumerable.Range(0, sampleSize).Chunk(1), sampleIndexes =>
+            samples = GetUniqueRandomValues(samples, itemIndexesUsed, 0, items.Count);
+
+            float totalDistance = 0;
+            for (int sampleIndex = 0; sampleIndex < samples.Length; sampleIndex++)
             {
-                foreach (var sampleIndex in sampleIndexes)
-                {
-                    Vector4 itemPosition = items.Positions[sample[sampleIndex]];
+                totalDistance += bestClusterItemDistanceIndexes[sampleIndex].Distance;
+            }
 
-                    float bestDistance = float.MaxValue;
-                    for (int clusterIndex = 0; clusterIndex < clusters.Count; clusterIndex++)
-                    {
-                        bestDistance = Math.Min(bestDistance, Vector4.DistanceSquared(clusters[clusterIndex].Position, itemPosition));
-                    }
-
-                    distances[sampleIndex] = bestDistance;
-                }
-            });
-
-            float totalDistance = distances.Sum();
             float targetDistance = _random.NextSingle() * totalDistance;
             float cumulativeDistance = 0;
             int chosenSampleIndex = 0;
 
-            for (int sampleIndex = 0; sampleIndex < sample.Count; sampleIndex++)
+            for (int sampleIndex = 0; sampleIndex < samples.Length; sampleIndex++)
             {
-                cumulativeDistance += distances[sampleIndex];
+                cumulativeDistance += bestClusterItemDistanceIndexes[samples[sampleIndex]].Distance;
                 if (cumulativeDistance >= targetDistance)
                 {
                     chosenSampleIndex = sampleIndex;
@@ -56,9 +52,12 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
                 }
             }
 
-            //Console.WriteLine($"Cluster: {i}/{clusterCount - 1}");
-            clusters.Add(new KMeansCluster<T>(items, items.Positions[sample[chosenSampleIndex]]));
-            itemIndexesUsed.Add(sample[chosenSampleIndex]);
+            if (i % 100 == 0)
+            {
+                Console.WriteLine($"Cluster: {i}/{clusterCount - 1}");
+            }
+            clusters.Add(new KMeansCluster<T>(items, items.Positions[samples[chosenSampleIndex]]));
+            itemIndexesUsed.Add(samples[chosenSampleIndex]);
         }
 
         timer.Stop();
@@ -66,10 +65,58 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
         return clusters.ToArray();
     }
 
-    private static IEnumerable<int> GetUniqueRandomValues(HashSet<int> itemIndexesUsed, int count, int lowerBound, int upperBound)
+    private static float[] CalculateClusterItemDistances<T>(float[] newClusterItemDistances, KMeansCluster<T> cluster, KMeansClusterItems<T> items)
+    {
+        Vector4 clusterPosition = cluster.Position;
+        for (int i = 0; i < newClusterItemDistances.Length; i++)
+        {
+            newClusterItemDistances[i] = Vector4.DistanceSquared(clusterPosition, items.Positions[i]);
+        }
+
+        return newClusterItemDistances;
+    }
+
+    private static void UpdateBestClusterItemDistanceIndexes(float[] clusterItemDistances, int newClusterIndex, (float Distance, int Index)[] bestClusterItemDistanceIndexes)
+    {
+        for (int i = 0; i < bestClusterItemDistanceIndexes.Length; i++)
+        {
+            (float, int) bestClusterIndex = bestClusterItemDistanceIndexes[i];
+            if (bestClusterIndex.Item2 == -1 || clusterItemDistances[i] < bestClusterIndex.Item1)
+            {
+                bestClusterItemDistanceIndexes[i] = (clusterItemDistances[i], newClusterIndex);
+            }
+        }
+    }
+
+    private static int[] GetUniqueRansssdomValues(int[] samples, HashSet<int> itemIndexesUsed, int lowerBound, int upperBound)
+    {
+        List<int> availableIndexes = new List<int>(upperBound - lowerBound - itemIndexesUsed.Count);
+
+        // Fill the availableIndexes list with values that are not in itemIndexesUsed
+        for (int i = lowerBound; i < upperBound; i++)
+        {
+            if (!itemIndexesUsed.Contains(i))
+            {
+                availableIndexes.Add(i);
+            }
+        }
+
+        // Pick random elements from availableIndexes to fill samples
+        for (int i = 0; i < samples.Length; i++)
+        {
+            int randomIndex = _random.Next(availableIndexes.Count);
+            samples[i] = availableIndexes[randomIndex];
+            availableIndexes[randomIndex] = availableIndexes[availableIndexes.Count - 1]; // Replace with last element
+            availableIndexes.RemoveAt(availableIndexes.Count - 1); // Remove last element
+        }
+
+        return samples;
+    }
+
+    private static int[] GetUniqueRandomValues(int[] samples, HashSet<int> itemIndexesUsed, int lowerBound, int upperBound)
     {
         HashSet<int> usedIndexes = new HashSet<int>();
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < samples.Length; i++)
         {
             int index;
             do
@@ -78,7 +125,9 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
             } while (usedIndexes.Contains(index) || itemIndexesUsed.Contains(index));
             usedIndexes.Add(index);
 
-            yield return index;
+            samples[i] = index;
         }
+
+        return samples;
     }
 }
