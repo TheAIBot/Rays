@@ -11,12 +11,14 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
     {
         Stopwatch timer = Stopwatch.StartNew();
         List<KMeansCluster<T>> clusters = new List<KMeansCluster<T>>();
-        HashSet<int> itemIndexesUsed = new HashSet<int>();
+        bool[] availableItemIndexes = new bool[items.Count];
+        Array.Fill(availableItemIndexes, true);
+        int[] availableIndexes = new int[items.Count];
 
         // Choose one center uniformly at random from among the data points.
         int firstIndex = _random.Next(items.Count);
         clusters.Add(new KMeansCluster<T>(items, items.Positions[firstIndex]));
-        itemIndexesUsed.Add(firstIndex);
+        availableItemIndexes[firstIndex] = false;
 
         int sampleSize = Math.Min(items.Count, clusterCount * 3);  // Set sample size as needed
         int[] samples = new int[sampleSize];
@@ -30,7 +32,7 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
             newClusterItemDistances = CalculateClusterItemDistances(newClusterItemDistances, clusters[i - 1], items);
             UpdateBestClusterItemDistanceIndexes(newClusterItemDistances, i - 1, bestClusterItemDistanceIndexes);
 
-            samples = GetUniqueRandomValues(samples, itemIndexesUsed, 0, items.Count);
+            samples = GetUniqueRandomValues(samples, availableIndexes.AsSpan(0, availableIndexes.Length - i), availableItemIndexes);
 
             float totalDistance = 0;
             for (int sampleIndex = 0; sampleIndex < samples.Length; sampleIndex++)
@@ -57,7 +59,7 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
                 Console.WriteLine($"Cluster: {i}/{clusterCount - 1}");
             }
             clusters.Add(new KMeansCluster<T>(items, items.Positions[samples[chosenSampleIndex]]));
-            itemIndexesUsed.Add(samples[chosenSampleIndex]);
+            availableItemIndexes[samples[chosenSampleIndex]] = false;
         }
 
         timer.Stop();
@@ -88,32 +90,30 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
         }
     }
 
-    private static int[] GetUniqueRansssdomValues(int[] samples, HashSet<int> itemIndexesUsed, int lowerBound, int upperBound)
+    private static int[] GetUniqueRandomValues(int[] samples, Span<int> availableIndexes, bool[] availableItemIndexes)
     {
-        List<int> availableIndexes = new List<int>(upperBound - lowerBound - itemIndexesUsed.Count);
-
-        // Fill the availableIndexes list with values that are not in itemIndexesUsed
-        for (int i = lowerBound; i < upperBound; i++)
+        int addedValues = 0;
+        for (int i = 0; i < availableItemIndexes.Length; i++)
         {
-            if (!itemIndexesUsed.Contains(i))
+            if (availableItemIndexes[i])
             {
-                availableIndexes.Add(i);
+                availableIndexes[addedValues++] = i;
             }
         }
 
         // Pick random elements from availableIndexes to fill samples
         for (int i = 0; i < samples.Length; i++)
         {
-            int randomIndex = _random.Next(availableIndexes.Count);
+            int randomIndex = _random.Next(availableIndexes.Length);
             samples[i] = availableIndexes[randomIndex];
-            availableIndexes[randomIndex] = availableIndexes[availableIndexes.Count - 1]; // Replace with last element
-            availableIndexes.RemoveAt(availableIndexes.Count - 1); // Remove last element
+            availableIndexes[randomIndex] = availableIndexes[availableIndexes.Length - 1]; // Replace with last element
+            availableIndexes = availableIndexes.Slice(0, availableIndexes.Length - 1);
         }
 
         return samples;
     }
 
-    private static int[] GetUniqueRandomValues(int[] samples, HashSet<int> itemIndexesUsed, int lowerBound, int upperBound)
+    private static int[] GetUniquesssRandomValues(int[] samples, HashSet<int> itemIndexesUsed, int lowerBound, int upperBound)
     {
         HashSet<int> usedIndexes = new HashSet<int>();
         for (int i = 0; i < samples.Length; i++)
