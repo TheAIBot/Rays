@@ -23,9 +23,9 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
         {
             List<int> sample = GetUniqueRandomValues(itemIndexesUsed, sampleSize, 0, items.Count).ToList();
 
-            for (int sampleIndex = 0; sampleIndex < sample.Count; sampleIndex++)
+            Parallel.For(0, sampleSize, sampleIndex =>
             {
-                Vector4 itemPosition = items.Positions[sampleIndex];
+                Vector4 itemPosition = items.Positions[sample[sampleIndex]];
 
                 float bestDistance = float.MaxValue;
                 for (int clusterIndex = 0; clusterIndex < clusters.Count; clusterIndex++)
@@ -34,7 +34,7 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
                 }
 
                 distances[sampleIndex] = bestDistance;
-            }
+            });
 
             float totalDistance = distances.Sum();
             float targetDistance = _random.NextSingle() * totalDistance;
