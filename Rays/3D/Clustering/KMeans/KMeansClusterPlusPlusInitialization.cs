@@ -19,20 +19,21 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
         RemoveIndex(ref availableItemIndexes, firstIndex);
 
         float[] newClusterItemDistances = new float[items.Count];
-        (float Distance, int Index)[] bestClusterItemDistanceIndexes = new (float, int)[items.Count];
-        Array.Fill(bestClusterItemDistanceIndexes, (float.MaxValue, -1));
+        float[] bestClusterItemDistances = new float[items.Count];
+        Array.Fill(bestClusterItemDistances, float.MaxValue);
 
         for (int i = 1; i < clusterCount; i++)
         {
             newClusterItemDistances = CalculateClusterItemDistances(newClusterItemDistances, clusters[i - 1], items);
-            UpdateBestClusterItemDistanceIndexes(newClusterItemDistances, i - 1, bestClusterItemDistanceIndexes);
-            Shuffle(availableItemIndexes);
+            UpdateBestClusterItemDistances(newClusterItemDistances, bestClusterItemDistances);
 
             float totalDistance = 0;
-            for (int distanceIndex = 0; distanceIndex < bestClusterItemDistanceIndexes.Length; distanceIndex++)
+            for (int distanceIndex = 0; distanceIndex < bestClusterItemDistances.Length; distanceIndex++)
             {
-                totalDistance += bestClusterItemDistanceIndexes[distanceIndex].Distance;
+                totalDistance += bestClusterItemDistances[distanceIndex];
             }
+
+            Shuffle(availableItemIndexes);
 
             float targetDistance = _random.NextSingle() * totalDistance;
             float cumulativeDistance = 0;
@@ -40,7 +41,7 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
 
             for (int sampleIndex = 0; sampleIndex < availableItemIndexes.Length; sampleIndex++)
             {
-                cumulativeDistance += bestClusterItemDistanceIndexes[availableItemIndexes[sampleIndex]].Distance;
+                cumulativeDistance += bestClusterItemDistances[availableItemIndexes[sampleIndex]];
                 if (cumulativeDistance >= targetDistance)
                 {
                     chosenSampleIndex = sampleIndex;
@@ -79,14 +80,14 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
         return newClusterItemDistances;
     }
 
-    private static void UpdateBestClusterItemDistanceIndexes(float[] clusterItemDistances, int newClusterIndex, (float Distance, int Index)[] bestClusterItemDistanceIndexes)
+    private static void UpdateBestClusterItemDistances(float[] clusterItemDistances, float[] bestClusterItemDistances)
     {
-        for (int i = 0; i < bestClusterItemDistanceIndexes.Length; i++)
+        for (int i = 0; i < bestClusterItemDistances.Length; i++)
         {
-            (float, int) bestClusterIndex = bestClusterItemDistanceIndexes[i];
-            if (clusterItemDistances[i] < bestClusterIndex.Item1)
+            float bestClusterItemDistance = bestClusterItemDistances[i];
+            if (clusterItemDistances[i] < bestClusterItemDistance)
             {
-                bestClusterItemDistanceIndexes[i] = (clusterItemDistances[i], newClusterIndex);
+                bestClusterItemDistances[i] = clusterItemDistances[i];
             }
         }
     }
