@@ -84,7 +84,7 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
         for (int i = 0; i < bestClusterItemDistanceIndexes.Length; i++)
         {
             (float, int) bestClusterIndex = bestClusterItemDistanceIndexes[i];
-            if (bestClusterIndex.Item2 == -1 || clusterItemDistances[i] < bestClusterIndex.Item1)
+            if (clusterItemDistances[i] < bestClusterIndex.Item1)
             {
                 bestClusterItemDistanceIndexes[i] = (clusterItemDistances[i], newClusterIndex);
             }
