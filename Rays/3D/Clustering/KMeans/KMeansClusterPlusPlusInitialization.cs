@@ -18,20 +18,12 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
         clusters.Add(new KMeansCluster<T>(items, items.Positions[firstIndex]));
         RemoveIndex(ref availableItemIndexes, firstIndex);
 
-        float[] newClusterItemDistances = new float[items.Count];
         float[] bestClusterItemDistances = new float[items.Count];
         Array.Fill(bestClusterItemDistances, float.MaxValue);
 
         for (int i = 1; i < clusterCount; i++)
         {
-            newClusterItemDistances = CalculateClusterItemDistances(newClusterItemDistances, clusters[i - 1], items);
-            UpdateBestClusterItemDistances(newClusterItemDistances, bestClusterItemDistances);
-
-            float totalDistance = 0;
-            for (int distanceIndex = 0; distanceIndex < bestClusterItemDistances.Length; distanceIndex++)
-            {
-                totalDistance += bestClusterItemDistances[distanceIndex];
-            }
+            float totalDistance = UpdateBestClusterItemDistancesAndGetDistanceSum(clusters[i - 1], items, bestClusterItemDistances);
 
             Shuffle(availableItemIndexes);
 
@@ -69,27 +61,24 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
         availableItemIndexes = availableItemIndexes.Slice(0, availableItemIndexes.Length - 1);
     }
 
-    private static float[] CalculateClusterItemDistances<T>(float[] newClusterItemDistances, KMeansCluster<T> cluster, KMeansClusterItems<T> items)
+    private static float UpdateBestClusterItemDistancesAndGetDistanceSum<T>(KMeansCluster<T> cluster, KMeansClusterItems<T> items, float[] bestClusterItemDistances)
     {
         Vector4 clusterPosition = cluster.Position;
-        for (int i = 0; i < newClusterItemDistances.Length; i++)
-        {
-            newClusterItemDistances[i] = Vector4.DistanceSquared(clusterPosition, items.Positions[i]);
-        }
-
-        return newClusterItemDistances;
-    }
-
-    private static void UpdateBestClusterItemDistances(float[] clusterItemDistances, float[] bestClusterItemDistances)
-    {
+        float distanceSum = 0;
         for (int i = 0; i < bestClusterItemDistances.Length; i++)
         {
+            float newClusterItemDistance = Vector4.DistanceSquared(clusterPosition, items.Positions[i]);
             float bestClusterItemDistance = bestClusterItemDistances[i];
-            if (clusterItemDistances[i] < bestClusterItemDistance)
+            if (newClusterItemDistance < bestClusterItemDistances[i])
             {
-                bestClusterItemDistances[i] = clusterItemDistances[i];
+                bestClusterItemDistance = newClusterItemDistance;
+                bestClusterItemDistances[i] = bestClusterItemDistance;
             }
+
+            distanceSum += bestClusterItemDistance;
         }
+
+        return distanceSum;
     }
 
     // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
