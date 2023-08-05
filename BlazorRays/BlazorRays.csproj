@@ -15,6 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Rays.Scenes\Rays.Scenes.csproj" />
     <ProjectReference Include="..\Rays\Rays.csproj" />
+    <ProjectReference Include="..\WorkProgress\WorkProgress.csproj" />
   </ItemGroup>
 
   <ItemGroup>

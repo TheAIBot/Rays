@@ -1,15 +1,22 @@
-﻿using System.Diagnostics;
-using System.Numerics;
+﻿using System.Numerics;
+using WorkProgress;
 
 namespace Rays._3D;
 
 public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitialization
 {
     private readonly XorShift _random = new XorShift(2);
+    private readonly IWorkReporting _workReporting;
+
+    public KMeansClusterPlusPlusInitialization(IWorkReporting workReporting)
+    {
+        _workReporting = workReporting;
+    }
 
     public KMeansCluster<T>[] InitializeClusters<T>(KMeansClusterItems<T> items, int clusterCount)
     {
-        Stopwatch timer = Stopwatch.StartNew();
+        using IKnownSizeWorkReport workReport = _workReporting.CreateKnownSizeWorkReport(clusterCount);
+
         List<KMeansCluster<T>> clusters = new List<KMeansCluster<T>>();
         Span<int> availableItemIndexes = Enumerable.Range(0, items.Count).ToArray();
 
@@ -17,6 +24,7 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
         int firstIndex = _random.Next(items.Count);
         clusters.Add(new KMeansCluster<T>(items, items.Positions[firstIndex]));
         RemoveIndex(ref availableItemIndexes, firstIndex);
+        workReport.IncrementProgress();
 
         float[] bestClusterItemDistances = new float[items.Count];
         Array.Fill(bestClusterItemDistances, float.MaxValue);
@@ -64,10 +72,9 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
             clusters.Add(new KMeansCluster<T>(items, items.Positions[availableItemIndexes[chosenAvailableItemIndex]]));
 
             RemoveIndex(ref availableItemIndexes, chosenAvailableItemIndex);
+            workReport.IncrementProgress();
         }
 
-        timer.Stop();
-        Console.WriteLine($"Initialization time: {timer.ElapsedMilliseconds:N0}");
         return clusters.ToArray();
     }
 

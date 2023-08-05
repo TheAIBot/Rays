@@ -1,23 +1,30 @@
 ﻿using System.Numerics;
+using WorkProgress;
 
 namespace Rays._3D;
 
 public sealed class ScalarKMeansClusterPlusPlusInitialization : IKMeansClusterInitialization
 {
-    private readonly KMeansClusterPlusPlusInitialization kMeansClusterPlusPlusInitialization;
+    private readonly KMeansClusterPlusPlusInitialization _kMeansClusterPlusPlusInitialization;
+    private readonly IWorkReporting _workReporting;
     private static Random _random = new Random(2);
 
-    public ScalarKMeansClusterPlusPlusInitialization(KMeansClusterPlusPlusInitialization kMeansClusterPlusPlusInitialization)
+    public ScalarKMeansClusterPlusPlusInitialization(KMeansClusterPlusPlusInitialization kMeansClusterPlusPlusInitialization, IWorkReporting workReporting)
     {
-        this.kMeansClusterPlusPlusInitialization = kMeansClusterPlusPlusInitialization;
+        _kMeansClusterPlusPlusInitialization = kMeansClusterPlusPlusInitialization;
+        _workReporting = workReporting;
     }
 
     public KMeansCluster<T>[] InitializeClusters<T>(KMeansClusterItems<T> items, int clusterCount)
     {
+        const int stepsInScalarKMeansPlusPlus = 3;
+        using IKnownSizeWorkReport workReport = _workReporting.CreateKnownSizeWorkReport(stepsInScalarKMeansPlusPlus);
+
         int dataPointCount = items.Count; // Number of data points
         int overSamplingFactor = clusterCount; // Oversampling factor, can be adjusted
 
-        KMeansCluster<T>[] clusters = kMeansClusterPlusPlusInitialization.InitializeClusters(items, Math.Min(items.Count, (int)(overSamplingFactor * Math.Log(dataPointCount))));
+        KMeansCluster<T>[] clusters = _kMeansClusterPlusPlusInitialization.InitializeClusters(items, Math.Min(items.Count, (int)(overSamplingFactor * Math.Log(dataPointCount))));
+        workReport.IncrementProgress();
 
         // Phase 2: Weighted reduction to k centers
         // Assign weights to each cluster
@@ -38,6 +45,7 @@ public sealed class ScalarKMeansClusterPlusPlusInitialization : IKMeansClusterIn
             }
             weights[nearestClusterIndex] += 1;
         }
+        workReport.IncrementProgress();
 
         // Use the weights to reduce to k clusters
         List<KMeansCluster<T>> finalClusters = new List<KMeansCluster<T>>();
@@ -59,6 +67,7 @@ public sealed class ScalarKMeansClusterPlusPlusInitialization : IKMeansClusterIn
             finalClusters.Add(clusters[chosenIndex]);
             weights[chosenIndex] = 0; // Avoid choosing the same cluster again
         }
+        workReport.IncrementProgress();
 
         return finalClusters.ToArray();
     }

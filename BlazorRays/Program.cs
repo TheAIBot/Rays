@@ -1,6 +1,7 @@
 using Rays._3D;
 using Rays.Scenes;
 using System.Reflection;
+using WorkProgress;
 
 namespace BlazorRays;
 
@@ -14,6 +15,7 @@ public static class Program
         builder.Services.AddRazorPages();
         builder.Services.AddServerSideBlazor();
 
+        builder.Services.AddWorkReporting();
         builder.Services.AddSingleton<CombinedTriangleTreeStatistics>();
         builder.Services.AddSingleton<CustomNodeClusterBuilder>();
         builder.Services.AddSingleton<TriangleTreeBuilder>();
@@ -21,7 +23,7 @@ public static class Program
         builder.Services.AddSingleton<IKMeansClusterInitialization, KMeansClusterRandomInitialization>();
         builder.Services.AddSingleton<IKMeansClusterInitialization, KMeansClusterPlusPlusInitialization>();
         builder.Services.AddSingleton<KMeansClusterPlusPlusInitialization>();
-        builder.Services.AddSingleton<IKMeansClusterInitialization, ScalarKMeansClusterPlusPlusInitialization>();
+        //builder.Services.AddSingleton<IKMeansClusterInitialization, ScalarKMeansClusterPlusPlusInitialization>();
         builder.Services.AddSingleton<IKMeansClusterScore, KMeansClusterEuclidianScore>();
         builder.Services.AddSingleton<KMeansClusteringAlgorithm>();
         builder.Services.AddSingleton<KMeansNodeClusterBuilder>();

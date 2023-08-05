@@ -13,9 +13,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rays.Tests", "Rays.Tests\Ra
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rays.Scenes", "Rays.Scenes\Rays.Scenes.csproj", "{A9DF331A-6517-4E01-9B7A-D5D575A6E2D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rays.GeometryLoaders", "Rays.GeometryLoaders\Rays.GeometryLoaders.csproj", "{A6B11D91-DF17-465A-B2E8-4835D66DE8AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rays.GeometryLoaders", "Rays.GeometryLoaders\Rays.GeometryLoaders.csproj", "{A6B11D91-DF17-465A-B2E8-4835D66DE8AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rays.GeometryLoaders.Tests", "Rays.GeometryLoaders.Tests\Rays.GeometryLoaders.Tests.csproj", "{14382F65-CB06-481D-B4D8-BA2E03311CA5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rays.GeometryLoaders.Tests", "Rays.GeometryLoaders.Tests\Rays.GeometryLoaders.Tests.csproj", "{14382F65-CB06-481D-B4D8-BA2E03311CA5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkProgress", "WorkProgress\WorkProgress.csproj", "{09C31F06-EDA2-4127-B4A9-CD1535462883}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{14382F65-CB06-481D-B4D8-BA2E03311CA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14382F65-CB06-481D-B4D8-BA2E03311CA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14382F65-CB06-481D-B4D8-BA2E03311CA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09C31F06-EDA2-4127-B4A9-CD1535462883}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09C31F06-EDA2-4127-B4A9-CD1535462883}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09C31F06-EDA2-4127-B4A9-CD1535462883}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09C31F06-EDA2-4127-B4A9-CD1535462883}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
