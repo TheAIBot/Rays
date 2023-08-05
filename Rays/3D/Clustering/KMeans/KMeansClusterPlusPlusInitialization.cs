@@ -39,8 +39,8 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
 
             // Apparently it is more efficient to shuffle chunks of the array
             // instead of shuffling it one index at a time in the inner loop.
-            // No idea why that is the case though but that is why this code
-            // works in chunks.
+            // No idea why that is the case but that is why the shuffle is
+            // split into chunks.
             const int shuffleChunkSize = 256;
             int shuffleChunkCount = (availableItemIndexes.Length + (shuffleChunkSize - 1)) / shuffleChunkSize;
             for (int shuffleChunkIndex = 0; shuffleChunkIndex < shuffleChunkCount; shuffleChunkIndex++)
@@ -65,10 +65,6 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
                 }
             }
 
-            if (i % 100 == 0)
-            {
-                Console.WriteLine($"Cluster: {i}/{clusterCount - 1}");
-            }
             clusters.Add(new KMeansCluster<T>(items, items.Positions[availableItemIndexes[chosenAvailableItemIndex]]));
 
             RemoveIndex(ref availableItemIndexes, chosenAvailableItemIndex);
