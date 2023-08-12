@@ -2,7 +2,7 @@
 
 namespace Clustering.KMeans;
 
-public sealed class KMeansClusters<T>
+public sealed class KMeansClusters<T> : IEquatable<KMeansClusters<T>>
 {
     private readonly KMeansClusterItems<T> _items;
     private readonly int[] _itemCluster;
@@ -112,8 +112,13 @@ public sealed class KMeansClusters<T>
         return clustersItemCount;
     }
 
-    public bool AreSame(KMeansClusters<T> other)
+    public bool Equals(KMeansClusters<T>? other)
     {
+        if (ReferenceEquals(null, other))
+        {
+            return false;
+        }
+
         return _itemCluster.SequenceEqual(other._itemCluster);
     }
 }
