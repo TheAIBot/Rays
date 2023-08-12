@@ -25,7 +25,7 @@ internal sealed class DisplayDepthRayTracer : I3DScene
         await _polygonDrawer.ClearAsync();
 
         RayTraceViewPort rayTraceViewPort = Camera.GetRayTraceViewPort(_polygonDrawer.Size);
-        await Parallel.ForEachAsync(GetPixelPositions(_polygonDrawer.Size).Chunk(10_000).ToArray(), (position, _) => RaySetPixelColor(rayTraceViewPort, position));
+        Parallel.For(0, _polygonDrawer.Size.X * _polygonDrawer.Size.Y, x => RaySetPixelColor(rayTraceViewPort, x, _polygonDrawer.Size.X));
 
         float min = float.MaxValue;
         float max = float.MinValue;
@@ -64,31 +64,19 @@ internal sealed class DisplayDepthRayTracer : I3DScene
         await _polygonDrawer.RenderAsync();
     }
 
-    private static IEnumerable<Point> GetPixelPositions(Point screenSize)
+    private ValueTask RaySetPixelColor(RayTraceViewPort rayTraceViewPort, int pixelIndex, int screenWidth)
     {
-        for (int y = 0; y < screenSize.Y; y++)
+        (int pixelY, int pixelX) = Math.DivRem(pixelIndex, screenWidth);
+        var pixelPosition = new Point(pixelX, pixelY);
+        Ray ray = rayTraceViewPort.GetRayForPixel(pixelPosition);
+
+        if (_triangleSetIntersector.TryGetIntersection(ray, out (TriangleIntersection intersection, Color color) triangleIntersection))
         {
-            for (int x = 0; x < screenSize.X; x++)
-            {
-                yield return new Point(x, y);
-            }
+            _depthMap[pixelPosition.X, pixelPosition.Y] = Vector3.Distance(triangleIntersection.intersection.GetIntersection(ray), ray.Start);
         }
-    }
-
-    private ValueTask RaySetPixelColor(RayTraceViewPort rayTraceViewPort, Point[] pixelPositions)
-    {
-        foreach (var pixelPosition in pixelPositions)
+        else
         {
-            Ray ray = rayTraceViewPort.GetRayForPixel(pixelPosition);
-
-            if (_triangleSetIntersector.TryGetIntersection(ray, out (TriangleIntersection intersection, Color color) triangleIntersection))
-            {
-                _depthMap[pixelPosition.X, pixelPosition.Y] = Vector3.Distance(triangleIntersection.intersection.GetIntersection(ray), ray.Start);
-            }
-            else
-            {
-                _depthMap[pixelPosition.X, pixelPosition.Y] = float.NaN;
-            }
+            _depthMap[pixelPosition.X, pixelPosition.Y] = float.NaN;
         }
 
         return ValueTask.CompletedTask;

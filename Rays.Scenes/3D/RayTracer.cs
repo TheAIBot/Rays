@@ -21,35 +21,23 @@ internal sealed class RayTracer : I3DScene
     {
         await _polygonDrawer.ClearAsync();
         RayTraceViewPort rayTraceViewPort = Camera.GetRayTraceViewPort(_polygonDrawer.Size);
-        await Parallel.ForEachAsync(GetPixelPositions(_polygonDrawer.Size).Chunk(10_000).ToArray(), (position, _) => RaySetPixelColor(rayTraceViewPort, position));
+        Parallel.For(0, _polygonDrawer.Size.X * _polygonDrawer.Size.Y, x => RaySetPixelColor(rayTraceViewPort, x, _polygonDrawer.Size.X));
 
         await _polygonDrawer.RenderAsync();
     }
 
-    private static IEnumerable<Point> GetPixelPositions(Point screenSize)
+    private ValueTask RaySetPixelColor(RayTraceViewPort rayTraceViewPort, int pixelIndex, int screenWidth)
     {
-        for (int y = 0; y < screenSize.Y; y++)
+        (int pixelY, int pixelX) = Math.DivRem(pixelIndex, screenWidth);
+        var pixelPosition = new Point(pixelX, pixelY);
+        Ray ray = rayTraceViewPort.GetRayForPixel(pixelPosition);
+
+        var color = new Color(20, 20, 20, 20);
+        if (_triangleSetIntersector.TryGetIntersection(ray, out (TriangleIntersection intersection, Color color) triangleIntersection))
         {
-            for (int x = 0; x < screenSize.X; x++)
-            {
-                yield return new Point(x, y);
-            }
+            color = triangleIntersection.color;
         }
-    }
 
-    private async ValueTask RaySetPixelColor(RayTraceViewPort rayTraceViewPort, Point[] pixelPositions)
-    {
-        foreach (var pixelPosition in pixelPositions)
-        {
-            Ray ray = rayTraceViewPort.GetRayForPixel(pixelPosition);
-
-            var color = new Color(20, 20, 20, 20);
-            if (_triangleSetIntersector.TryGetIntersection(ray, out (TriangleIntersection intersection, Color color) triangleIntersection))
-            {
-                color = triangleIntersection.color;
-            }
-
-            await _polygonDrawer.DrawPixelAsync(pixelPosition.X, pixelPosition.Y, color);
-        }
+        return _polygonDrawer.DrawPixelAsync(pixelPosition.X, pixelPosition.Y, color);
     }
 }
