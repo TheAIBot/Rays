@@ -32,10 +32,10 @@ public sealed class KMeansNodeClusterBuilder : INodeClusterBuilder
             int clusterCountToGetAverageChildCount = (lowestLevelNodes.Length + (averageChildCount - 1)) / averageChildCount;
             KMeansClusterItems<Node> clusterItems = KMeansClusterItems<Node>.Create(lowestLevelNodes, x => nodeToPosition[x]);
             KMeansClusters<Node> parentClusters = _clusteringAlgorithm.CreateClusters(clusterItems, clusterCountToGetAverageChildCount);
-            List<Node> parentNodes = new List<Node>();
+            var parentNodes = new List<Node>();
             for (int parentClusterIndex = 0; parentClusterIndex < parentClusters.Count; parentClusterIndex++)
             {
-                Node parentNode = new Node(Array.Empty<ISubDividableTriangleSet>(), parentClusters.GetClusterItems(parentClusterIndex).ToList());
+                var parentNode = new Node(Array.Empty<ISubDividableTriangleSet>(), parentClusters.GetClusterItems(parentClusterIndex).ToList());
                 nodeToPosition.Add(parentNode, parentClusters.GetClusterPosition(parentClusterIndex));
 
                 parentNodes.Add(parentNode);

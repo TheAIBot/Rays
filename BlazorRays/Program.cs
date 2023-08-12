@@ -28,9 +28,9 @@ public static class Program
         builder.Services.AddSingleton<IKMeansClusterScore, KMeansClusterEuclidianScore>();
         builder.Services.AddSingleton<IKMeansClusteringAlgorithm, KMeansClusteringAlgorithm>();
         builder.Services.AddSingleton<KMeansNodeClusterBuilder>();
-        builder.Services.AddSingleton<CameraFactory>();
-        builder.Services.AddSingleton<SceneInformationFactory>();
-        builder.Services.AddSingleton<TriangleSetsFromGeometryObject>();
+        builder.Services.AddSingleton<ICameraFactory, CameraFactory>();
+        builder.Services.AddSingleton<ISceneInformationFactory, SceneInformationFactory>();
+        builder.Services.AddSingleton<ITriangleSetsFromGeometryObject, TriangleSetsFromGeometryObject>();
         builder.Services.AddDisplayableOption<ITriangleSetIntersectorFromGeometryObject, TriangleTreeFromGeometryObject>("Triangle Tree (Custom)", true);
         builder.Services.AddDisplayableOption<ITriangleSetIntersectorFromGeometryObject, KMeansTriangleTreeFromGeometryObject>("Triangle Tree (KMeans)", false);
         builder.Services.AddDisplayableOption<ITriangleSetIntersectorFromGeometryObject, TriangleListFromGeometryObject>("Triangle List", false);

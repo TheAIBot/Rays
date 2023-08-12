@@ -13,12 +13,7 @@ public sealed class GeometryObjectBuilder
 
     public static GeometryObject CreateFromFile(string filePath)
     {
-        string folderPath = Path.GetDirectoryName(filePath)!;
-        if (folderPath == null)
-        {
-            throw new InvalidOperationException("Failed to get the directory the .obj file resides in.");
-        }
-
+        string? folderPath = Path.GetDirectoryName(filePath) ?? throw new InvalidOperationException("Failed to get the directory the .obj file resides in.");
         using TextReader stream = new StreamReader(filePath);
         var objectBuilder = new GeometryObjectBuilder();
 
@@ -45,7 +40,7 @@ public sealed class GeometryObjectBuilder
             //Remove comment from end of line
             if (commentStartIndex != -1)
             {
-                line = line.Slice(0, commentStartIndex);
+                line = line[..commentStartIndex];
             }
 
             var lineTokens = line.Tokenize(' ');
@@ -131,14 +126,11 @@ public sealed class GeometryObjectBuilder
                         {
                             throw new InvalidOperationException("Unexpected end of line.");
                         }
-                        if (currentModelBuilder == null)
-                        {
-                            // Inject default model only if none were defined yet.
-                            // Apparently it is valid to not define a geometry object but
-                            // we store everything in geometry objects here which is why
-                            // a default is created for such cases.
-                            currentModelBuilder = objectBuilder.AddGeometryModel("__Default__");
-                        }
+                        // Inject default model only if none were defined yet.
+                        // Apparently it is valid to not define a geometry object but
+                        // we store everything in geometry objects here which is why
+                        // a default is created for such cases.
+                        currentModelBuilder ??= objectBuilder.AddGeometryModel("__Default__");
                         if (!materials.TryGetValue(lineTokens.Current.ToString(), out Material? material))
                         {
                             throw new InvalidOperationException($"No material with the name {lineTokens.Current} exist.");

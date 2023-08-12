@@ -47,7 +47,7 @@ public sealed class SingleColoredTriangles : ISubDividableTriangleSet
 
     public ISubDividableTriangleSet SubCopy(Func<Triangle, bool> filter)
     {
-        List<Triangle> subTriangles = new List<Triangle>();
+        var subTriangles = new List<Triangle>();
         foreach (var triangle in Triangles)
         {
             if (filter(triangle))

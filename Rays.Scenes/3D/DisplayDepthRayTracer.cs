@@ -9,7 +9,7 @@ internal sealed class DisplayDepthRayTracer : I3DScene
     public SceneInformation Information { get; }
     private readonly ITriangleSetIntersector _triangleSetIntersector;
     private readonly IPolygonDrawer _polygonDrawer;
-    private float[,] _depthMap;
+    private readonly float[,] _depthMap;
 
     public DisplayDepthRayTracer(Camera camera, SceneInformation sceneInformation, IPolygonDrawer polygonDrawer, ITriangleSetIntersector triangleSetIntersector)
     {
@@ -45,7 +45,7 @@ internal sealed class DisplayDepthRayTracer : I3DScene
 
         float difference = MathF.Abs(max - min);
         float scalingToByteRange = difference / byte.MaxValue;
-        Color backgroundColor = new Color(20, 20, 20, 20);
+        var backgroundColor = new Color(20, 20, 20, 20);
         for (int y = 0; y < _polygonDrawer.Size.Y; y++)
         {
             for (int x = 0; x < _polygonDrawer.Size.X; x++)
@@ -64,7 +64,7 @@ internal sealed class DisplayDepthRayTracer : I3DScene
         await _polygonDrawer.RenderAsync();
     }
 
-    private IEnumerable<Point> GetPixelPositions(Point screenSize)
+    private static IEnumerable<Point> GetPixelPositions(Point screenSize)
     {
         for (int y = 0; y < screenSize.Y; y++)
         {

@@ -14,12 +14,12 @@ public class TriangleTreeBuilder
     public TriangleTree Create(Node root)
     {
         int nodeCount = root.CountNodes();
-        AxisAlignedBox[] nodeBoundingBoxes = new AxisAlignedBox[nodeCount];
-        NodeInformation[] nodeInformation = new NodeInformation[nodeCount];
-        ISubDividableTriangleSet[][] triangleSets = new ISubDividableTriangleSet[root.CountNodes(x => x.Children.Count == 0)][];
+        var nodeBoundingBoxes = new AxisAlignedBox[nodeCount];
+        var nodeInformation = new NodeInformation[nodeCount];
+        var triangleSets = new ISubDividableTriangleSet[root.CountNodes(x => x.Children.Count == 0)][];
         int texturedSetsIndex = 0;
         int lastNodeIndex = nodeCount - 1;
-        Dictionary<Node, int> nodeToIndex = new Dictionary<Node, int>();
+        var nodeToIndex = new Dictionary<Node, int>();
         foreach (var node in root.ReverseBreadthFirstOrder())
         {
             if (node.Children.Count == 0)

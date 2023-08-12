@@ -66,10 +66,7 @@ namespace BlazorRays.Code
 
         public void SwapImageBuffers()
         {
-            var a = _writeImageData;
-            _writeImageData = _readImageData;
-            _readImageData = a;
-
+            (_readImageData, _writeImageData) = (_writeImageData, _readImageData);
             _image = Image.WrapMemory<Rgba32>(_writeImageData, Size.X, Size.Y);
         }
     }

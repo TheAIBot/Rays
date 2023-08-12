@@ -93,4 +93,11 @@ public sealed class GeometryModel : IEquatable<GeometryModel>
                Faces.Equals(other.Faces) &&
                Material.Equals(other.Material);
     }
+
+    public override bool Equals(object? obj) => Equals(obj as GeometryModel);
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Name, Faces, Material);
+    }
 }

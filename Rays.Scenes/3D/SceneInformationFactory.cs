@@ -2,11 +2,11 @@
 
 namespace Rays.Scenes;
 
-public sealed class SceneInformationFactory
+public sealed class SceneInformationFactory : ISceneInformationFactory
 {
     public SceneInformation Create(ITriangleSetIntersector triangleSetIntersector)
     {
-        Counter triangleCounter = new Counter();
+        var triangleCounter = new Counter();
         IEnumerable<Triangle> triangles = TransparentCountTriangles(triangleSetIntersector.GetTriangles(), triangleCounter);
         AxisAlignedBox boundingBox = AxisAlignedBox.GetBoundingBoxForTriangles(triangles);
 

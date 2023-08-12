@@ -4,9 +4,9 @@ namespace Rays.Scenes;
 
 public sealed class TriangleListFromGeometryObject : ITriangleSetIntersectorFromGeometryObject
 {
-    private readonly TriangleSetsFromGeometryObject _triangleSetsFromObject;
+    private readonly ITriangleSetsFromGeometryObject _triangleSetsFromObject;
 
-    public TriangleListFromGeometryObject(TriangleSetsFromGeometryObject triangleSetsFromObject)
+    public TriangleListFromGeometryObject(ITriangleSetsFromGeometryObject triangleSetsFromObject)
     {
         _triangleSetsFromObject = triangleSetsFromObject;
     }

@@ -19,7 +19,7 @@ internal sealed class SpinningRectangle : I2DScene
 
     public async Task RenderAsync()
     {
-        List<Wall> walls = new List<Wall>(_staticWalls);
+        var walls = new List<Wall>(_staticWalls);
         walls.AddRange(_rectangle.GetAsWalls());
 
         var ray = new Ray(new Vector2(40, 50), Vector2.Normalize(new Vector2(-1, -1.5f)));

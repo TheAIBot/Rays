@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace Rays.Scenes;
 
-public sealed class TriangleSetsFromGeometryObject
+public sealed class TriangleSetsFromGeometryObject : ITriangleSetsFromGeometryObject
 {
     public ISubDividableTriangleSet[] Load(string zippedGeometryFilePath)
     {
@@ -25,9 +25,9 @@ public sealed class TriangleSetsFromGeometryObject
                     throw new InvalidOperationException("Neither diffuse texture or color was defined.");
                 }
 
-                Vector3 color = new Vector3(geometryModel.Material.Diffusion.Color.Value.X * 255,
-                                            geometryModel.Material.Diffusion.Color.Value.Y * 255,
-                                            geometryModel.Material.Diffusion.Color.Value.Z * 255);
+                var color = new Vector3(geometryModel.Material.Diffusion.Color.Value.X * 255,
+                                        geometryModel.Material.Diffusion.Color.Value.Y * 255,
+                                        geometryModel.Material.Diffusion.Color.Value.Z * 255);
                 texturedTriangles.Add(new SimpleColoredTriangles(singleColorVertices, new Triangle(color, color, color)));
             }
 

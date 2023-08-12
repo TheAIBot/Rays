@@ -21,7 +21,7 @@ public sealed class KMeansClusteringAlgorithm : IKMeansClusteringAlgorithm
         using IUnknownSizeWorkReport workReport = _workReporting.CreateUnknownWorkReport();
 
         KMeansClusters<T> clusters = _initialization.InitializeClusters(items, clusterCount);
-        KMeansClusters<T> oldClusters = new KMeansClusters<T>(items, clusterCount);
+        var oldClusters = new KMeansClusters<T>(items, clusterCount);
         do
         {
             KMeansClusters<T> updatedClusters = UpdateClusters(clusters, oldClusters, items);

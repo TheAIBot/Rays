@@ -26,7 +26,7 @@ internal sealed class RayTracer : I3DScene
         await _polygonDrawer.RenderAsync();
     }
 
-    private IEnumerable<Point> GetPixelPositions(Point screenSize)
+    private static IEnumerable<Point> GetPixelPositions(Point screenSize)
     {
         for (int y = 0; y < screenSize.Y; y++)
         {
@@ -43,7 +43,7 @@ internal sealed class RayTracer : I3DScene
         {
             Ray ray = rayTraceViewPort.GetRayForPixel(pixelPosition);
 
-            Color color = new Color(20, 20, 20, 20);
+            var color = new Color(20, 20, 20, 20);
             if (_triangleSetIntersector.TryGetIntersection(ray, out (TriangleIntersection intersection, Color color) triangleIntersection))
             {
                 color = triangleIntersection.color;

@@ -43,11 +43,11 @@ public sealed class TriangleTreeDebugModeFactory
 
     private static IEnumerable<LayerBoundingBoxes> GetLayerBoundingBoxes((AxisAlignedBox Box, NodeInformation NodeInformation)[] nodes)
     {
-        Queue<NodeLayer> nodesToCheck = new Queue<NodeLayer>();
+        var nodesToCheck = new Queue<NodeLayer>();
         nodesToCheck.Enqueue(new NodeLayer(nodes[0].Box, nodes[0].NodeInformation, 1));
         int currentLayer = 1;
 
-        List<AxisAlignedBox> boxesInLayer = new List<AxisAlignedBox>();
+        var boxesInLayer = new List<AxisAlignedBox>();
         while (nodesToCheck.Count > 0)
         {
             NodeLayer node = nodesToCheck.Dequeue();
@@ -81,7 +81,7 @@ public sealed class TriangleTreeDebugModeFactory
     private static SingleColoredTriangles[] GetTrianglesForLayerBoundingBoxes(LayerBoundingBoxes layerBoundingBoxes)
     {
         SingleColoredTriangles[][] boundingBoxTriangles = layerBoundingBoxes.BoundingBoxes.Select(CreateTrianglesForBoundingBox).ToArray();
-        List<Triangle>[] combinedTriangles = new List<Triangle>[6];
+        var combinedTriangles = new List<Triangle>[6];
         for (int i = 0; i < combinedTriangles.Length; i++)
         {
             combinedTriangles[i] = new List<Triangle>();
@@ -95,7 +95,7 @@ public sealed class TriangleTreeDebugModeFactory
             }
         }
 
-        SingleColoredTriangles[] combinedSingleColoredTriangles = new SingleColoredTriangles[combinedTriangles.Length];
+        var combinedSingleColoredTriangles = new SingleColoredTriangles[combinedTriangles.Length];
         for (int i = 0; i < combinedTriangles.Length; i++)
         {
             combinedSingleColoredTriangles[i] = new SingleColoredTriangles(combinedTriangles[i].ToArray(), boundingBoxTriangles[0][i].TriangleColor);
@@ -108,8 +108,8 @@ public sealed class TriangleTreeDebugModeFactory
     {
         static SingleColoredTriangles CreateSideTriangles(Vector3 color, AxisAlignedBox box, Vector4 startOffset, Vector4 side1, Vector4 side2, bool reversedTriangles)
         {
-            Vector3 scaledColor = color * new Vector3(byte.MaxValue);
-            Color rgba = new Color((byte)scaledColor.X, (byte)scaledColor.Y, (byte)scaledColor.Z, (byte)255);
+            var scaledColor = color * new Vector3(byte.MaxValue);
+            var rgba = new Color((byte)scaledColor.X, (byte)scaledColor.Y, (byte)scaledColor.Z, (byte)255);
 
             Vector3 start = (box.MinPosition + (box.Size * startOffset)).ToTruncatedVector3();
             Vector3 side1Change = (box.Size * side1).ToTruncatedVector3();

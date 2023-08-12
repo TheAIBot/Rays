@@ -36,8 +36,7 @@ public sealed class TriangleTests
         var rayStart = new Vector3(1, 1, 2);
         var rayDirection = new Vector3(1, 0, 0);
         var ray = new Ray(rayStart, rayDirection);
-
-        bool intersects = triangle.TryGetIntersection(ray, out TriangleIntersection intersection);
+        bool intersects = triangle.TryGetIntersection(ray, out _);
 
         Assert.False(intersects);
     }

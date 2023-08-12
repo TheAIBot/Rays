@@ -5,7 +5,7 @@ namespace WorkProgress;
 
 public sealed class ConcurrentHashSet<T> : IEnumerable<T> where T : notnull
 {
-    private readonly ConcurrentDictionary<T, T> _storage = new ConcurrentDictionary<T, T>();
+    private readonly ConcurrentDictionary<T, T> _storage = new();
 
     public bool Add(T item)
     {

@@ -4,7 +4,7 @@ namespace Rays._3D;
 
 public readonly record struct HistoricalStatistics<T>(int MaxHistoryLength) where T : struct, INumber<T>
 {
-    private readonly Queue<Statistics<T>> _statistics = new Queue<Statistics<T>>();
+    private readonly Queue<Statistics<T>> _statistics = new();
 
     public T Min => CalculateMin();
     public T Average => CalculateAverage();

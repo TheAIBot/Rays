@@ -14,7 +14,7 @@ public sealed record Node(ISubDividableTriangleSet[] TexturedTriangleSets, List<
 
     public IEnumerable<Node> BreadthFirstOrder()
     {
-        Queue<Node> nodesToGoThrough = new Queue<Node>();
+        var nodesToGoThrough = new Queue<Node>();
         nodesToGoThrough.Enqueue(this);
         while (nodesToGoThrough.Count > 0)
         {

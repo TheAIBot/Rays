@@ -93,7 +93,7 @@ public sealed class TriangleTree : ITriangleSetIntersector
         return bestDistance != float.MaxValue;
     }
 
-    private bool TryGetIntersectionWithTriangles(ref TriangleTreeStatistics statistics, RayTriangleOptimizedIntersection rayTriangleOptimizedIntersection, ITriangleSetIntersector[] texturedTriangleSets, out (TriangleIntersection intersection, Color color) intersection)
+    private static bool TryGetIntersectionWithTriangles(ref TriangleTreeStatistics statistics, RayTriangleOptimizedIntersection rayTriangleOptimizedIntersection, ITriangleSetIntersector[] texturedTriangleSets, out (TriangleIntersection intersection, Color color) intersection)
     {
         intersection = default;
         float bestDistance = float.MaxValue;
@@ -129,7 +129,7 @@ public sealed class TriangleTree : ITriangleSetIntersector
         private Span<T> _items;
         private int _count;
 
-        public int Count => _count;
+        public readonly int Count => _count;
 
         public StackStack(Span<T> itemsContainer)
         {

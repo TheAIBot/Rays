@@ -114,11 +114,23 @@ public sealed class KMeansClusters<T> : IEquatable<KMeansClusters<T>>
 
     public bool Equals(KMeansClusters<T>? other)
     {
-        if (ReferenceEquals(null, other))
+        if (other is null)
         {
             return false;
         }
 
         return _itemCluster.SequenceEqual(other._itemCluster);
+    }
+
+    public override bool Equals(object? obj) => Equals(obj as KMeansClusters<T>);
+
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        for (int i = 0; i < _itemCluster.Length; i++)
+        {
+            hash.Add(_itemCluster[i]);
+        }
+        return hash.ToHashCode();
     }
 }

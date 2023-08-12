@@ -6,7 +6,7 @@ public readonly record struct Ray(Vector2 Start, Vector2 Direction)
 {
     public static List<Line> GetRayPath(Ray ray, int bounceCount, List<Wall> walls)
     {
-        List<Vector2> points = new List<Vector2>
+        var points = new List<Vector2>
         {
             ray.Start
         };
@@ -33,7 +33,7 @@ public readonly record struct Ray(Vector2 Start, Vector2 Direction)
             points.Add(ray.Start);
         }
 
-        List<Line> lines = new List<Line>();
+        var lines = new List<Line>();
         for (int i = 0; i < points.Count - 1; i++)
         {
             lines.Add(new Line(points[i], points[i + 1]));

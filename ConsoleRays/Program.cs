@@ -5,7 +5,7 @@ namespace ConsoleRays;
 
 internal sealed class Program
 {
-    public static async Task Main(string[] args)
+    public static async Task Main(string[] _)
     {
         IPolygonDrawer polygonDrawer = new ConsolePolygonDrawer();
         I2DScene scene = new SpinningRectangleFactory().Create(polygonDrawer);

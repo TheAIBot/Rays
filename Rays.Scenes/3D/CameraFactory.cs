@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace Rays.Scenes;
 
-public sealed class CameraFactory
+public sealed class CameraFactory : ICameraFactory
 {
     public Camera Create(SceneInformation sceneInformation, IPolygonDrawer polygonDrawer)
     {

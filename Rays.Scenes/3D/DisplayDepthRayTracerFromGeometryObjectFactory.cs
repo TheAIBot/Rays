@@ -4,10 +4,10 @@ namespace Rays.Scenes;
 
 public sealed class DisplayDepthRayTracerFromGeometryObjectFactory : I3DSceneGeometryObjectFactory
 {
-    private readonly SceneInformationFactory _sceneInformationFactory;
-    private readonly CameraFactory _cameraFactory;
+    private readonly ISceneInformationFactory _sceneInformationFactory;
+    private readonly ICameraFactory _cameraFactory;
 
-    public DisplayDepthRayTracerFromGeometryObjectFactory(SceneInformationFactory sceneInformationFactory, CameraFactory cameraFactory)
+    public DisplayDepthRayTracerFromGeometryObjectFactory(ISceneInformationFactory sceneInformationFactory, ICameraFactory cameraFactory)
     {
         _sceneInformationFactory = sceneInformationFactory;
         _cameraFactory = cameraFactory;

@@ -6,9 +6,9 @@ namespace WorkProgress;
 
 internal sealed class WorkReporting : IWorkReporting, IWorkReportOwner
 {
-    private readonly ConcurrentHashSet<IWorkReport> _incompleteWorkReports = new ConcurrentHashSet<IWorkReport>();
-    private readonly ConcurrentHashSet<IWorkReport> _completedWorkReports = new ConcurrentHashSet<IWorkReport>();
-    private readonly ConcurrentHashSet<IWorkReport> _failedWorkReports = new ConcurrentHashSet<IWorkReport>();
+    private readonly ConcurrentHashSet<IWorkReport> _incompleteWorkReports = new();
+    private readonly ConcurrentHashSet<IWorkReport> _completedWorkReports = new();
+    private readonly ConcurrentHashSet<IWorkReport> _failedWorkReports = new();
 
     public IKnownSizeWorkReport CreateKnownSizeWorkReport(int maxProgress)
     {

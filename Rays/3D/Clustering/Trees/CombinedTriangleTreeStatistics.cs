@@ -4,7 +4,7 @@ namespace Rays._3D;
 
 public sealed class CombinedTriangleTreeStatistics
 {
-    private readonly ConcurrentQueue<TriangleTreeStatistics> _unprocessedStatistics = new ConcurrentQueue<TriangleTreeStatistics>();
+    private readonly ConcurrentQueue<TriangleTreeStatistics> _unprocessedStatistics = new();
 
     public HistoricalStatistics<float> NodesTraversed { get; } = new HistoricalStatistics<float>(20);
     public HistoricalStatistics<float> TrianglesChecked { get; } = new HistoricalStatistics<float>(20);
@@ -24,8 +24,7 @@ public sealed class CombinedTriangleTreeStatistics
         int itemCount = _unprocessedStatistics.Count;
         for (int i = 0; i < itemCount; i++)
         {
-            TriangleTreeStatistics statistics;
-            _unprocessedStatistics.TryDequeue(out statistics);
+            _unprocessedStatistics.TryDequeue(out TriangleTreeStatistics statistics);
 
             NodesTraversed.UpdateLatestEntry(statistics.NodesTraversed);
             TrianglesChecked.UpdateLatestEntry(statistics.TrianglesChecked);

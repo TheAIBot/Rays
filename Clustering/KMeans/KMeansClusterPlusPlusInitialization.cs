@@ -6,7 +6,7 @@ namespace Clustering.KMeans;
 
 public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitialization
 {
-    private readonly XorShift _random = new XorShift(2);
+    private readonly XorShift _random = new(2);
     private readonly IWorkReporting _workReporting;
 
     public KMeansClusterPlusPlusInitialization(IWorkReporting workReporting)
@@ -18,7 +18,7 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
     {
         using IKnownSizeWorkReport workReport = _workReporting.CreateKnownSizeWorkReport(clusterCount);
 
-        KMeansClusters<T> clusters = new KMeansClusters<T>(items, clusterCount);
+        var clusters = new KMeansClusters<T>(items, clusterCount);
         int clusterAddedCount = 0;
         Span<int> availableItemIndexes = Enumerable.Range(0, items.Count).ToArray();
 
@@ -80,8 +80,8 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
 
     private static void RemoveIndex(ref Span<int> availableItemIndexes, int indexToRemove)
     {
-        availableItemIndexes[indexToRemove] = availableItemIndexes[availableItemIndexes.Length - 1];
-        availableItemIndexes = availableItemIndexes.Slice(0, availableItemIndexes.Length - 1);
+        availableItemIndexes[indexToRemove] = availableItemIndexes[^1];
+        availableItemIndexes = availableItemIndexes[..^1];
     }
 
     private static float UpdateBestClusterItemDistancesAndGetDistanceSum<T>(Vector4 clusterPosition, KMeansClusterItems<T> items, float[] bestClusterItemDistances)
@@ -111,9 +111,7 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
         {
             int randomIndex = _random.Next(i, toShuffle.Length);
 
-            T temp = toShuffle[randomIndex];
-            toShuffle[randomIndex] = toShuffle[i];
-            toShuffle[i] = temp;
+            (toShuffle[i], toShuffle[randomIndex]) = (toShuffle[randomIndex], toShuffle[i]);
         }
     }
 }

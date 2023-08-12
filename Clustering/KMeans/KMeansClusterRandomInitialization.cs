@@ -4,9 +4,9 @@ public sealed class KMeansClusterRandomInitialization : IKMeansClusterInitializa
 {
     public KMeansClusters<T> InitializeClusters<T>(KMeansClusterItems<T> items, int clusterCount)
     {
-        Random random = new Random(1);
-        KMeansClusters<T> clusters = new KMeansClusters<T>(items, clusterCount);
-        HashSet<int> notAllowedIndexes = new HashSet<int>();
+        var random = new Random(1);
+        var clusters = new KMeansClusters<T>(items, clusterCount);
+        var notAllowedIndexes = new HashSet<int>();
         for (int i = 0; i < clusters.Count; i++)
         {
             int index;

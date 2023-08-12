@@ -5,11 +5,11 @@ namespace Rays.Scenes;
 
 public sealed class KMeansTriangleTreeFromGeometryObject : ITriangleSetIntersectorFromGeometryObject
 {
-    private readonly TriangleSetsFromGeometryObject _triangleSetsFromObject;
+    private readonly ITriangleSetsFromGeometryObject _triangleSetsFromObject;
     private readonly TriangleTreeBuilder _treeBuilder;
     private readonly KMeansNodeClusterBuilder _kMeansNodeClusterBuilder;
 
-    public KMeansTriangleTreeFromGeometryObject(TriangleSetsFromGeometryObject triangleSetsFromObject, TriangleTreeBuilder treeBuilder, KMeansNodeClusterBuilder kMeansNodeClusterBuilder)
+    public KMeansTriangleTreeFromGeometryObject(ITriangleSetsFromGeometryObject triangleSetsFromObject, TriangleTreeBuilder treeBuilder, KMeansNodeClusterBuilder kMeansNodeClusterBuilder)
     {
         _triangleSetsFromObject = triangleSetsFromObject;
         _treeBuilder = treeBuilder;

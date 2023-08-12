@@ -92,7 +92,7 @@ public sealed record Material(string Name, Ambient Ambient, Diffusion Diffusion,
             throw new InvalidOperationException();
         }
 
-        return text.Substring(0, firstSpaceIndex);
+        return text[..firstSpaceIndex];
     }
 
     private static string SkipFirstTokenSeparatedBySpace(string text)
@@ -103,6 +103,6 @@ public sealed record Material(string Name, Ambient Ambient, Diffusion Diffusion,
             throw new InvalidOperationException();
         }
 
-        return text.Substring(firstSpaceIndex + 1);
+        return text[(firstSpaceIndex + 1)..];
     }
 }

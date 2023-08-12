@@ -8,7 +8,7 @@ public sealed class ScalarKMeansClusterPlusPlusInitialization : IKMeansClusterIn
 {
     private readonly KMeansClusterPlusPlusInitialization _kMeansClusterPlusPlusInitialization;
     private readonly IWorkReporting _workReporting;
-    private static Random _random = new Random(2);
+    private static readonly Random _random = new(2);
 
     public ScalarKMeansClusterPlusPlusInitialization(KMeansClusterPlusPlusInitialization kMeansClusterPlusPlusInitialization, IWorkReporting workReporting)
     {
@@ -49,7 +49,7 @@ public sealed class ScalarKMeansClusterPlusPlusInitialization : IKMeansClusterIn
         workReport.IncrementProgress();
 
         // Use the weights to reduce to k clusters
-        KMeansClusters<T> finalClusters = new KMeansClusters<T>(items, clusterCount);
+        var finalClusters = new KMeansClusters<T>(items, clusterCount);
         for (int selectedClusterIndex = 0; selectedClusterIndex < clusterCount; selectedClusterIndex++)
         {
             float totalWeight = weights.Sum();

@@ -31,7 +31,7 @@ public sealed class CustomNodeClusterBuilder : INodeClusterBuilder
                 }
 
                 AxisAlignedBox fullSizedBox = AxisAlignedBox.GetBoundingBoxForTriangles(childTexturedTriangleSet.SelectMany(x => x.GetTriangles()));
-                AxisAlignedBox noLargerThanChildBox = new AxisAlignedBox(Vector4.Max(childBox.MinPosition, fullSizedBox.MinPosition), Vector4.Min(childBox.MaxPosition, fullSizedBox.MaxPosition));
+                var noLargerThanChildBox = new AxisAlignedBox(Vector4.Max(childBox.MinPosition, fullSizedBox.MinPosition), Vector4.Min(childBox.MaxPosition, fullSizedBox.MaxPosition));
                 var childNode = new Node(childTexturedTriangleSet, new List<Node>());
                 children.Add(childNode);
 
@@ -74,7 +74,7 @@ public sealed class CustomNodeClusterBuilder : INodeClusterBuilder
             // There is rare cases of 8 sub boxes not covering the entire area that the
             // large box did because of floating point error which is why the boxes will
             // overlap slightly.
-            Vector4 smallOverlap = new Vector4(0.00001f);
+            var smallOverlap = new Vector4(0.00001f);
             var axisMove = new Vector4(x, y, z, 0);
             var boxMinPosition = minPosition + axisMove * boxSize;
             return new AxisAlignedBox(boxMinPosition - smallOverlap, boxMinPosition + boxSize + smallOverlap);

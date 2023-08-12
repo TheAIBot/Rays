@@ -68,8 +68,8 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
 
     public static AxisAlignedBox GetBoundingBoxForTriangles(IEnumerable<Triangle> triangles)
     {
-        Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-        Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+        var min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+        var max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
         foreach (var triangle in triangles)
         {
             min = Vector3.Min(min, triangle.CornerA);
@@ -86,8 +86,8 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
 
     public static AxisAlignedBox GetBoundingBoxForBoxes(IEnumerable<AxisAlignedBox> boxes)
     {
-        Vector4 min = new Vector4(float.MaxValue);
-        Vector4 max = new Vector4(float.MinValue);
+        var min = new Vector4(float.MaxValue);
+        var max = new Vector4(float.MinValue);
         foreach (var box in boxes)
         {
             min = Vector4.Min(min, box.MinPosition);
@@ -123,7 +123,7 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
         var p1 = Vector4.Dot(v1, a00);
         var p2 = Vector4.Dot(v2, a00);
         var r = boxExtents.Y * Math.Abs(f0.Z) + boxExtents.Z * Math.Abs(f0.Z);
-        if (Math.Max(-fmax(p0, p1, p2), fmin(p0, p1, p2)) > r)
+        if (Math.Max(-Max(p0, p1, p2), Min(p0, p1, p2)) > r)
         {
             return false;
         }
@@ -134,7 +134,7 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
         p1 = Vector4.Dot(v1, a01);
         p2 = Vector4.Dot(v2, a01);
         r = boxExtents.Y * Math.Abs(f1.Z) + boxExtents.Z * Math.Abs(f1.Y);
-        if (Math.Max(-fmax(p0, p1, p2), fmin(p0, p1, p2)) > r)
+        if (Math.Max(-Max(p0, p1, p2), Min(p0, p1, p2)) > r)
         {
             return false;
         }
@@ -145,7 +145,7 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
         p1 = Vector4.Dot(v1, a02);
         p2 = Vector4.Dot(v2, a02);
         r = boxExtents.Y * Math.Abs(f2.Z) + boxExtents.Z * Math.Abs(f2.Y);
-        if (Math.Max(-fmax(p0, p1, p2), fmin(p0, p1, p2)) > r)
+        if (Math.Max(-Max(p0, p1, p2), Min(p0, p1, p2)) > r)
         {
             return false;
         }
@@ -156,7 +156,7 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
         p1 = Vector4.Dot(v1, a10);
         p2 = Vector4.Dot(v2, a10);
         r = boxExtents.X * Math.Abs(f0.Z) + boxExtents.Z * Math.Abs(f0.X);
-        if (Math.Max(-fmax(p0, p1, p2), fmin(p0, p1, p2)) > r)
+        if (Math.Max(-Max(p0, p1, p2), Min(p0, p1, p2)) > r)
         {
             return false;
         }
@@ -167,7 +167,7 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
         p1 = Vector4.Dot(v1, a11);
         p2 = Vector4.Dot(v2, a11);
         r = boxExtents.X * Math.Abs(f1.Z) + boxExtents.Z * Math.Abs(f1.X);
-        if (Math.Max(-fmax(p0, p1, p2), fmin(p0, p1, p2)) > r)
+        if (Math.Max(-Max(p0, p1, p2), Min(p0, p1, p2)) > r)
         {
             return false;
         }
@@ -178,7 +178,7 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
         p1 = Vector4.Dot(v1, a12);
         p2 = Vector4.Dot(v2, a12);
         r = boxExtents.X * Math.Abs(f2.Z) + boxExtents.Z * Math.Abs(f2.X);
-        if (Math.Max(-fmax(p0, p1, p2), fmin(p0, p1, p2)) > r)
+        if (Math.Max(-Max(p0, p1, p2), Min(p0, p1, p2)) > r)
         {
             return false;
         }
@@ -189,7 +189,7 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
         p1 = Vector4.Dot(v1, a20);
         p2 = Vector4.Dot(v2, a20);
         r = boxExtents.X * Math.Abs(f0.Y) + boxExtents.Y * Math.Abs(f0.X);
-        if (Math.Max(-fmax(p0, p1, p2), fmin(p0, p1, p2)) > r)
+        if (Math.Max(-Max(p0, p1, p2), Min(p0, p1, p2)) > r)
         {
             return false;
         }
@@ -200,7 +200,7 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
         p1 = Vector4.Dot(v1, a21);
         p2 = Vector4.Dot(v2, a21);
         r = boxExtents.X * Math.Abs(f1.Y) + boxExtents.Y * Math.Abs(f1.X);
-        if (Math.Max(-fmax(p0, p1, p2), fmin(p0, p1, p2)) > r)
+        if (Math.Max(-Max(p0, p1, p2), Min(p0, p1, p2)) > r)
         {
             return false;
         }
@@ -211,7 +211,7 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
         p1 = Vector4.Dot(v1, a22);
         p2 = Vector4.Dot(v2, a22);
         r = boxExtents.X * Math.Abs(f2.Y) + boxExtents.Y * Math.Abs(f2.X);
-        if (Math.Max(-fmax(p0, p1, p2), fmin(p0, p1, p2)) > r)
+        if (Math.Max(-Max(p0, p1, p2), Min(p0, p1, p2)) > r)
         {
             return false;
         }
@@ -222,19 +222,19 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
 
         // Exit if...
         // ... [-extents.x, extents.x] and [min(v0.x,v1.x,v2.x), max(v0.x,v1.x,v2.x)] do not overlap
-        if (fmax(v0.X, v1.X, v2.X) < -boxExtents.X || fmin(v0.X, v1.X, v2.X) > boxExtents.X)
+        if (Max(v0.X, v1.X, v2.X) < -boxExtents.X || Min(v0.X, v1.X, v2.X) > boxExtents.X)
         {
             return false;
         }
 
         // ... [-extents.y, extents.y] and [min(v0.y,v1.y,v2.y), max(v0.y,v1.y,v2.y)] do not overlap
-        if (fmax(v0.Y, v1.Y, v2.Y) < -boxExtents.Y || fmin(v0.Y, v1.Y, v2.Y) > boxExtents.Y)
+        if (Max(v0.Y, v1.Y, v2.Y) < -boxExtents.Y || Min(v0.Y, v1.Y, v2.Y) > boxExtents.Y)
         {
             return false;
         }
 
         // ... [-extents.z, extents.z] and [min(v0.z,v1.z,v2.z), max(v0.z,v1.z,v2.z)] do not overlap
-        if (fmax(v0.Z, v1.Z, v2.Z) < -boxExtents.Z || fmin(v0.Z, v1.Z, v2.Z) > boxExtents.Z)
+        if (Max(v0.Z, v1.Z, v2.Z) < -boxExtents.Z || Min(v0.Z, v1.Z, v2.Z) > boxExtents.Z)
         {
             return false;
         }
@@ -262,12 +262,12 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
         return true;
     }
 
-    private static float fmin(float a, float b, float c)
+    private static float Min(float a, float b, float c)
     {
         return Math.Min(a, Math.Min(b, c));
     }
 
-    private static float fmax(float a, float b, float c)
+    private static float Max(float a, float b, float c)
     {
         return Math.Max(a, Math.Max(b, c));
     }

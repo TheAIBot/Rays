@@ -4,11 +4,11 @@ namespace Rays.Scenes;
 
 public sealed class TriangleTreeFromGeometryObject : ITriangleSetIntersectorFromGeometryObject
 {
-    private readonly TriangleSetsFromGeometryObject _triangleSetsFromObject;
+    private readonly ITriangleSetsFromGeometryObject _triangleSetsFromObject;
     private readonly TriangleTreeBuilder _treeBuilder;
     private readonly CustomNodeClusterBuilder _customNodeClusterBuilder;
 
-    public TriangleTreeFromGeometryObject(TriangleSetsFromGeometryObject triangleSetsFromObject, TriangleTreeBuilder treeBuilder, CustomNodeClusterBuilder customNodeClusterBuilder)
+    public TriangleTreeFromGeometryObject(ITriangleSetsFromGeometryObject triangleSetsFromObject, TriangleTreeBuilder treeBuilder, CustomNodeClusterBuilder customNodeClusterBuilder)
     {
         _triangleSetsFromObject = triangleSetsFromObject;
         _treeBuilder = treeBuilder;

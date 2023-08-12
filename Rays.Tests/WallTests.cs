@@ -13,8 +13,8 @@ public sealed class WallTests
     [InlineData(1, -1)]
     public void TryReflectRay_WithRayPointingSomewhatRight_ExpectRayReflected(float dirX, float dirY)
     {
-        Ray ray = new Ray(new Vector2(0, 0), new Vector2(dirX * 10, dirY * 10));
-        Wall wall = new Wall(new Line(new Vector2(1, 3), new Vector2(1, -3)), new Vector2(-1, 0));
+        var ray = new Ray(new Vector2(0, 0), new Vector2(dirX * 10, dirY * 10));
+        var wall = new Wall(new Line(new Vector2(1, 3), new Vector2(1, -3)), new Vector2(-1, 0));
 
         Ray? reflectedRay = wall.TryReflectRay(ray);
 
@@ -33,8 +33,8 @@ public sealed class WallTests
     [InlineData(1, -1)]
     public void TryReflectRay_WithRayPointingSomewhatRightWallTwiceAsFarAway_ExpectRayReflected(float dirX, float dirY)
     {
-        Ray ray = new Ray(new Vector2(0, 0), new Vector2(dirX, dirY));
-        Wall wall = new Wall(new Line(new Vector2(2, 3), new Vector2(2, -3)), new Vector2(-1, 0));
+        var ray = new Ray(new Vector2(0, 0), new Vector2(dirX, dirY));
+        var wall = new Wall(new Line(new Vector2(2, 3), new Vector2(2, -3)), new Vector2(-1, 0));
 
         Ray? reflectedRay = wall.TryReflectRay(ray);
 
@@ -45,7 +45,7 @@ public sealed class WallTests
         Assert.Equal(dirY * 2, reflectedRay.Value.Start.Y, 0.00001f);
     }
 
-    public static TheoryData<Ray, Wall, Vector2?> IntersectionTestData => new TheoryData<Ray, Wall, Vector2?>
+    public static TheoryData<Ray, Wall, Vector2?> IntersectionTestData => new()
     {
         {
             new Ray(new Vector2(0, 0), new Vector2(1, 1)),
