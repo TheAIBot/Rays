@@ -1,4 +1,8 @@
-﻿namespace WorkProgress;
+﻿using WorkProgress.WorkReports;
+using WorkProgress.WorkReports.KnownSize;
+using WorkProgress.WorkReports.UnknownSize;
+
+namespace WorkProgress;
 
 internal sealed class WorkReporting : IWorkReporting, IWorkReportOwner
 {
@@ -9,6 +13,14 @@ internal sealed class WorkReporting : IWorkReporting, IWorkReportOwner
     public IKnownSizeWorkReport CreateKnownSizeWorkReport(int maxProgress)
     {
         var workReport = new KnownSizeWorkReport(this, maxProgress);
+        _incompleteWorkReports.Add(workReport);
+
+        return workReport;
+    }
+
+    public IUnknownSizeWorkReport CreateUnknownWorkReport()
+    {
+        var workReport = new UnknownWorkReport(this);
         _incompleteWorkReports.Add(workReport);
 
         return workReport;

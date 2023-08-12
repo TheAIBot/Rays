@@ -1,4 +1,4 @@
-﻿namespace WorkProgress;
+﻿namespace WorkProgress.WorkReports;
 
 public interface IWorkReport
 {

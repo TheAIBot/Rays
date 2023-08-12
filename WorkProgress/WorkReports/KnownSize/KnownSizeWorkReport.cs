@@ -1,4 +1,4 @@
-﻿namespace WorkProgress;
+﻿namespace WorkProgress.WorkReports.KnownSize;
 
 internal sealed class KnownSizeWorkReport : IKnownSizeWorkReport
 {

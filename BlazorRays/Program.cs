@@ -26,7 +26,7 @@ public static class Program
         builder.Services.AddSingleton<KMeansClusterPlusPlusInitialization>();
         //builder.Services.AddSingleton<IKMeansClusterInitialization, ScalarKMeansClusterPlusPlusInitialization>();
         builder.Services.AddSingleton<IKMeansClusterScore, KMeansClusterEuclidianScore>();
-        builder.Services.AddSingleton<KMeansClusteringAlgorithm>();
+        builder.Services.AddSingleton<IKMeansClusteringAlgorithm, KMeansClusteringAlgorithm>();
         builder.Services.AddSingleton<KMeansNodeClusterBuilder>();
         builder.Services.AddSingleton<CameraFactory>();
         builder.Services.AddSingleton<SceneInformationFactory>();

@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using WorkProgress;
+using WorkProgress.WorkReports.KnownSize;
 
 namespace Clustering.KMeans;
 

@@ -6,9 +6,9 @@ namespace Clustering.KMeans;
 
 public sealed class KMeansNodeClusterBuilder : INodeClusterBuilder
 {
-    private readonly KMeansClusteringAlgorithm _clusteringAlgorithm;
+    private readonly IKMeansClusteringAlgorithm _clusteringAlgorithm;
 
-    public KMeansNodeClusterBuilder(KMeansClusteringAlgorithm clusteringAlgorithm)
+    public KMeansNodeClusterBuilder(IKMeansClusteringAlgorithm clusteringAlgorithm)
     {
         _clusteringAlgorithm = clusteringAlgorithm;
     }

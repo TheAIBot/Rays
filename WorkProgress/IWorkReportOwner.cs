@@ -1,4 +1,6 @@
-﻿namespace WorkProgress;
+﻿using WorkProgress.WorkReports;
+
+namespace WorkProgress;
 
 internal interface IWorkReportOwner
 {
