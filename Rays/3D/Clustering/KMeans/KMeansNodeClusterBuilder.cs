@@ -1,6 +1,5 @@
 ﻿using Rays._3D;
 using System.Numerics;
-using System.Threading.Tasks.Dataflow;
 
 namespace Clustering.KMeans;
 
@@ -15,11 +14,12 @@ public sealed class KMeansNodeClusterBuilder : INodeClusterBuilder
 
     public Node Create(ISubDividableTriangleSet[] texturedTriangleSets)
     {
-        Triangle[] allTriangles = texturedTriangleSets.SelectMany(x => x.GetTriangles()).ToArray();
-        KMeansClusterItems<Triangle> triangleClusterItems = KMeansClusterItems<Triangle>.Create(allTriangles, x => x.Center.ToZeroExtendedVector4());
+        TexturedTriangleIndex[] texturedTriangleIndexes = GetTexturedTriangleIndexes(texturedTriangleSets);
+
+        KMeansClusterItems<TexturedTriangleIndex> triangleClusterItems = KMeansClusterItems<TexturedTriangleIndex>.Create(texturedTriangleIndexes, x => texturedTriangleSets[x.TextureIndex].Triangles[x.TriangleIndex].Center.ToZeroExtendedVector4());
         const int averageTrianglesPerNode = 50;
-        int clusterCountToReachAverageTrianglePerNode = (allTriangles.Length + (averageTrianglesPerNode - 1)) / averageTrianglesPerNode;
-        KMeansCluster<Triangle>[] clusters = _clusteringAlgorithm.CreateClusters(triangleClusterItems, clusterCountToReachAverageTrianglePerNode);
+        int clusterCountToReachAverageTrianglePerNode = (texturedTriangleIndexes.Length + (averageTrianglesPerNode - 1)) / averageTrianglesPerNode;
+        KMeansCluster<TexturedTriangleIndex>[] clusters = _clusteringAlgorithm.CreateClusters(triangleClusterItems, clusterCountToReachAverageTrianglePerNode);
         Node[] leafNodes = CreateLeafNodes(clusters, texturedTriangleSets);
         Dictionary<Node, Vector4> nodeToPosition = clusters.Zip(leafNodes).ToDictionary(x => x.Second, x => x.First.Position);
         Node[] lowestLevelNodes = leafNodes;
@@ -44,30 +44,34 @@ public sealed class KMeansNodeClusterBuilder : INodeClusterBuilder
         return lowestLevelNodes.Single();
     }
 
-    private static Node[] CreateLeafNodes(KMeansCluster<Triangle>[] clusters, ISubDividableTriangleSet[] texturedTriangleSets)
+    private static TexturedTriangleIndex[] GetTexturedTriangleIndexes(ISubDividableTriangleSet[] texturedTriangleSets)
     {
-        var leafNodeCreator = new TransformBlock<KMeansCluster<Triangle>, Node>(cluster =>
+        var texturedTriangleIndexes = new TexturedTriangleIndex[texturedTriangleSets.Sum(x => x.Triangles.Length)];
+        var triangleIndex = 0;
+        for (int textureIndex = 0; textureIndex < texturedTriangleSets.Length; textureIndex++)
         {
-            var clusterTriangles = cluster.Items.ToHashSet();
-            var clusterTexturedTriangles = texturedTriangleSets.Select(x => x.SubCopy(y => clusterTriangles.Contains(y)))
-                                                               .Where(x => x.Triangles.Length > 0)
-                                                               .ToArray();
-            return new Node(clusterTexturedTriangles, new List<Node>());
-        }, new ExecutionDataflowBlockOptions()
-        {
-            EnsureOrdered = true,
-            MaxDegreeOfParallelism = Environment.ProcessorCount,
-            SingleProducerConstrained = true,
-        });
-
-        foreach (var cluster in clusters)
-        {
-            leafNodeCreator.Post(cluster);
+            for (int i = 0; i < texturedTriangleSets[textureIndex].Triangles.Length; i++)
+            {
+                texturedTriangleIndexes[triangleIndex++] = new TexturedTriangleIndex(textureIndex, i);
+            }
         }
-        leafNodeCreator.Complete();
 
-        return leafNodeCreator.ReceiveAllAsync()
-                              .ToBlockingEnumerable()
-                              .ToArray();
+        return texturedTriangleIndexes;
     }
+
+    private static Node[] CreateLeafNodes(KMeansCluster<TexturedTriangleIndex>[] clusters, ISubDividableTriangleSet[] texturedTriangleSets)
+    {
+        var nodes = new Node[clusters.Length];
+        for (int i = 0; i < clusters.Length; i++)
+        {
+            var nodeTexturedTriangleSets = clusters[i].Items.GroupBy(x => x.TextureIndex)
+                                                            .Select(x => texturedTriangleSets[x.Key].SubCopy(x.Select(y => y.TriangleIndex)))
+                                                            .ToArray();
+            nodes[i] = new Node(nodeTexturedTriangleSets, new List<Node>());
+        }
+
+        return nodes;
+    }
+
+    private readonly record struct TexturedTriangleIndex(int TextureIndex, int TriangleIndex);
 }

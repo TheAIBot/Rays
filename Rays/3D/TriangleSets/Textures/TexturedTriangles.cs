@@ -69,8 +69,8 @@ public sealed class TexturedTriangles : ISubDividableTriangleSet
 
     public ISubDividableTriangleSet SubCopy(Func<Triangle, bool> filter)
     {
-        List<Triangle> subTriangles = new List<Triangle>();
-        List<Triangle> subTextureTriangles = new List<Triangle>();
+        var subTriangles = new List<Triangle>();
+        var subTextureTriangles = new List<Triangle>();
         for (int i = 0; i < Triangles.Length; i++)
         {
             if (filter(Triangles[i]))
@@ -78,6 +78,19 @@ public sealed class TexturedTriangles : ISubDividableTriangleSet
                 subTriangles.Add(Triangles[i]);
                 subTextureTriangles.Add(_textureTriangles[i]);
             }
+        }
+
+        return new TexturedTriangles(subTriangles.ToArray(), subTextureTriangles.ToArray(), _texture);
+    }
+
+    public ISubDividableTriangleSet SubCopy(IEnumerable<int> triangleIndexes)
+    {
+        var subTriangles = new List<Triangle>();
+        var subTextureTriangles = new List<Triangle>();
+        foreach (var triangleIndex in triangleIndexes)
+        {
+            subTriangles.Add(Triangles[triangleIndex]);
+            subTextureTriangles.Add(_textureTriangles[triangleIndex]);
         }
 
         return new TexturedTriangles(subTriangles.ToArray(), subTextureTriangles.ToArray(), _texture);

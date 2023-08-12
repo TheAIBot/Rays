@@ -59,6 +59,12 @@ public sealed class SingleColoredTriangles : ISubDividableTriangleSet
         return new SingleColoredTriangles(subTriangles.ToArray(), TriangleColor);
     }
 
+    public ISubDividableTriangleSet SubCopy(IEnumerable<int> triangleIndexes)
+    {
+        Triangle[] subTriangles = triangleIndexes.Select(x => Triangles[x]).ToArray();
+        return new SingleColoredTriangles(subTriangles, TriangleColor);
+    }
+
     public IEnumerable<Triangle> GetTriangles()
     {
         return Triangles;
