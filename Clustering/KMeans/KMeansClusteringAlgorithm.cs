@@ -31,7 +31,12 @@ public sealed class KMeansClusteringAlgorithm : IKMeansClusteringAlgorithm
 
             workReport.IncrementProgress();
             int[] awdija = updatedClusters.GetClusterItemCounts().Order().ToArray();
-            Console.WriteLine($"Updated clusters {awdija.Skip(0).First()}, {awdija.Skip(updatedClusters.Count / 2).First()}, {awdija.Skip(awdija.Length - 1).First()}");
+            int percentile000 = awdija.Skip((updatedClusters.Count / 4) * 0).First();
+            int percentile025 = awdija.Skip((updatedClusters.Count / 4) * 1).First();
+            int percentile050 = awdija.Skip((updatedClusters.Count / 4) * 2).First();
+            int percentile075 = awdija.Skip((updatedClusters.Count / 4) * 3).First();
+            int percentile100 = awdija.Skip(updatedClusters.Count - 1).First();
+            Console.WriteLine($"Updated clusters {percentile000}, {percentile025}, {percentile050}, {percentile075}, {percentile100}");
         } while (!clusters.AreSame(oldClusters));
 
         workReport.Complete();
