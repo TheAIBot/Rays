@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks.Dataflow;
-using WorkProgress;
+﻿using WorkProgress;
 using WorkProgress.WorkReports.UnknownSize;
 
 namespace Clustering.KMeans;
@@ -17,80 +16,38 @@ public sealed class KMeansClusteringAlgorithm : IKMeansClusteringAlgorithm
         _workReporting = workReporting;
     }
 
-    public KMeansCluster<T>[] CreateClusters<T>(KMeansClusterItems<T> items, int clusterCount)
+    public KMeansClusters<T> CreateClusters<T>(KMeansClusterItems<T> items, int clusterCount)
     {
         using IUnknownSizeWorkReport workReport = _workReporting.CreateUnknownWorkReport();
 
-        KMeansCluster<T>[] clusters;
-        KMeansCluster<T>[] updatedClusters = _initialization.InitializeClusters(items, clusterCount);
+        KMeansClusters<T> clusters;
+        KMeansClusters<T> updatedClusters = _initialization.InitializeClusters(items, clusterCount);
         do
         {
             clusters = updatedClusters;
             updatedClusters = UpdateClusters(clusters, items);
 
             workReport.IncrementProgress();
-            int[] awdija = updatedClusters.Select(x => x.ItemCount).Order().ToArray();
-            Console.WriteLine($"Updated clusters {awdija.Skip(0).First()}, {awdija.Skip(updatedClusters.Length / 2).First()}, {awdija.Skip(awdija.Length - 1).First()}");
-        } while (HasClustersChanged(clusters, updatedClusters));
+            //int[] awdija = updatedClusters.Select(x => x.ItemCount).Order().ToArray();
+            //Console.WriteLine($"Updated clusters {awdija.Skip(0).First()}, {awdija.Skip(updatedClusters.Length / 2).First()}, {awdija.Skip(awdija.Length - 1).First()}");
+        } while (!clusters.AreSame(updatedClusters));
 
         workReport.Complete();
-        Console.WriteLine("Finished clusters");
+        Console.WriteLine($"Finished clusters: {workReport.WorkTime.TotalMilliseconds:N0}");
         return updatedClusters;
     }
 
-    private KMeansCluster<T>[] UpdateClusters<T>(KMeansCluster<T>[] clusters, KMeansClusterItems<T> items)
+    private KMeansClusters<T> UpdateClusters<T>(KMeansClusters<T> clusters, KMeansClusterItems<T> items)
     {
-        KMeansCluster<T>[] updatedClusters = clusters.Select(x => new KMeansCluster<T>(items, x.CalculatePosition())).ToArray();
-        var transformer = new TransformBlock<int, (int ClusterIndex, int ItemIndex)>(itemIndex =>
-        {
-            int bestClusterIndex = -1;
-            float bestClusterScore = float.MaxValue;
-            for (int i = 0; i < updatedClusters.Length; i++)
-            {
-                float score = _calculateScore.ClusterScore(updatedClusters[i], items, itemIndex);
-                if (score >= bestClusterScore)
-                {
-                    continue;
-                }
+        KMeansClusters<T> updatedClusters = new KMeansClusters<T>(items, clusters.Count);
+        updatedClusters.UpdateClusterPositionsFromClusters(clusters);
 
-                bestClusterScore = score;
-                bestClusterIndex = i;
-            }
-
-            return (bestClusterIndex, itemIndex);
-        }, new ExecutionDataflowBlockOptions()
+        Parallel.For(0, items.Count, itemIndex =>
         {
-            MaxDegreeOfParallelism = Environment.ProcessorCount,
-            SingleProducerConstrained = true
+            int bestClusterIndex = _calculateScore.GetBestCluster(updatedClusters, items, itemIndex);
+            updatedClusters.SetClusterItem(bestClusterIndex, itemIndex);
         });
 
-        for (int i = 0; i < items.Count; i++)
-        {
-            transformer.Post(i);
-        }
-        transformer.Complete();
-
-        foreach ((int clusterIndex, int itemIndex) in transformer.ReceiveAllAsync().ToBlockingEnumerable())
-        {
-            updatedClusters[clusterIndex].AddItem(itemIndex);
-        }
-
-        //Random random = new Random();
-        //float minItemsInCluster = (items.Count / clusters.Length) * 0.1f;
-
         return updatedClusters;
-    }
-
-    private static bool HasClustersChanged<T>(KMeansCluster<T>[] oldClusters, KMeansCluster<T>[] updatedClusters)
-    {
-        for (int i = 0; i < oldClusters.Length; i++)
-        {
-            if (!oldClusters[i].Items.SequenceEqual(updatedClusters[i].Items))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

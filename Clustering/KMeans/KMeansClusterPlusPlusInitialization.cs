@@ -14,16 +14,18 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
         _workReporting = workReporting;
     }
 
-    public KMeansCluster<T>[] InitializeClusters<T>(KMeansClusterItems<T> items, int clusterCount)
+    public KMeansClusters<T> InitializeClusters<T>(KMeansClusterItems<T> items, int clusterCount)
     {
         using IKnownSizeWorkReport workReport = _workReporting.CreateKnownSizeWorkReport(clusterCount);
 
-        List<KMeansCluster<T>> clusters = new List<KMeansCluster<T>>();
+        KMeansClusters<T> clusters = new KMeansClusters<T>(items, clusterCount);
+        int clusterAddedCount = 0;
         Span<int> availableItemIndexes = Enumerable.Range(0, items.Count).ToArray();
 
         // Choose one center uniformly at random from among the data points.
         int firstIndex = _random.Next(items.Count);
-        clusters.Add(new KMeansCluster<T>(items, items.Positions[firstIndex]));
+        clusters.SetClusterPosition(clusterAddedCount, items.Positions[firstIndex]);
+        clusterAddedCount++;
         RemoveIndex(ref availableItemIndexes, firstIndex);
         workReport.IncrementProgress();
 
@@ -32,7 +34,7 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
 
         for (int i = 1; i < clusterCount; i++)
         {
-            float totalDistance = UpdateBestClusterItemDistancesAndGetDistanceSum(clusters[i - 1], items, bestClusterItemDistances);
+            float totalDistance = UpdateBestClusterItemDistancesAndGetDistanceSum(clusters.GetClusterPosition(i - 1), items, bestClusterItemDistances);
 
             float targetDistance = _random.NextSingle() * totalDistance;
             float cumulativeDistance = 0;
@@ -66,13 +68,14 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
                 }
             }
 
-            clusters.Add(new KMeansCluster<T>(items, items.Positions[availableItemIndexes[chosenAvailableItemIndex]]));
+            clusters.SetClusterPosition(clusterAddedCount, items.Positions[availableItemIndexes[chosenAvailableItemIndex]]);
+            clusterAddedCount++;
 
             RemoveIndex(ref availableItemIndexes, chosenAvailableItemIndex);
             workReport.IncrementProgress();
         }
 
-        return clusters.ToArray();
+        return clusters;
     }
 
     private static void RemoveIndex(ref Span<int> availableItemIndexes, int indexToRemove)
@@ -81,9 +84,8 @@ public sealed class KMeansClusterPlusPlusInitialization : IKMeansClusterInitiali
         availableItemIndexes = availableItemIndexes.Slice(0, availableItemIndexes.Length - 1);
     }
 
-    private static float UpdateBestClusterItemDistancesAndGetDistanceSum<T>(KMeansCluster<T> cluster, KMeansClusterItems<T> items, float[] bestClusterItemDistances)
+    private static float UpdateBestClusterItemDistancesAndGetDistanceSum<T>(Vector4 clusterPosition, KMeansClusterItems<T> items, float[] bestClusterItemDistances)
     {
-        Vector4 clusterPosition = cluster.Position;
         float distanceSum = 0;
         for (int i = 0; i < bestClusterItemDistances.Length; i++)
         {

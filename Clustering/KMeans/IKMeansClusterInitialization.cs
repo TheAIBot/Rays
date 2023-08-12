@@ -2,5 +2,5 @@
 
 public interface IKMeansClusterInitialization
 {
-    KMeansCluster<T>[] InitializeClusters<T>(KMeansClusterItems<T> items, int clusterCount);
+    KMeansClusters<T> InitializeClusters<T>(KMeansClusterItems<T> items, int clusterCount);
 }

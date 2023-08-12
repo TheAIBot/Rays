@@ -19,21 +19,24 @@ public sealed class KMeansNodeClusterBuilder : INodeClusterBuilder
         KMeansClusterItems<TexturedTriangleIndex> triangleClusterItems = KMeansClusterItems<TexturedTriangleIndex>.Create(texturedTriangleIndexes, x => texturedTriangleSets[x.TextureIndex].Triangles[x.TriangleIndex].Center.ToZeroExtendedVector4());
         const int averageTrianglesPerNode = 50;
         int clusterCountToReachAverageTrianglePerNode = (texturedTriangleIndexes.Length + (averageTrianglesPerNode - 1)) / averageTrianglesPerNode;
-        KMeansCluster<TexturedTriangleIndex>[] clusters = _clusteringAlgorithm.CreateClusters(triangleClusterItems, clusterCountToReachAverageTrianglePerNode);
+        KMeansClusters<TexturedTriangleIndex> clusters = _clusteringAlgorithm.CreateClusters(triangleClusterItems, clusterCountToReachAverageTrianglePerNode);
         Node[] leafNodes = CreateLeafNodes(clusters, texturedTriangleSets);
-        Dictionary<Node, Vector4> nodeToPosition = clusters.Zip(leafNodes).ToDictionary(x => x.Second, x => x.First.Position);
+        Dictionary<Node, Vector4> nodeToPosition = Enumerable.Range(0, clusters.Count)
+                                                             .Select(x => clusters.GetClusterPosition(x))
+                                                             .Zip(leafNodes)
+                                                             .ToDictionary(x => x.Second, x => x.First);
         Node[] lowestLevelNodes = leafNodes;
         while (lowestLevelNodes.Length != 1)
         {
             const int averageChildCount = 8;
             int clusterCountToGetAverageChildCount = (lowestLevelNodes.Length + (averageChildCount - 1)) / averageChildCount;
             KMeansClusterItems<Node> clusterItems = KMeansClusterItems<Node>.Create(lowestLevelNodes, x => nodeToPosition[x]);
-            KMeansCluster<Node>[] parentClusters = _clusteringAlgorithm.CreateClusters(clusterItems, clusterCountToGetAverageChildCount);
+            KMeansClusters<Node> parentClusters = _clusteringAlgorithm.CreateClusters(clusterItems, clusterCountToGetAverageChildCount);
             List<Node> parentNodes = new List<Node>();
-            foreach (var parentCluster in parentClusters)
+            for (int parentClusterIndex = 0; parentClusterIndex < parentClusters.Count; parentClusterIndex++)
             {
-                Node parentNode = new Node(Array.Empty<ISubDividableTriangleSet>(), parentCluster.Items.ToList());
-                nodeToPosition.Add(parentNode, parentCluster.Position);
+                Node parentNode = new Node(Array.Empty<ISubDividableTriangleSet>(), parentClusters.GetClusterItems(parentClusterIndex).ToList());
+                nodeToPosition.Add(parentNode, parentClusters.GetClusterPosition(parentClusterIndex));
 
                 parentNodes.Add(parentNode);
             }
@@ -59,14 +62,15 @@ public sealed class KMeansNodeClusterBuilder : INodeClusterBuilder
         return texturedTriangleIndexes;
     }
 
-    private static Node[] CreateLeafNodes(KMeansCluster<TexturedTriangleIndex>[] clusters, ISubDividableTriangleSet[] texturedTriangleSets)
+    private static Node[] CreateLeafNodes(KMeansClusters<TexturedTriangleIndex> clusters, ISubDividableTriangleSet[] texturedTriangleSets)
     {
-        var nodes = new Node[clusters.Length];
-        for (int i = 0; i < clusters.Length; i++)
+        var nodes = new Node[clusters.Count];
+        for (int i = 0; i < clusters.Count; i++)
         {
-            var nodeTexturedTriangleSets = clusters[i].Items.GroupBy(x => x.TextureIndex)
-                                                            .Select(x => texturedTriangleSets[x.Key].SubCopy(x.Select(y => y.TriangleIndex)))
-                                                            .ToArray();
+            var nodeTexturedTriangleSets = clusters.GetClusterItems(i)
+                                                   .GroupBy(x => x.TextureIndex)
+                                                   .Select(x => texturedTriangleSets[x.Key].SubCopy(x.Select(y => y.TriangleIndex)))
+                                                   .ToArray();
             nodes[i] = new Node(nodeTexturedTriangleSets, new List<Node>());
         }
 

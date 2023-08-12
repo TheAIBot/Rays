@@ -2,5 +2,5 @@
 
 public interface IKMeansClusteringAlgorithm
 {
-    KMeansCluster<T>[] CreateClusters<T>(KMeansClusterItems<T> items, int clusterCount);
+    KMeansClusters<T> CreateClusters<T>(KMeansClusterItems<T> items, int clusterCount);
 }

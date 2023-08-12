@@ -2,12 +2,12 @@
 
 public sealed class KMeansClusterRandomInitialization : IKMeansClusterInitialization
 {
-    public KMeansCluster<T>[] InitializeClusters<T>(KMeansClusterItems<T> items, int clusterCount)
+    public KMeansClusters<T> InitializeClusters<T>(KMeansClusterItems<T> items, int clusterCount)
     {
         Random random = new Random(1);
-        KMeansCluster<T>[] clusters = new KMeansCluster<T>[clusterCount];
+        KMeansClusters<T> clusters = new KMeansClusters<T>(items, clusterCount);
         HashSet<int> notAllowedIndexes = new HashSet<int>();
-        for (int i = 0; i < clusters.Length; i++)
+        for (int i = 0; i < clusters.Count; i++)
         {
             int index;
             do
@@ -15,7 +15,7 @@ public sealed class KMeansClusterRandomInitialization : IKMeansClusterInitializa
                 index = random.Next(0, items.Count);
             } while (notAllowedIndexes.Contains(index));
             notAllowedIndexes.Add(index);
-            clusters[i] = new KMeansCluster<T>(items, items.Positions[index]);
+            clusters.SetClusterPosition(i, items.Positions[index]);
         }
 
         return clusters;
