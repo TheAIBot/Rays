@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks.Dataflow;
 
-namespace Rays._3D;
+namespace Clustering.KMeans;
 
 public sealed class KMeansClusteringAlgorithm
 {

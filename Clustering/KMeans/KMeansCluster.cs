@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace Rays._3D;
+namespace Clustering.KMeans;
 
 public sealed class KMeansCluster<T>
 {

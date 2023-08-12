@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using WorkProgress;
 
-namespace Rays._3D;
+namespace Clustering.KMeans;
 
 public sealed class ScalarKMeansClusterPlusPlusInitialization : IKMeansClusterInitialization
 {

@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace Rays._3D;
+namespace Clustering.KMeans;
 
 // https://en.wikipedia.org/wiki/Xorshift#xorshift*
 // Yo i am not about to create my own random generator since

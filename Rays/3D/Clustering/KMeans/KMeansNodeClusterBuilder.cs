@@ -1,7 +1,8 @@
-﻿using System.Numerics;
+﻿using Rays._3D;
+using System.Numerics;
 using System.Threading.Tasks.Dataflow;
 
-namespace Rays._3D;
+namespace Clustering.KMeans;
 
 public sealed class KMeansNodeClusterBuilder : INodeClusterBuilder
 {

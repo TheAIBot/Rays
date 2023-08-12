@@ -1,3 +1,4 @@
+using Clustering.KMeans;
 using Rays._3D;
 using Rays.Scenes;
 using System.Reflection;

@@ -1,4 +1,4 @@
-﻿namespace Rays._3D;
+﻿namespace Clustering.KMeans;
 
 public interface IKMeansClusterScore
 {

@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace Rays._3D;
+namespace Clustering.KMeans;
 
 public sealed record KMeansClusterItems<T>(T[] Items, Vector4[] Positions)
 {

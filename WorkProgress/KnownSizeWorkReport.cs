@@ -42,6 +42,10 @@ internal sealed class KnownSizeWorkReport : IKnownSizeWorkReport
         }
 
         Progress++;
+        if (Progress % 100 == 0)
+        {
+            Console.WriteLine($"Progress: {Progress}/{MaxProgress}");
+        }
         ReportCompletedWhenCompleted();
     }
 

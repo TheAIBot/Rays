@@ -1,4 +1,4 @@
-﻿namespace Rays._3D;
+﻿namespace Clustering.KMeans;
 
 public sealed class KMeansClusterRandomInitialization : IKMeansClusterInitialization
 {
