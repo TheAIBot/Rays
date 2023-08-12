@@ -95,6 +95,23 @@ public sealed class KMeansClusters<T>
         }
     }
 
+    public int[] GetClusterItemCounts()
+    {
+        int[] clustersItemCount = new int[Count];
+        for (int i = 0; i < _itemCluster.Length; i++)
+        {
+            int clusterIndex = _itemCluster[i];
+            if (clusterIndex == _noCluster)
+            {
+                continue;
+            }
+
+            clustersItemCount[clusterIndex]++;
+        }
+
+        return clustersItemCount;
+    }
+
     public bool AreSame(KMeansClusters<T> other)
     {
         return _itemCluster.SequenceEqual(other._itemCluster);

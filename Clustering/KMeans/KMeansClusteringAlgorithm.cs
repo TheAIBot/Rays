@@ -28,8 +28,8 @@ public sealed class KMeansClusteringAlgorithm : IKMeansClusteringAlgorithm
             updatedClusters = UpdateClusters(clusters, items);
 
             workReport.IncrementProgress();
-            //int[] awdija = updatedClusters.Select(x => x.ItemCount).Order().ToArray();
-            //Console.WriteLine($"Updated clusters {awdija.Skip(0).First()}, {awdija.Skip(updatedClusters.Length / 2).First()}, {awdija.Skip(awdija.Length - 1).First()}");
+            int[] awdija = updatedClusters.GetClusterItemCounts().Order().ToArray();
+            Console.WriteLine($"Updated clusters {awdija.Skip(0).First()}, {awdija.Skip(updatedClusters.Count / 2).First()}, {awdija.Skip(awdija.Length - 1).First()}");
         } while (!clusters.AreSame(updatedClusters));
 
         workReport.Complete();
