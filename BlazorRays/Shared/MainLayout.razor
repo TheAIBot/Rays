@@ -53,6 +53,7 @@
 @code {
     private SceneSettings? _sceneSettings = null;
     private GeometryObjectModelFile? _geometryObjectModelFile = default!;
+    private RuntimeSettingsGroup? _runtimeSettings = default!;
 
     [Inject]
     private IEnumerable<DisplayableOption<ITriangleSetIntersectorFromGeometryObject>> _triangleSetIntersectorFactories { get; set; } = default!;

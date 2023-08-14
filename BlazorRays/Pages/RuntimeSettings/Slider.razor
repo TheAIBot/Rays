@@ -1,0 +1,16 @@
+﻿<input type="range" min="@Setting.MinValue" max="@Setting.MaxValue" step="1" @bind="@Setting.CurrentValue" @oninput="HandleInput" />
+
+@code {
+    [Parameter]
+    public RuntimeSettingSlider Setting { get; set; } = default!;
+
+    private void HandleInput(ChangeEventArgs eventArgs)
+    {
+        if (!int.TryParse(eventArgs.Value?.ToString(), out int value))
+        {
+            return;
+        }
+
+        Setting.InputChanged(value);
+    }
+}

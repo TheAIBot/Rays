@@ -76,6 +76,65 @@ public static class Program
     }
 }
 
+public sealed class RuntimeSettingsGroup
+{
+    private readonly List<IRuntimeSetting> _runtimeSettings;
+
+    public IReadOnlyCollection<IRuntimeSetting> RuntimeSettings => _runtimeSettings;
+
+    public RuntimeSettingsGroup(List<IRuntimeSetting> runtimeSettings)
+    {
+        _runtimeSettings = runtimeSettings;
+    }
+}
+
+public interface IRuntimeSetting
+{
+
+}
+
+public sealed class RuntimeSettingSlider : IRuntimeSetting
+{
+    private readonly Action<int> _onValueChanged;
+
+    public int MinValue { get; }
+    public int MaxValue { get; }
+    public int CurrentValue { get; set; }
+
+    public RuntimeSettingSlider(int minValue, int maxValue, int defaultValue, Action<int> onValueChanged)
+    {
+        MinValue = minValue;
+        MaxValue = maxValue;
+        CurrentValue = defaultValue;
+        _onValueChanged = onValueChanged;
+    }
+
+    internal void InputChanged(int value)
+    {
+        //CurrentValue = value;
+        _onValueChanged.Invoke(value);
+    }
+}
+
+public sealed class RuntimeSettingCheckBox : IRuntimeSetting
+{
+    private readonly Action<bool> _onValueChanged;
+
+    public bool IsEnabled { get; set; }
+
+    public RuntimeSettingCheckBox(bool defaultValue, Action<bool> onValueChanged)
+    {
+        IsEnabled = defaultValue;
+        _onValueChanged = onValueChanged;
+    }
+
+    internal void InputChanged(bool value)
+    {
+        //IsEnabled = value;
+        _onValueChanged.Invoke(value);
+    }
+}
+
 public sealed record DisplayableOption<T>(T Value, string DisplayName, bool IsDefault);
 
 public sealed record GeometryObjectModelFile(string ModelFileName)

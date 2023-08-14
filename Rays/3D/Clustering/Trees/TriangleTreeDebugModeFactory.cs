@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using Clustering.KMeans;
+using System.Numerics;
 using System.Threading.Tasks.Dataflow;
 using static Rays._3D.TriangleTree;
 
@@ -7,12 +8,12 @@ namespace Rays._3D;
 public sealed class TriangleTreeDebugModeFactory
 {
     private readonly TriangleTreeBuilder _triangleTreeBuilder;
-    private readonly CustomNodeClusterBuilder _customNodeClusterBuilder;
+    private readonly INodeClusterBuilder _nodeClusterBuilder;
 
-    public TriangleTreeDebugModeFactory(TriangleTreeBuilder triangleTreeBuilder, CustomNodeClusterBuilder customNodeClusterBuilder)
+    public TriangleTreeDebugModeFactory(TriangleTreeBuilder triangleTreeBuilder, KMeansNodeClusterBuilder nodeClusterBuilder)
     {
         _triangleTreeBuilder = triangleTreeBuilder;
-        _customNodeClusterBuilder = customNodeClusterBuilder;
+        _nodeClusterBuilder = nodeClusterBuilder;
     }
 
     public async Task<TriangleTreeDebugMode> CreateAsync(TriangleTree triangleTree, CancellationToken cancellationToken)
@@ -21,7 +22,7 @@ public sealed class TriangleTreeDebugModeFactory
         var transformer = new TransformBlock<LayerBoundingBoxes, TriangleTree>(x =>
         {
             var texturedTriangles = GetTrianglesForLayerBoundingBoxes(x);
-            var rootNode = _customNodeClusterBuilder.Create(texturedTriangles);
+            var rootNode = _nodeClusterBuilder.Create(texturedTriangles);
             return _triangleTreeBuilder.Create(rootNode);
         },
             new ExecutionDataflowBlockOptions()

@@ -7,7 +7,9 @@ public sealed class TriangleTreeDebugMode : ITriangleSetIntersector
     private readonly TriangleTree[] _nodeLevels;
 
     public bool IsEnabled => DisplayLevel != 0;
-    public int DisplayLevel { get; private set; } = 2;
+    public int DisplayLevel { get; private set; } = 0;
+
+    public int MaxDisplayLevel => _nodeLevels.Length;
 
     public TriangleTreeDebugMode(TriangleTree[] nodeLevels)
     {

@@ -1,0 +1,16 @@
+﻿@foreach (var runtimeSetting in SettingsGroup.RuntimeSettings)
+{
+    @if (runtimeSetting is RuntimeSettingSlider slider)
+    {
+        <Slider Setting="slider"></Slider>
+    }
+    else if (runtimeSetting is RuntimeSettingCheckBox checkbox)
+    {
+        <CheckBox Setting="checkbox"></CheckBox>
+    }
+}
+
+@code {
+    [Parameter]
+    public RuntimeSettingsGroup SettingsGroup { get; set; } = default!;
+}

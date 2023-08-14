@@ -1,0 +1,16 @@
+﻿<input type="checkbox" @bind="Setting.IsEnabled" @oninput="HandleInput" />
+
+@code {
+    [Parameter]
+    public RuntimeSettingCheckBox Setting { get; set; } = default!;
+
+    private void HandleInput(ChangeEventArgs eventArgs)
+    {
+        if (!bool.TryParse(eventArgs.Value?.ToString(), out bool value))
+        {
+            return;
+        }
+
+        Setting.InputChanged(value);
+    }
+}

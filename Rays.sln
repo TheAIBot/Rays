@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rays.GeometryLoaders.Tests"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkProgress", "WorkProgress\WorkProgress.csproj", "{09C31F06-EDA2-4127-B4A9-CD1535462883}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clustering", "Clustering\Clustering.csproj", "{57ECA07F-F629-4491-9130-3EF40D6E05CE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Clustering", "Clustering\Clustering.csproj", "{57ECA07F-F629-4491-9130-3EF40D6E05CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
