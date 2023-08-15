@@ -13,4 +13,9 @@
 @code {
     [Parameter]
     public RuntimeSettingsGroup SettingsGroup { get; set; } = default!;
+
+    protected override bool ShouldRender()
+    {
+        return false;
+    }
 }
