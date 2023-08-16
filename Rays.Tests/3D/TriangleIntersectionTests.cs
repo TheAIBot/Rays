@@ -8,13 +8,13 @@ public sealed class TriangleIntersectionTests
     [Fact]
     public void GetIntersection_CalculatesIntersectionPoint()
     {
-        var start = new Vector3(1, 1, 1);
-        var direction = new Vector3(2, 3, 4);
+        var start = new Vector4(1, 1, 1, 0);
+        var direction = new Vector4(2, 3, 4, 0);
         var ray = new Ray(start, direction);
         var rayDirectionMultiplier = 1.5f;
         var triangleIntersection = new TriangleIntersection(rayDirectionMultiplier, 0.3f, 0.4f);
 
-        Vector3 intersection = triangleIntersection.GetIntersection(ray);
+        Vector4 intersection = triangleIntersection.GetIntersection(ray);
 
         Assert.Equal(start + rayDirectionMultiplier * direction, intersection);
     }

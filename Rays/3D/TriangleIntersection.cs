@@ -5,7 +5,7 @@ namespace Rays._3D;
 
 public readonly record struct TriangleIntersection(float RayDirectionMultiplier, float FirstAxisPercent, float SecondAxisPercent)
 {
-    public Vector3 GetIntersection(Ray ray)
+    public Vector4 GetIntersection(Ray ray)
     {
         return ray.Start + RayDirectionMultiplier * ray.Direction;
     }

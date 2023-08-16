@@ -13,8 +13,8 @@ public sealed class TriangleTests
         var cornerC = new Vector3(0, 2, 0);
         var triangle = new Triangle(cornerA, cornerB, cornerC);
 
-        var rayStart = new Vector3(1, 1, 2);
-        var rayDirection = new Vector3(0, 0, -1);
+        var rayStart = new Vector4(1, 1, 2, 0);
+        var rayDirection = new Vector4(0, 0, -1, 0);
         var ray = new Ray(rayStart, rayDirection);
 
         bool intersects = triangle.TryGetIntersection(ray, out TriangleIntersection intersection);
@@ -33,8 +33,8 @@ public sealed class TriangleTests
         var cornerC = new Vector3(0, 2, 0);
         var triangle = new Triangle(cornerA, cornerB, cornerC);
 
-        var rayStart = new Vector3(1, 1, 2);
-        var rayDirection = new Vector3(1, 0, 0);
+        var rayStart = new Vector4(1, 1, 2, 0);
+        var rayDirection = new Vector4(1, 0, 0, 0);
         var ray = new Ray(rayStart, rayDirection);
         bool intersects = triangle.TryGetIntersection(ray, out _);
 

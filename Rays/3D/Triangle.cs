@@ -100,6 +100,6 @@ public readonly record struct Triangle(Vector3 CornerA, Vector3 CornerB, Vector3
 
     public readonly record struct RayTriangleOptimizedIntersection(Vector4 Start, Vector4 Direction)
     {
-        public RayTriangleOptimizedIntersection(Ray ray) : this(new Vector4(ray.Start, 0), new Vector4(ray.Direction, 0)) { }
+        public RayTriangleOptimizedIntersection(Ray ray) : this(ray.Start, ray.Direction) { }
     }
 }

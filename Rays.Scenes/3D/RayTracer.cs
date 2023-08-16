@@ -1,4 +1,5 @@
 ﻿using Rays._3D;
+using System.Numerics;
 
 namespace Rays.Scenes;
 
@@ -29,7 +30,7 @@ internal sealed class RayTracer : I3DScene
     private ValueTask RaySetPixelColor(RayTraceViewPortV2 rayTraceViewPort, int pixelIndex, int screenWidth)
     {
         (int pixelY, int pixelX) = Math.DivRem(pixelIndex, screenWidth);
-        var pixelPosition = new Point(pixelX, pixelY);
+        var pixelPosition = new Vector2(pixelX, pixelY);
         Ray ray = rayTraceViewPort.GetRayForPixel(pixelPosition);
 
         var color = new Color(20, 20, 20, 20);
@@ -38,6 +39,6 @@ internal sealed class RayTracer : I3DScene
             color = triangleIntersection.color;
         }
 
-        return _polygonDrawer.DrawPixelAsync(pixelPosition.X, pixelPosition.Y, color);
+        return _polygonDrawer.DrawPixelAsync(pixelX, pixelY, color);
     }
 }

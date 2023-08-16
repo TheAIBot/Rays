@@ -27,8 +27,8 @@ public sealed class AxisAlignedBoxTests
         var maxPosition = new Vector4(2, 2, 2, 0);
         var box = new AxisAlignedBox(minPosition, maxPosition);
 
-        var rayStart = new Vector3(rayStartX, rayStartY, rayStartZ);
-        var rayDirection = new Vector3(rayDirectionX, rayDirectionY, rayDirectionZ);
+        var rayStart = new Vector4(rayStartX, rayStartY, rayStartZ, 0);
+        var rayDirection = new Vector4(rayDirectionX, rayDirectionY, rayDirectionZ, 0);
         var ray = new Ray(rayStart, rayDirection);
 
         bool intersects = box.Intersects(ray);
@@ -49,8 +49,8 @@ public sealed class AxisAlignedBoxTests
         var maxPosition = new Vector4(2, 2, 2, 0);
         var box = new AxisAlignedBox(minPosition, maxPosition);
 
-        var rayStart = new Vector3(rayStartX, rayStartY, rayStartZ);
-        var rayDirection = new Vector3(rayDirectionX, rayDirectionY, rayDirectionZ);
+        var rayStart = new Vector4(rayStartX, rayStartY, rayStartZ, 0);
+        var rayDirection = new Vector4(rayDirectionX, rayDirectionY, rayDirectionZ, 0);
         var ray = new Ray(rayStart, rayDirection);
 
         bool intersects = box.Intersects(ray);

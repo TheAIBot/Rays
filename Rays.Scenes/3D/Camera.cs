@@ -45,38 +45,11 @@ public sealed class Camera
         AspectRatio = aspectRatio;
     }
 
-    /// <summary>
-    /// Returns a ray that goes from the camera's position in the direction corresponding to a given pixel.
-    /// </summary>
-    /// <param name="x">The x-coordinate of the pixel.</param>
-    /// <param name="y">The y-coordinate of the pixel.</param>
-    /// <param name="screenWidth">The width of the screen, in pixels.</param>
-    /// <param name="screenHeight">The height of the screen, in pixels.</param>
-    /// <returns>A ray that goes from the camera's position in the direction corresponding to the pixel.</returns>
-    public Ray GetRay(int x, int y, int screenWidth, int screenHeight)
-    {
-        // Normalize the pixel coordinates to be between -1 and 1
-        float u = (2.0f * x - screenWidth) / (screenWidth * AspectRatio);
-        float v = (2.0f * y - screenHeight) / screenHeight;
-
-        // The camera's "right" vector is cross product of its direction and the up vector
-        Vector3 right = Vector3.Cross(Direction, UpDirection);
-
-        // The camera's "up" vector is then the cross product of the right vector and its direction
-        Vector3 up = Vector3.Cross(right, Direction);
-
-        // The ray direction is a point in the camera's field of view corresponding to the pixel
-        Vector3 rayDirection = Direction + (u * right + v * up) * MathF.Tan(FieldOfView / 2 * MathF.PI / 180);
-
-        // The ray starts at the camera's position and goes in the direction we just calculated
-        return new Ray(Position, Vector3.Normalize(rayDirection));
-    }
-
     internal RayTraceViewPortV2 GetRayTraceViewPort(Point screenSize)
     {
         Vector3 right = Vector3.Cross(Direction, UpDirection);
         Vector3 up = Vector3.Cross(right, Direction);
         float convertedFieldOfView = MathF.Tan(FieldOfView / 2 * MathF.PI / 180);
-        return new RayTraceViewPortV2(screenSize, Position, Direction.ToZeroExtendedVector4(), right.ToZeroExtendedVector4(), up.ToZeroExtendedVector4(), AspectRatio, convertedFieldOfView);
+        return new RayTraceViewPortV2(screenSize, Position.ToZeroExtendedVector4(), Direction.ToZeroExtendedVector4(), right.ToZeroExtendedVector4(), up.ToZeroExtendedVector4(), AspectRatio, convertedFieldOfView);
     }
 }

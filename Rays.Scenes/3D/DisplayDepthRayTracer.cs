@@ -62,12 +62,12 @@ internal sealed class DisplayDepthRayTracer : I3DScene
     private ValueTask RaySetPixelColor(RayTraceViewPortV2 rayTraceViewPort, int pixelIndex, int screenWidth)
     {
         (int pixelY, int pixelX) = Math.DivRem(pixelIndex, screenWidth);
-        var pixelPosition = new Point(pixelX, pixelY);
+        var pixelPosition = new Vector2(pixelX, pixelY);
         Ray ray = rayTraceViewPort.GetRayForPixel(pixelPosition);
 
         if (_triangleSetIntersector.TryGetIntersection(ray, out (TriangleIntersection intersection, Color color) triangleIntersection))
         {
-            _depthMap[pixelIndex] = Vector3.Distance(triangleIntersection.intersection.GetIntersection(ray), ray.Start);
+            _depthMap[pixelIndex] = Vector4.Distance(triangleIntersection.intersection.GetIntersection(ray), ray.Start);
         }
         else
         {

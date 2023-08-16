@@ -274,7 +274,7 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
 
     public readonly record struct RayAxisAlignBoxOptimizedIntersection(Vector4 Start, Vector4 InverseDirection)
     {
-        public RayAxisAlignBoxOptimizedIntersection(Ray ray) : this(ray.Start.ToZeroExtendedVector4(), Vector4.One / ray.Direction.ToZeroExtendedVector4()) { }
+        public RayAxisAlignBoxOptimizedIntersection(Ray ray) : this(ray.Start, Vector4.One / ray.Direction) { }
 
         public RayAxisAlignBoxOptimizedIntersection(RayTriangleOptimizedIntersection rayTriangleOptimizedIntersection) :
             this(rayTriangleOptimizedIntersection.Start, Vector4.One / rayTriangleOptimizedIntersection.Direction)
