@@ -72,8 +72,11 @@ public sealed class Camera
         return new Ray(Position, Vector3.Normalize(rayDirection));
     }
 
-    internal RayTraceViewPort GetRayTraceViewPort(Point screenSize)
+    internal RayTraceViewPortV2 GetRayTraceViewPort(Point screenSize)
     {
-        return new RayTraceViewPort(this, screenSize);
+        Vector3 right = Vector3.Cross(Direction, UpDirection);
+        Vector3 up = Vector3.Cross(right, Direction);
+        float convertedFieldOfView = MathF.Tan(FieldOfView / 2 * MathF.PI / 180);
+        return new RayTraceViewPortV2(screenSize, Position, Direction.ToZeroExtendedVector4(), right.ToZeroExtendedVector4(), up.ToZeroExtendedVector4(), AspectRatio, convertedFieldOfView);
     }
 }
