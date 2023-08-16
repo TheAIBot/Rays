@@ -15,7 +15,7 @@ public readonly record struct TriangleIntersection(float RayDirectionMultiplier,
         return rayTriangleOptimizedIntersection.Start + RayDirectionMultiplier * rayTriangleOptimizedIntersection.Direction;
     }
 
-    public Vector3 Interpolate(Vector3 cornerAValue, Vector3 cornerBValue, Vector3 cornerCValue)
+    public Vector4 Interpolate(Vector4 cornerAValue, Vector4 cornerBValue, Vector4 cornerCValue)
     {
         float thirdAxis = 1.0f - FirstAxisPercent - SecondAxisPercent;
         return cornerAValue * FirstAxisPercent + cornerBValue * SecondAxisPercent + cornerCValue * thirdAxis;

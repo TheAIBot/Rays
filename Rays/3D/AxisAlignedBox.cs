@@ -56,32 +56,34 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
         return Intersects(triangle);
     }
 
-    private bool CollidesWith(Vector3 point)
+    private bool CollidesWith(Vector4 point)
     {
         return MinPosition.X <= point.X &&
                MinPosition.Y <= point.Y &&
                MinPosition.Z <= point.Z &&
+               MinPosition.W <= point.W &&
                MaxPosition.X >= point.X &&
                MaxPosition.Y >= point.Y &&
-               MaxPosition.Z >= point.Z;
+               MaxPosition.Z >= point.Z &&
+               MaxPosition.W >= point.W;
     }
 
     public static AxisAlignedBox GetBoundingBoxForTriangles(IEnumerable<Triangle> triangles)
     {
-        var min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-        var max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+        var min = new Vector4(float.MaxValue);
+        var max = new Vector4(float.MinValue);
         foreach (var triangle in triangles)
         {
-            min = Vector3.Min(min, triangle.CornerA);
-            min = Vector3.Min(min, triangle.CornerB);
-            min = Vector3.Min(min, triangle.CornerC);
+            min = Vector4.Min(min, triangle.CornerA);
+            min = Vector4.Min(min, triangle.CornerB);
+            min = Vector4.Min(min, triangle.CornerC);
 
-            max = Vector3.Max(max, triangle.CornerA);
-            max = Vector3.Max(max, triangle.CornerB);
-            max = Vector3.Max(max, triangle.CornerC);
+            max = Vector4.Max(max, triangle.CornerA);
+            max = Vector4.Max(max, triangle.CornerB);
+            max = Vector4.Max(max, triangle.CornerC);
         }
 
-        return new AxisAlignedBox(min.ToZeroExtendedVector4(), max.ToZeroExtendedVector4());
+        return new AxisAlignedBox(min, max);
     }
 
     public static AxisAlignedBox GetBoundingBoxForBoxes(IEnumerable<AxisAlignedBox> boxes)
@@ -106,9 +108,9 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
         Vector4 boxExtents = (MaxPosition - MinPosition) * 0.5f;
 
         // Translate triangle as conceptually moving AABB to origin
-        var v0 = (triangle.CornerA.ToZeroExtendedVector4() - Center);
-        var v1 = (triangle.CornerB.ToZeroExtendedVector4() - Center);
-        var v2 = (triangle.CornerC.ToZeroExtendedVector4() - Center);
+        var v0 = (triangle.CornerA - Center);
+        var v1 = (triangle.CornerB - Center);
+        var v2 = (triangle.CornerC - Center);
 
         // Compute edge vectors for triangle
         var f0 = (v1 - v0);

@@ -22,16 +22,16 @@ public sealed class TriangleIntersectionTests
     [Fact]
     public void Interpolate_InterpolatesCornerValues()
     {
-        var cornerAValue = new Vector3(1, 1, 1);
-        var cornerBValue = new Vector3(2, 2, 2);
-        var cornerCValue = new Vector3(3, 3, 3);
+        var cornerAValue = new Vector4(1, 1, 1, 0);
+        var cornerBValue = new Vector4(2, 2, 2, 0);
+        var cornerCValue = new Vector4(3, 3, 3, 0);
         var firstAxisPercent = 0.3f;
         var secondAxisPercent = 0.4f;
         var thirdAxisPercent = 0.3f;
-        Vector3 expectedValue = cornerAValue * firstAxisPercent + cornerBValue * secondAxisPercent + cornerCValue * thirdAxisPercent;
+        Vector4 expectedValue = cornerAValue * firstAxisPercent + cornerBValue * secondAxisPercent + cornerCValue * thirdAxisPercent;
         var triangleIntersection = new TriangleIntersection(1.5f, firstAxisPercent, secondAxisPercent);
 
-        Vector3 interpolatedValue = triangleIntersection.Interpolate(cornerAValue, cornerBValue, cornerCValue);
+        Vector4 interpolatedValue = triangleIntersection.Interpolate(cornerAValue, cornerBValue, cornerCValue);
 
         Assert.Equal(expectedValue, interpolatedValue);
     }

@@ -51,7 +51,7 @@ public sealed class TexturedTriangles : ISubDividableTriangleSet
     {
         var triangleTextureCoordinates = _textureTriangles[triangleIndex];
         // Yeah so i don't know why but the textures are only correct if the texture points are provided in this weird order
-        Vector3 interpolatedTextureCoordinate = triangleIntersection.Interpolate(triangleTextureCoordinates.CornerB,
+        Vector4 interpolatedTextureCoordinate = triangleIntersection.Interpolate(triangleTextureCoordinates.CornerB,
                                                                                  triangleTextureCoordinates.CornerC,
                                                                                  triangleTextureCoordinates.CornerA);
         int texturePositionX = (int)(interpolatedTextureCoordinate.X * _texture.Width);

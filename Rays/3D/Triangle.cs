@@ -4,9 +4,12 @@ using System.Runtime.Intrinsics.X86;
 
 namespace Rays._3D;
 
-public readonly record struct Triangle(Vector3 CornerA, Vector3 CornerB, Vector3 CornerC)
+public readonly record struct Triangle(Vector4 CornerA, Vector4 CornerB, Vector4 CornerC)
 {
-    public Vector3 Center => (CornerA + CornerB + CornerC) / 3.0f;
+    public Vector4 Center => (CornerA + CornerB + CornerC) / 3.0f;
+
+    public Triangle(Vector3 a, Vector3 b, Vector3 c) : this(a.ToZeroExtendedVector4(), b.ToZeroExtendedVector4(), c.ToZeroExtendedVector4())
+    { }
 
     public bool TryGetIntersection(Ray ray, out TriangleIntersection intersection)
     {
@@ -61,12 +64,10 @@ public readonly record struct Triangle(Vector3 CornerA, Vector3 CornerB, Vector3
     // https://stackoverflow.com/a/42752998
     private bool TryGetIntersectionCrossPlatform(RayTriangleOptimizedIntersection optimizedRay, out TriangleIntersection intersection)
     {
-        var rayStart = new Vector3(optimizedRay.Start.X, optimizedRay.Start.Y, optimizedRay.Start.Z);
-        var rayDirection = new Vector3(optimizedRay.Direction.X, optimizedRay.Direction.Y, optimizedRay.Direction.Z);
-        Vector3 E1 = CornerB - CornerA;
-        Vector3 E2 = CornerC - CornerA;
-        Vector3 N = Vector3.Cross(E1, E2);
-        float det = -Vector3.Dot(rayDirection, N);
+        Vector4 E1 = CornerB - CornerA;
+        Vector4 E2 = CornerC - CornerA;
+        Vector4 N = Vector3.Cross(E1.ToTruncatedVector3(), E2.ToTruncatedVector3()).ToZeroExtendedVector4();
+        float det = -Vector4.Dot(optimizedRay.Direction, N);
         if (det < 1e-6f)
         {
             intersection = default;
@@ -74,11 +75,11 @@ public readonly record struct Triangle(Vector3 CornerA, Vector3 CornerB, Vector3
         }
 
         float invdet = 1.0f / det;
-        Vector3 AO = rayStart - CornerA;
-        Vector3 DAO = Vector3.Cross(AO, rayDirection);
-        float u = Vector3.Dot(E2, DAO) * invdet;
-        float v = -Vector3.Dot(E1, DAO) * invdet;
-        float t = Vector3.Dot(AO, N) * invdet;
+        Vector4 AO = optimizedRay.Start - CornerA;
+        Vector4 DAO = Vector3.Cross(AO.ToTruncatedVector3(), optimizedRay.Direction.ToTruncatedVector3()).ToZeroExtendedVector4();
+        float u = Vector4.Dot(E2, DAO) * invdet;
+        float v = -Vector4.Dot(E1, DAO) * invdet;
+        float t = Vector4.Dot(AO, N) * invdet;
 
         intersection = new TriangleIntersection(t, u, v);
         return (t >= 0.0 &&

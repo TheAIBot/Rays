@@ -16,7 +16,7 @@ public sealed class KMeansNodeClusterBuilder : INodeClusterBuilder
     {
         TexturedTriangleIndex[] texturedTriangleIndexes = GetTexturedTriangleIndexes(texturedTriangleSets);
 
-        KMeansClusterItems<TexturedTriangleIndex> triangleClusterItems = KMeansClusterItems<TexturedTriangleIndex>.Create(texturedTriangleIndexes, x => texturedTriangleSets[x.TextureIndex].Triangles[x.TriangleIndex].Center.ToZeroExtendedVector4());
+        KMeansClusterItems<TexturedTriangleIndex> triangleClusterItems = KMeansClusterItems<TexturedTriangleIndex>.Create(texturedTriangleIndexes, x => texturedTriangleSets[x.TextureIndex].Triangles[x.TriangleIndex].Center);
         const int averageTrianglesPerNode = 50;
         int clusterCountToReachAverageTrianglePerNode = (texturedTriangleIndexes.Length + (averageTrianglesPerNode - 1)) / averageTrianglesPerNode;
         KMeansClusters<TexturedTriangleIndex> clusters = _clusteringAlgorithm.CreateClusters(triangleClusterItems, clusterCountToReachAverageTrianglePerNode);

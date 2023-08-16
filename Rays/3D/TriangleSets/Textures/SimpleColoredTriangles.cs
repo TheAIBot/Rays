@@ -47,7 +47,7 @@ public sealed class SimpleColoredTriangles : ISubDividableTriangleSet
 
     private Color GetTriangleIntersectionTextureColor(TriangleIntersection triangleIntersection)
     {
-        Vector3 color = triangleIntersection.Interpolate(_triangleColor.CornerA, _triangleColor.CornerB, _triangleColor.CornerC);
+        Vector4 color = triangleIntersection.Interpolate(_triangleColor.CornerA, _triangleColor.CornerB, _triangleColor.CornerC);
         return new Color((int)color.X, (int)color.Y, (int)color.Z, 255);
     }
 
