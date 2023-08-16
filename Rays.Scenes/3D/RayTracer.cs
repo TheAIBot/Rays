@@ -21,13 +21,13 @@ internal sealed class RayTracer : I3DScene
     public async Task RenderAsync(CancellationToken cancellationToken)
     {
         await _polygonDrawer.ClearAsync();
-        RayTraceViewPortV2 rayTraceViewPort = Camera.GetRayTraceViewPort(_polygonDrawer.Size);
+        RayTraceViewPort rayTraceViewPort = Camera.GetRayTraceViewPort(_polygonDrawer.Size);
         Parallel.For(0, _polygonDrawer.Size.X * _polygonDrawer.Size.Y, x => RaySetPixelColor(rayTraceViewPort, x, _polygonDrawer.Size.X));
 
         await _polygonDrawer.RenderAsync();
     }
 
-    private ValueTask RaySetPixelColor(RayTraceViewPortV2 rayTraceViewPort, int pixelIndex, int screenWidth)
+    private ValueTask RaySetPixelColor(RayTraceViewPort rayTraceViewPort, int pixelIndex, int screenWidth)
     {
         (int pixelY, int pixelX) = Math.DivRem(pixelIndex, screenWidth);
         var pixelPosition = new Vector2(pixelX, pixelY);

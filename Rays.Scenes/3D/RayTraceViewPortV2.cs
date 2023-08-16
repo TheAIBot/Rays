@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace Rays.Scenes;
 
-public sealed class RayTraceViewPortV2
+public sealed class RayTraceViewPort
 {
     private readonly Vector2 _screenSize;
     private readonly Vector2 _screenSizeAspectRatioChanged;
@@ -13,7 +13,7 @@ public sealed class RayTraceViewPortV2
     private readonly Vector4 _up;
     private readonly Vector4 _convertedFieldOfView;
 
-    public RayTraceViewPortV2(Point screenSize, Vector4 position, Vector4 direction, Vector4 right, Vector4 up, float aspectRatio, float convertedFieldOfView)
+    public RayTraceViewPort(Point screenSize, Vector4 position, Vector4 direction, Vector4 right, Vector4 up, float aspectRatio, float convertedFieldOfView)
     {
         _screenSize = new Vector2(screenSize.X, screenSize.Y);
         _screenSizeAspectRatioChanged = _screenSize * new Vector2(aspectRatio, 1);
