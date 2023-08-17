@@ -112,13 +112,13 @@ public sealed class TriangleTreeDebugModeFactory
             var scaledColor = color * new Vector3(byte.MaxValue);
             var rgba = new Color((byte)scaledColor.X, (byte)scaledColor.Y, (byte)scaledColor.Z, (byte)255);
 
-            Vector3 start = (box.MinPosition + (box.Size * startOffset)).ToTruncatedVector3();
-            Vector3 side1Change = (box.Size * side1).ToTruncatedVector3();
-            Vector3 side2Change = (box.Size * side2).ToTruncatedVector3();
-            Vector3 pointA = start;
-            Vector3 pointB = start + side1Change;
-            Vector3 pointC = start + side2Change;
-            Vector3 pointD = start + side1Change + side2Change;
+            Vector4 start = box.MinPosition + (box.Size * startOffset);
+            Vector4 side1Change = box.Size * side1;
+            Vector4 side2Change = box.Size * side2;
+            Vector4 pointA = start;
+            Vector4 pointB = start + side1Change;
+            Vector4 pointC = start + side2Change;
+            Vector4 pointD = start + side1Change + side2Change;
             if (!reversedTriangles)
             {
                 return new SingleColoredTriangles(new Triangle[]
