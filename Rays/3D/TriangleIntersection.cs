@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using static Rays._3D.Triangle;
 
 namespace Rays._3D;
 
@@ -8,11 +7,6 @@ public readonly record struct TriangleIntersection(float RayDirectionMultiplier,
     public Vector4 GetIntersection(Ray ray)
     {
         return ray.Start + RayDirectionMultiplier * ray.Direction;
-    }
-
-    public Vector4 GetIntersection(RayTriangleOptimizedIntersection rayTriangleOptimizedIntersection)
-    {
-        return rayTriangleOptimizedIntersection.Start + RayDirectionMultiplier * rayTriangleOptimizedIntersection.Direction;
     }
 
     public Vector4 Interpolate(Vector4 cornerAValue, Vector4 cornerBValue, Vector4 cornerCValue)

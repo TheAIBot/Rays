@@ -1,6 +1,4 @@
-﻿using static Rays._3D.Triangle;
-
-namespace Rays._3D;
+﻿namespace Rays._3D;
 
 public sealed class TriangleTreeDebugMode : ITriangleSetIntersector
 {
@@ -28,20 +26,13 @@ public sealed class TriangleTreeDebugMode : ITriangleSetIntersector
 
     public bool TryGetIntersection(Ray ray, out (TriangleIntersection intersection, Color color) triangleIntersection)
     {
-        //DisplayLevel = ((DisplayLevel + 1) % _nodeLevels.Length) + 1;
-        var rayTriangleOptimizedIntersection = new RayTriangleOptimizedIntersection(ray);
-        return TryGetIntersection(rayTriangleOptimizedIntersection, out triangleIntersection);
-    }
-
-    public bool TryGetIntersection(RayTriangleOptimizedIntersection rayTriangleOptimizedIntersection, out (TriangleIntersection intersection, Color color) triangleIntersection)
-    {
         if (DisplayLevel == 0)
         {
             triangleIntersection = default;
             return false;
         }
 
-        return _nodeLevels[DisplayLevel - 1].TryGetIntersection(rayTriangleOptimizedIntersection, out triangleIntersection);
+        return _nodeLevels[DisplayLevel - 1].TryGetIntersection(ray, out triangleIntersection);
     }
 
     public IEnumerable<Triangle> GetTriangles()

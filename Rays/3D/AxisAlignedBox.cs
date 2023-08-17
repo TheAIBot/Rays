@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using System.Runtime.Intrinsics.X86;
-using static Rays._3D.Triangle;
 
 namespace Rays._3D;
 
@@ -277,9 +276,5 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
     public readonly record struct RayAxisAlignBoxOptimizedIntersection(Vector4 Start, Vector4 InverseDirection)
     {
         public RayAxisAlignBoxOptimizedIntersection(Ray ray) : this(ray.Start, Vector4.One / ray.Direction) { }
-
-        public RayAxisAlignBoxOptimizedIntersection(RayTriangleOptimizedIntersection rayTriangleOptimizedIntersection) :
-            this(rayTriangleOptimizedIntersection.Start, Vector4.One / rayTriangleOptimizedIntersection.Direction)
-        { }
     }
 }

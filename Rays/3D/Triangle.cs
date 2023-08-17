@@ -11,25 +11,20 @@ public readonly record struct Triangle(Vector4 CornerA, Vector4 CornerB, Vector4
     public Triangle(Vector3 a, Vector3 b, Vector3 c) : this(a.ToZeroExtendedVector4(), b.ToZeroExtendedVector4(), c.ToZeroExtendedVector4())
     { }
 
-    public bool TryGetIntersection(Ray ray, out TriangleIntersection intersection)
-    {
-        return TryGetIntersection(new RayTriangleOptimizedIntersection(ray), out intersection);
-    }
-
     // https://stackoverflow.com/a/42752998
 
-    public bool TryGetIntersection(RayTriangleOptimizedIntersection optimizedRay, out TriangleIntersection intersection)
+    public bool TryGetIntersection(Ray ray, out TriangleIntersection intersection)
     {
         if (!Sse41.IsSupported)
         {
-            return TryGetIntersectionCrossPlatform(optimizedRay, out intersection);
+            return TryGetIntersectionCrossPlatform(ray, out intersection);
         }
 
         var a = CornerA.AsVector128();
         var b = CornerB.AsVector128();
         var c = CornerC.AsVector128();
-        var rayStart = optimizedRay.Start.AsVector128();
-        var rayDirection = optimizedRay.Direction.AsVector128();
+        var rayStart = ray.Start.AsVector128();
+        var rayDirection = ray.Direction.AsVector128();
         Vector128<float> E1 = b - a;
         Vector128<float> E2 = c - a;
         Vector128<float> N = Cross(E1, E2);
@@ -62,12 +57,12 @@ public readonly record struct Triangle(Vector4 CornerA, Vector4 CornerB, Vector4
     }
 
     // https://stackoverflow.com/a/42752998
-    private bool TryGetIntersectionCrossPlatform(RayTriangleOptimizedIntersection optimizedRay, out TriangleIntersection intersection)
+    private bool TryGetIntersectionCrossPlatform(Ray ray, out TriangleIntersection intersection)
     {
         Vector4 E1 = CornerB - CornerA;
         Vector4 E2 = CornerC - CornerA;
         Vector4 N = Vector3.Cross(E1.ToTruncatedVector3(), E2.ToTruncatedVector3()).ToZeroExtendedVector4();
-        float det = -Vector4.Dot(optimizedRay.Direction, N);
+        float det = -Vector4.Dot(ray.Direction, N);
         if (det < 1e-6f)
         {
             intersection = default;
@@ -75,8 +70,8 @@ public readonly record struct Triangle(Vector4 CornerA, Vector4 CornerB, Vector4
         }
 
         float invdet = 1.0f / det;
-        Vector4 AO = optimizedRay.Start - CornerA;
-        Vector4 DAO = Vector3.Cross(AO.ToTruncatedVector3(), optimizedRay.Direction.ToTruncatedVector3()).ToZeroExtendedVector4();
+        Vector4 AO = ray.Start - CornerA;
+        Vector4 DAO = Vector3.Cross(AO.ToTruncatedVector3(), ray.Direction.ToTruncatedVector3()).ToZeroExtendedVector4();
         float u = Vector4.Dot(E2, DAO) * invdet;
         float v = -Vector4.Dot(E1, DAO) * invdet;
         float t = Vector4.Dot(AO, N) * invdet;
@@ -97,10 +92,5 @@ public readonly record struct Triangle(Vector4 CornerA, Vector4 CornerB, Vector4
         var tmp3 = Sse.Multiply(tmp0, tmp1);
         var tmp4 = Sse.Shuffle(tmp2, tmp2, 0b11_00_10_01);
         return Sse.Subtract(tmp3, tmp4);
-    }
-
-    public readonly record struct RayTriangleOptimizedIntersection(Vector4 Start, Vector4 Direction)
-    {
-        public RayTriangleOptimizedIntersection(Ray ray) : this(ray.Start, ray.Direction) { }
     }
 }

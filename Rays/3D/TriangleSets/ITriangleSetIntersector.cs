@@ -1,12 +1,10 @@
 ﻿using System.Numerics;
-using static Rays._3D.Triangle;
 
 namespace Rays._3D;
 
 public interface ITriangleSetIntersector
 {
     bool TryGetIntersection(Ray ray, out (TriangleIntersection intersection, Color color) triangleIntersection);
-    bool TryGetIntersection(RayTriangleOptimizedIntersection rayTriangleOptimizedIntersection, out (TriangleIntersection intersection, Color color) triangleIntersection);
 
     IEnumerable<Triangle> GetTriangles();
 }
@@ -22,21 +20,16 @@ public sealed class TriangleIntersectorCombinator : ITriangleSetIntersector
 
     public bool TryGetIntersection(Ray ray, out (TriangleIntersection intersection, Color color) triangleIntersection)
     {
-        var rayTriangleOptimizedIntersection = new RayTriangleOptimizedIntersection(ray);
-        return TryGetIntersection(rayTriangleOptimizedIntersection, out triangleIntersection);
-    }
-    public bool TryGetIntersection(RayTriangleOptimizedIntersection rayTriangleOptimizedIntersection, out (TriangleIntersection intersection, Color color) triangleIntersection)
-    {
         triangleIntersection = default;
         float bestDistance = float.MaxValue;
         foreach (var texturedTriangles in _triangleSetIntersectors)
         {
-            if (!texturedTriangles.TryGetIntersection(rayTriangleOptimizedIntersection, out (TriangleIntersection intersection, Color color) intersection))
+            if (!texturedTriangles.TryGetIntersection(ray, out (TriangleIntersection intersection, Color color) intersection))
             {
                 continue;
             }
 
-            float distance = Vector4.DistanceSquared(rayTriangleOptimizedIntersection.Start, intersection.intersection.GetIntersection(rayTriangleOptimizedIntersection));
+            float distance = Vector4.DistanceSquared(ray.Start, intersection.intersection.GetIntersection(ray));
             if (distance > bestDistance)
             {
                 continue;

@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
 using System.Runtime.CompilerServices;
 using static Rays._3D.AxisAlignedBox;
-using static Rays._3D.Triangle;
 
 namespace Rays._3D;
 
@@ -27,13 +26,7 @@ public sealed class TriangleTree : ITriangleSetIntersector
 
     public bool TryGetIntersection(Ray ray, out (TriangleIntersection intersection, Color color) triangleIntersection)
     {
-        var rayTriangleOptimizedIntersection = new RayTriangleOptimizedIntersection(ray);
-        return TryGetIntersection(rayTriangleOptimizedIntersection, out triangleIntersection);
-    }
-
-    public bool TryGetIntersection(RayTriangleOptimizedIntersection rayTriangleOptimizedIntersection, out (TriangleIntersection intersection, Color color) triangleIntersection)
-    {
-        var optimizedRayBoxIntersection = new RayAxisAlignBoxOptimizedIntersection(rayTriangleOptimizedIntersection);
+        var optimizedRayBoxIntersection = new RayAxisAlignBoxOptimizedIntersection(ray);
 
         triangleIntersection = default;
         if (!_nodeBoundingBoxes[0].Intersects(optimizedRayBoxIntersection))
@@ -59,9 +52,9 @@ public sealed class TriangleTree : ITriangleSetIntersector
             statistics.NodesTraversed++;
             if (nodeInformation.IsLeafNode)
             {
-                if (TryGetIntersectionWithTriangles(ref statistics, rayTriangleOptimizedIntersection, _nodeTexturedTriangles[nodeInformation.TexturedTriangleIndex], out var intersection))
+                if (TryGetIntersectionWithTriangles(ref statistics, ray, _nodeTexturedTriangles[nodeInformation.TexturedTriangleIndex], out var intersection))
                 {
-                    float distance = Vector4.Distance(rayTriangleOptimizedIntersection.Start, intersection.intersection.GetIntersection(rayTriangleOptimizedIntersection));
+                    float distance = Vector4.Distance(ray.Start, intersection.intersection.GetIntersection(ray));
                     if (distance > bestDistance)
                     {
                         continue;
@@ -83,7 +76,7 @@ public sealed class TriangleTree : ITriangleSetIntersector
                 ref readonly AxisAlignedBox childBoundingBox = ref _nodeBoundingBoxes[childIndex];
                 if (childBoundingBox.Intersects(optimizedRayBoxIntersection))
                 {
-                    float distance = Vector4.Distance(rayTriangleOptimizedIntersection.Start, childBoundingBox.Center) - childBoundingBox.Size.Length();
+                    float distance = Vector4.Distance(ray.Start, childBoundingBox.Center) - childBoundingBox.Size.Length();
                     nodesToCheck.Push((childIndex, distance));
                 }
             }
@@ -93,20 +86,20 @@ public sealed class TriangleTree : ITriangleSetIntersector
         return bestDistance != float.MaxValue;
     }
 
-    private static bool TryGetIntersectionWithTriangles(ref TriangleTreeStatistics statistics, RayTriangleOptimizedIntersection rayTriangleOptimizedIntersection, ITriangleSetIntersector[] texturedTriangleSets, out (TriangleIntersection intersection, Color color) intersection)
+    private static bool TryGetIntersectionWithTriangles(ref TriangleTreeStatistics statistics, Ray ray, ITriangleSetIntersector[] texturedTriangleSets, out (TriangleIntersection intersection, Color color) intersection)
     {
         intersection = default;
         float bestDistance = float.MaxValue;
         foreach (var texturedTriangles in texturedTriangleSets)
         {
             statistics.TrianglesChecked += texturedTriangles.GetTriangles().TryGetNonEnumeratedCount(out int count) ? count : texturedTriangles.GetTriangles().Count();
-            if (!texturedTriangles.TryGetIntersection(rayTriangleOptimizedIntersection, out (TriangleIntersection intersection, Color color) triangleIntersection))
+            if (!texturedTriangles.TryGetIntersection(ray, out (TriangleIntersection intersection, Color color) triangleIntersection))
             {
                 continue;
             }
 
             statistics.IntersectionsFound++;
-            float distance = Vector4.DistanceSquared(rayTriangleOptimizedIntersection.Start, triangleIntersection.intersection.GetIntersection(rayTriangleOptimizedIntersection));
+            float distance = Vector4.DistanceSquared(ray.Start, triangleIntersection.intersection.GetIntersection(ray));
             if (distance > bestDistance)
             {
                 continue;
