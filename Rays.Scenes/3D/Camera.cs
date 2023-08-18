@@ -8,17 +8,17 @@ public sealed class Camera
     /// <summary>
     /// Gets the position of the camera.
     /// </summary>
-    public Vector3 Position { get; set; }
+    public Vector4 Position { get; set; }
 
     /// <summary>
     /// Gets the direction of the camera. This should be a unit vector.
     /// </summary>
-    public Vector3 Direction { get; set; }
+    public Vector4 Direction { get; set; }
 
     /// <summary>
     /// Gets the up direction of the camera. This should be a unit vector.
     /// </summary>
-    public Vector3 UpDirection { get; set; }
+    public Vector4 UpDirection { get; set; }
 
     /// <summary>
     /// Gets the field of view of the camera, in degrees.
@@ -36,10 +36,10 @@ public sealed class Camera
     /// <param name="position">The position of the camera.</param>
     /// <param name="direction">The direction of the camera.</param>
     /// <param name="fieldOfView">The field of view of the camera, in degrees.</param>
-    public Camera(Vector3 position, Vector3 direction, Vector3 upDirection, float fieldOfView, float aspectRatio)
+    public Camera(Vector4 position, Vector4 direction, Vector4 upDirection, float fieldOfView, float aspectRatio)
     {
         Position = position;
-        Direction = Vector3.Normalize(direction);
+        Direction = Vector4.Normalize(direction);
         UpDirection = upDirection;
         FieldOfView = fieldOfView;
         AspectRatio = aspectRatio;
@@ -47,9 +47,9 @@ public sealed class Camera
 
     internal RayTraceViewPort GetRayTraceViewPort(Point screenSize)
     {
-        Vector3 right = Vector3.Cross(Direction, UpDirection);
-        Vector3 up = Vector3.Cross(right, Direction);
+        Vector4 right = Direction.Cross(UpDirection);
+        Vector4 up = right.Cross(Direction);
         float convertedFieldOfView = MathF.Tan(FieldOfView / 2 * MathF.PI / 180);
-        return new RayTraceViewPort(screenSize, Position.ToZeroExtendedVector4(), Direction.ToZeroExtendedVector4(), right.ToZeroExtendedVector4(), up.ToZeroExtendedVector4(), AspectRatio, convertedFieldOfView);
+        return new RayTraceViewPort(screenSize, Position, Direction, right, up, AspectRatio, convertedFieldOfView);
     }
 }

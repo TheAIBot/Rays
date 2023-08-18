@@ -226,13 +226,11 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
 
         #region Test separating axis corresponding to triangle face normal (category 2)
 
-        var planeNormal = Vector3.Cross(f0.ToTruncatedVector3(), f1.ToTruncatedVector3());
-        var planeDistance = Vector4.Dot(planeNormal.ToZeroExtendedVector4(), v0);
+        var planeNormal = f0.Cross(f1);
+        var planeDistance = Vector4.Dot(planeNormal, v0);
 
         // Compute the projection interval radius of b onto L(t) = b.c + t * p.n
-        r = boxExtents.X * Math.Abs(planeNormal.X)
-            + boxExtents.Y * Math.Abs(planeNormal.Y)
-            + boxExtents.Z * Math.Abs(planeNormal.Z);
+        r = Vector4.Dot(boxExtents, Vector4.Abs(planeNormal));
 
         // Intersection occurs when plane distance falls within [-r,+r] interval
         if (planeDistance > r)

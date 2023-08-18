@@ -174,7 +174,7 @@
             return;
         }
 
-        var rightDirection = Vector3.Cross(_scene.Camera.Direction, _scene.Camera.UpDirection);
+        var rightDirection = _scene.Camera.Direction.Cross(_scene.Camera.UpDirection);
         switch (e.Key.ToLower())
         {
             case "w":
@@ -220,13 +220,13 @@
             mouseDelta *= scale;
 
             // calculate rotation quaternions
-            var rightDirection = Vector3.Cross(_scene.Camera.Direction, _scene.Camera.UpDirection);
-            Quaternion pitchRotation = Quaternion.CreateFromAxisAngle(rightDirection, -mouseDelta.Y);
-            Quaternion yawRotation = Quaternion.CreateFromAxisAngle(_scene.Camera.UpDirection, mouseDelta.X);
+            var rightDirection = _scene.Camera.Direction.Cross(_scene.Camera.UpDirection);
+            Quaternion pitchRotation = Quaternion.CreateFromAxisAngle(rightDirection.ToTruncatedVector3(), -mouseDelta.Y);
+            Quaternion yawRotation = Quaternion.CreateFromAxisAngle(_scene.Camera.UpDirection.ToTruncatedVector3(), mouseDelta.X);
             Quaternion rotation = Quaternion.Multiply(pitchRotation, yawRotation);
 
             // rotate the camera direction and up direction
-            _scene.Camera.Direction = Vector3.Normalize(Vector3.Transform(_scene.Camera.Direction, rotation));
+            _scene.Camera.Direction = Vector3.Normalize(Vector3.Transform(_scene.Camera.Direction.ToTruncatedVector3(), rotation)).ToZeroExtendedVector4();
             // _scene.Camera.UpDirection = Vector3.Normalize(Vector3.Transform(_scene.Camera.UpDirection, rotation));
 
             // reset the initial mouse position for the next frame
