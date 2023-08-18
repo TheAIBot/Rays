@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using System.Runtime.Intrinsics.X86;
 
 namespace Rays._3D;
 
@@ -18,28 +17,11 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
     //https://gist.github.com/DomNomNom/46bb1ce47f68d255fd5d
     public bool Intersects(RayAxisAlignBoxOptimizedIntersection optimizedRay)
     {
-        if (!Sse.IsSupported)
-        {
-            return IntersectsCrossPlatform(optimizedRay);
-        }
-
         Vector4 tMin = (MinPosition - optimizedRay.Start) * optimizedRay.InverseDirection;
         Vector4 tMax = (MaxPosition - optimizedRay.Start) * optimizedRay.InverseDirection;
         float tNear = Vector4.Min(tMin, tMax).HorizontalMax();
         float tFar = Vector4.Max(tMin, tMax).HorizontalMin();
 
-        return tNear <= tFar && tFar >= 0;
-    }
-
-    //https://gist.github.com/DomNomNom/46bb1ce47f68d255fd5d
-    public bool IntersectsCrossPlatform(RayAxisAlignBoxOptimizedIntersection optimizedRay)
-    {
-        Vector4 tMin = (MinPosition - optimizedRay.Start) * optimizedRay.InverseDirection;
-        Vector4 tMax = (MaxPosition - optimizedRay.Start) * optimizedRay.InverseDirection;
-        Vector4 t1 = Vector4.Min(tMin, tMax);
-        Vector4 t2 = Vector4.Max(tMin, tMax);
-        float tNear = float.Max(float.Max(t1.X, t1.Y), t1.Z);
-        float tFar = float.Min(float.Min(t2.X, t2.Y), t2.Z);
         return tNear <= tFar && tFar >= 0;
     }
 

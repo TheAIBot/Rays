@@ -12,6 +12,11 @@ public static class VectorHelpers
 
     public static float HorizontalMin(this Vector4 vector)
     {
+        if (!Sse.IsSupported)
+        {
+            return MathF.Min(MathF.Min(vector.X, vector.Y), MathF.Min(vector.Z, vector.W));
+        }
+
         Vector128<float> vector128 = vector.AsVector128();
         Vector128<float> min = Sse.Min(Sse.Min(Sse.MoveHighToLow(vector128, vector128),
                                                Sse.Shuffle(vector128, vector128, 0b00_00_11_01)),
@@ -21,6 +26,11 @@ public static class VectorHelpers
 
     public static float HorizontalMax(this Vector4 vector)
     {
+        if (!Sse.IsSupported)
+        {
+            return MathF.Max(MathF.Max(vector.X, vector.Y), MathF.Max(vector.Z, vector.W));
+        }
+
         Vector128<float> vector128 = vector.AsVector128();
         Vector128<float> max = Sse.Max(Sse.Max(Sse.MoveHighToLow(vector128, vector128),
                                                Sse.Shuffle(vector128, vector128, 0b00_00_11_01)),
