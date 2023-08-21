@@ -3,13 +3,13 @@ using Rays._3D;
 
 namespace Rays.Scenes;
 
-public sealed class KMeansTriangleTreeFromGeometryObject : ITriangleSetIntersectorFromGeometryObject
+public sealed class KMeansTriangleTreeTopDownFromGeometryObject : ITriangleSetIntersectorFromGeometryObject
 {
     private readonly ITriangleSetsFromGeometryObject _triangleSetsFromObject;
     private readonly TriangleTreeBuilder _treeBuilder;
     private readonly INodeClusterBuilder _nodeClusterBuilder;
 
-    public KMeansTriangleTreeFromGeometryObject(ITriangleSetsFromGeometryObject triangleSetsFromObject, TriangleTreeBuilder treeBuilder, KMeansNodeClusterBuilder kMeansNodeClusterBuilder)
+    public KMeansTriangleTreeTopDownFromGeometryObject(ITriangleSetsFromGeometryObject triangleSetsFromObject, TriangleTreeBuilder treeBuilder, KMeansNodeClusterBuilderTopDown kMeansNodeClusterBuilder)
     {
         _triangleSetsFromObject = triangleSetsFromObject;
         _treeBuilder = treeBuilder;

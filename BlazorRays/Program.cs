@@ -28,11 +28,13 @@ public static class Program
         builder.Services.AddSingleton<IKMeansClusterScore, KMeansClusterEuclidianScore>();
         builder.Services.AddSingleton<IKMeansClusteringAlgorithm, KMeansClusteringAlgorithm>();
         builder.Services.AddSingleton<KMeansNodeClusterBuilder>();
+        builder.Services.AddSingleton<KMeansNodeClusterBuilderTopDown>();
         builder.Services.AddSingleton<ICameraFactory, CameraFactory>();
         builder.Services.AddSingleton<ISceneInformationFactory, SceneInformationFactory>();
         builder.Services.AddSingleton<ITriangleSetsFromGeometryObject, TriangleSetsFromGeometryObject>();
         builder.Services.AddDisplayableOption<ITriangleSetIntersectorFromGeometryObject, TriangleTreeFromGeometryObject>("Triangle Tree (Custom)", true);
         builder.Services.AddDisplayableOption<ITriangleSetIntersectorFromGeometryObject, KMeansTriangleTreeFromGeometryObject>("Triangle Tree (KMeans)", false);
+        builder.Services.AddDisplayableOption<ITriangleSetIntersectorFromGeometryObject, KMeansTriangleTreeTopDownFromGeometryObject>("Triangle Tree (KMeans Top down)", false);
         builder.Services.AddDisplayableOption<ITriangleSetIntersectorFromGeometryObject, TriangleListFromGeometryObject>("Triangle List", false);
         builder.Services.AddDisplayableOption<I3DSceneGeometryObjectFactory, RayTracerFromGeometryObjectFactory>("Default", true);
         builder.Services.AddDisplayableOption<I3DSceneGeometryObjectFactory, DisplayDepthRayTracerFromGeometryObjectFactory>("Depth", false);
