@@ -82,7 +82,7 @@ public sealed class TriangleTree : ITriangleSetIntersector
             }
         }
 
-        //_treeStatistics.AddStatistic(statistics);
+        _treeStatistics.AddStatistic(statistics);
         return bestDistance != float.MaxValue;
     }
 
