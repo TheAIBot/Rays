@@ -16,7 +16,7 @@ public sealed class KMeansNodeClusterBuilderTopDown : INodeClusterBuilder
     {
         TexturedTriangleIndex[] texturedTriangleIndexes = GetTexturedTriangleIndexes(texturedTriangleSets);
         Stack<TriangleIndexNode> nodesToSplit = new Stack<TriangleIndexNode>();
-        var rootTriangleIndexNode = new TriangleIndexNode(texturedTriangleIndexes, new Node(Array.Empty<ISubDividableTriangleSet>(), new List<Node>()), new List<TriangleIndexNode>());
+        var rootTriangleIndexNode = new TriangleIndexNode(texturedTriangleIndexes, new Node(Array.Empty<ISubDividableTriangleSet>(), new List<Node>()));
         nodesToSplit.Push(rootTriangleIndexNode);
 
         while (nodesToSplit.Count > 0)
@@ -33,11 +33,11 @@ public sealed class KMeansNodeClusterBuilderTopDown : INodeClusterBuilder
             {
                 var childTriangleIndexes = clusters.GetClusterItems(i).ToArray();
                 ISubDividableTriangleSet[] childTriangles = clusters.GetClusterItems(i)
+                                                                    .Order()
                                                                     .GroupBy(x => x.TextureIndex)
                                                                     .Select(x => texturedTriangleSets[x.Key].SubCopy(x.Select(y => y.TriangleIndex)))
                                                                     .ToArray();
-                var child = new TriangleIndexNode(childTriangleIndexes, new Node(childTriangles, new List<Node>()), new List<TriangleIndexNode>());
-                parentNode.Children.Add(child);
+                var child = new TriangleIndexNode(childTriangleIndexes, new Node(childTriangles, new List<Node>()));
                 parentNode.Node.Children.Add(child.Node);
 
                 if (child.TexturedTriangleSets.Length > averageTrianglesPerNode)
@@ -82,7 +82,7 @@ public sealed class KMeansNodeClusterBuilderTopDown : INodeClusterBuilder
 
     private readonly record struct TexturedTriangleIndex(int TextureIndex, int TriangleIndex);
 
-    private sealed record TriangleIndexNode(TexturedTriangleIndex[] TexturedTriangleSets, Node Node, List<TriangleIndexNode> Children);
+    private sealed record TriangleIndexNode(TexturedTriangleIndex[] TexturedTriangleSets, Node Node);
 }
 
 
