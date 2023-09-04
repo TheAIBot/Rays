@@ -59,7 +59,7 @@ internal sealed class DisplayDepthRayTracer : I3DScene
         await _polygonDrawer.RenderAsync();
     }
 
-    private ValueTask RaySetPixelColor(RayTraceViewPort rayTraceViewPort, int pixelIndex, int screenWidth)
+    private void RaySetPixelColor(RayTraceViewPort rayTraceViewPort, int pixelIndex, int screenWidth)
     {
         (int pixelY, int pixelX) = Math.DivRem(pixelIndex, screenWidth);
         var pixelPosition = new Vector2(pixelX, pixelY);
@@ -73,7 +73,5 @@ internal sealed class DisplayDepthRayTracer : I3DScene
         {
             _depthMap[pixelIndex] = float.NaN;
         }
-
-        return ValueTask.CompletedTask;
     }
 }

@@ -47,9 +47,14 @@ namespace BlazorRays.Code
             throw new NotImplementedException();
         }
 
-        public ValueTask DrawPixelAsync(int x, int y, Rays.Color color)
+        public void DrawPixel(int x, int y, Rays.Color color)
         {
             _image[x, y] = new Rgba32(color.Red, color.Green, color.Blue, color.Alpha);
+        }
+
+        public ValueTask DrawPixelAsync(int x, int y, Rays.Color color)
+        {
+            DrawPixel(x, y, color);
             return ValueTask.CompletedTask;
         }
 

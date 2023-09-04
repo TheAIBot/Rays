@@ -66,14 +66,19 @@ internal sealed class ConsolePolygonDrawer : IPolygonDrawer
         }
     }
 
-    public ValueTask DrawPixelAsync(int x, int y, Color _)
+    public void DrawPixel(int x, int y, Color _)
     {
         if (!WithinScreen(new Vector2(x, y)))
         {
-            return ValueTask.CompletedTask;
+            return;
         }
 
         Screen[x, y] = '#';
+    }
+
+    public ValueTask DrawPixelAsync(int x, int y, Color _)
+    {
+        DrawPixel(x, y, _);
         return ValueTask.CompletedTask;
     }
 

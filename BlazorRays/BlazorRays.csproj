@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-	<RazorLanguageVersion>7</RazorLanguageVersion>
+	<RazorLanguageVersion>8</RazorLanguageVersion>
   </PropertyGroup>
 
   <ItemGroup>
