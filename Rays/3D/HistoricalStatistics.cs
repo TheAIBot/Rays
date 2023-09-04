@@ -25,6 +25,11 @@ public readonly record struct HistoricalStatistics<T>(int MaxHistoryLength) wher
         _statistics.Last().Update(value);
     }
 
+    public void UpdateLatestEntry(Statistics<T> value)
+    {
+        _statistics.Last().Update(value);
+    }
+
     public void Clear()
     {
         _statistics.Clear();

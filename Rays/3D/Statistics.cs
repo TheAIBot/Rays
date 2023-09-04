@@ -21,6 +21,14 @@ public sealed class Statistics<T> where T : struct, INumber<T>
         _max = T.Max(_max, value);
     }
 
+    public void Update(Statistics<T> value)
+    {
+        _min = _min == default ? value._min : value._min == default ? _min : T.Min(_min, value._min);
+        _sum += value._sum;
+        _count += value._count;
+        _max = T.Max(_max, value._max);
+    }
+
     public void Clear()
     {
         _min = default;

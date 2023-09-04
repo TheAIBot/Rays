@@ -1,27 +1,27 @@
-﻿using System.Collections.Concurrent;
+﻿namespace Rays._3D;
 
-namespace Rays._3D;
-
-public sealed class CombinedTriangleTreeStatistics
+public sealed class CombinedTriangleTreeStatistics : IDisposable
 {
-    private readonly ConcurrentQueue<TriangleTreeStatistics>[] _unprocessedStatistics;
+    private readonly ThreadLocal<ThreadAccumulatedStatistics> _perThreadStatistics = new(() =>
+    {
+        return new ThreadAccumulatedStatistics(new Statistics<float>(), new Statistics<float>(), new Statistics<float>());
+    }, true);
 
     public HistoricalStatistics<float> NodesTraversed { get; } = new HistoricalStatistics<float>(20);
     public HistoricalStatistics<float> TrianglesChecked { get; } = new HistoricalStatistics<float>(20);
     public HistoricalStatistics<float> IntersectionsFound { get; } = new HistoricalStatistics<float>(20);
 
-    public CombinedTriangleTreeStatistics()
+    public void AddStatistic(TriangleTreeStatistics statistic)
     {
-        _unprocessedStatistics = new ConcurrentQueue<TriangleTreeStatistics>[Environment.ProcessorCount];
-        for (int i = 0; i < _unprocessedStatistics.Length; i++)
+        ThreadAccumulatedStatistics? threadStatistics = _perThreadStatistics.Value;
+        if (threadStatistics == null)
         {
-            _unprocessedStatistics[i] = new ConcurrentQueue<TriangleTreeStatistics>();
+            throw new InvalidOperationException("Thread statistics was null");
         }
-    }
 
-    public void AddStatistic(TriangleTreeStatistics statistics)
-    {
-        _unprocessedStatistics[Environment.CurrentManagedThreadId % _unprocessedStatistics.Length].Enqueue(statistics);
+        threadStatistics.NodesTraversed.Update(statistic.NodesTraversed);
+        threadStatistics.TrianglesChecked.Update(statistic.TrianglesChecked);
+        threadStatistics.IntersectionsFound.Update(statistic.IntersectionsFound);
     }
 
     public void ProcessStatistics()
@@ -30,17 +30,14 @@ public sealed class CombinedTriangleTreeStatistics
         TrianglesChecked.AddNewEntry();
         IntersectionsFound.AddNewEntry();
 
-        foreach (var unprocessedStatistics in _unprocessedStatistics)
+        foreach (var unprocessedStatistics in _perThreadStatistics.Values)
         {
-            int itemCount = unprocessedStatistics.Count;
-            for (int i = 0; i < itemCount; i++)
-            {
-                unprocessedStatistics.TryDequeue(out TriangleTreeStatistics statistics);
-
-                NodesTraversed.UpdateLatestEntry(statistics.NodesTraversed);
-                TrianglesChecked.UpdateLatestEntry(statistics.TrianglesChecked);
-                IntersectionsFound.UpdateLatestEntry(statistics.IntersectionsFound);
-            }
+            NodesTraversed.UpdateLatestEntry(unprocessedStatistics.NodesTraversed);
+            TrianglesChecked.UpdateLatestEntry(unprocessedStatistics.TrianglesChecked);
+            IntersectionsFound.UpdateLatestEntry(unprocessedStatistics.IntersectionsFound);
+            unprocessedStatistics.NodesTraversed.Clear();
+            unprocessedStatistics.TrianglesChecked.Clear();
+            unprocessedStatistics.IntersectionsFound.Clear();
         }
     }
 
@@ -50,4 +47,11 @@ public sealed class CombinedTriangleTreeStatistics
         TrianglesChecked.Clear();
         IntersectionsFound.Clear();
     }
+
+    public void Dispose()
+    {
+        _perThreadStatistics.Dispose();
+    }
+
+    private sealed record ThreadAccumulatedStatistics(Statistics<float> NodesTraversed, Statistics<float> TrianglesChecked, Statistics<float> IntersectionsFound);
 }
