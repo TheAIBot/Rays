@@ -1,5 +1,7 @@
 ﻿using Rays._3D;
 using Rays.GeometryLoaders.Geometry;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using System.IO.Compression;
 using System.Numerics;
 

@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using System.Numerics;
 
 namespace Rays._3D;
 

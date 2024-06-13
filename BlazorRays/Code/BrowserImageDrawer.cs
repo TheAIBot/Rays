@@ -1,6 +1,8 @@
 ﻿using Microsoft.JSInterop;
 using Rays;
 using Rays.Polygons;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using System.Runtime.InteropServices;
 
 namespace BlazorRays.Code
