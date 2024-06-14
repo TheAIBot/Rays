@@ -68,7 +68,7 @@ namespace BlazorRays.Code
             }
 
             SwapImageBuffers();
-            _sendingToBrowser = Task.Run(() => _runtime.InvokeVoidAsync("setImage", _readImageData, _canvasElementId, Size.X, Size.Y));
+            _sendingToBrowser = Task.Run(async () => await _runtime.InvokeVoidAsync("setImage", _readImageData, _canvasElementId, Size.X, Size.Y));
         }
 
         public void SwapImageBuffers()
