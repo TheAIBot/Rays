@@ -38,6 +38,7 @@ public static class Program
         builder.Services.AddDisplayableOption<ITriangleSetIntersectorFromGeometryObject, TriangleListFromGeometryObject>("Triangle List", false);
         builder.Services.AddDisplayableOption<I3DSceneGeometryObjectFactory, RayTracerFromGeometryObjectFactory>("Default", true);
         builder.Services.AddDisplayableOption<I3DSceneGeometryObjectFactory, DisplayDepthRayTracerFromGeometryObjectFactory>("Depth", false);
+        builder.Services.AddDisplayableOption<I3DSceneGeometryObjectFactory, RayTracerThreadDisplayerFromGeometryObjectFactory>("Thread", false);
 
         foreach (var model in Directory.GetFiles(GetModelsFolderPath()))
         {

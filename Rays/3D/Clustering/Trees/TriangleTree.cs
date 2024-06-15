@@ -37,7 +37,7 @@ public sealed class TriangleTree : ITriangleSetIntersector
         float bestDistance = float.MaxValue;
         var statistics = new TriangleTreeStatistics();
 
-        Span<(int, float)> defaultNodeSpace = stackalloc (int, float)[20];
+        Span<(int, float)> defaultNodeSpace = stackalloc (int, float)[40];
         var nodesToCheck = new StackStack<(int, float)>(defaultNodeSpace);
         nodesToCheck.Push((0, 0));
         while (nodesToCheck.Count > 0)
