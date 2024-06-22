@@ -14,7 +14,7 @@ internal sealed class OnlyStaticContentScene : I2DScene
         _staticWalls = staticWalls;
     }
 
-    public async Task RenderAsync()
+    public async Task RenderAsync(CancellationToken cancellationToken)
     {
         var ray = new Ray(new Vector2(70, 90), Vector2.Normalize(new Vector2(-1, -1.5f)));
         List<Line> lines = Ray.GetRayPath(ray, 9, _staticWalls);
@@ -28,6 +28,6 @@ internal sealed class OnlyStaticContentScene : I2DScene
         {
             await _polygonDrawer.DrawAsync(line);
         }
-        await _polygonDrawer.RenderAsync();
+        await _polygonDrawer.RenderAsync(cancellationToken);
     }
 }

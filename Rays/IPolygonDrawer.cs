@@ -15,7 +15,7 @@ public interface IPolygonDrawer
 
     Task ClearAsync();
 
-    Task RenderAsync();
+    Task RenderAsync(CancellationToken cancellationToken);
 }
 
 public readonly record struct Color(byte Red, byte Green, byte Blue, byte Alpha)

@@ -60,7 +60,7 @@ namespace BlazorRays.Code
             return ValueTask.CompletedTask;
         }
 
-        public async Task RenderAsync()
+        public async Task RenderAsync(CancellationToken cancellationToken)
         {
             if (_sendingToBrowser != null)
             {
@@ -68,7 +68,7 @@ namespace BlazorRays.Code
             }
 
             SwapImageBuffers();
-            _sendingToBrowser = Task.Run(async () => await _runtime.InvokeVoidAsync("setImage", _readImageData, _canvasElementId, Size.X, Size.Y));
+            _sendingToBrowser = Task.Run(async () => await _runtime.InvokeVoidAsync("setImage", cancellationToken, _readImageData, _canvasElementId, Size.X, Size.Y), cancellationToken);
         }
 
         public void SwapImageBuffers()

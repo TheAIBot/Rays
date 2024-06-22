@@ -139,9 +139,13 @@
                     using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(50));
                     while (await timer.WaitForNextTickAsync(_cancellationTokenSource.Token))
                     {
+                        await drawer.ClearAsync();
+
                         watch.Restart();
                         await _scene.RenderAsync(_cancellationTokenSource.Token);
                         watch.Stop();
+
+                        await drawer.RenderAsync(_cancellationTokenSource.Token);
 
                         _frameTime.AddNewEntry();
                         _frameTime.UpdateLatestEntry(watch.ElapsedMilliseconds);

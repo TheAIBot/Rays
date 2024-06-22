@@ -2,5 +2,5 @@
 
 public interface I2DScene
 {
-    Task RenderAsync();
+    Task RenderAsync(CancellationToken cancellationToken);
 }

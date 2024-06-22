@@ -17,7 +17,7 @@ internal sealed class SpinningRectangle : I2DScene
         _rectangle = rectangle;
     }
 
-    public async Task RenderAsync()
+    public async Task RenderAsync(CancellationToken cancellationToken)
     {
         var walls = new List<Wall>(_staticWalls);
         walls.AddRange(_rectangle.GetAsWalls());
@@ -34,7 +34,7 @@ internal sealed class SpinningRectangle : I2DScene
         {
             await _polygonDrawer.DrawAsync(line);
         }
-        await _polygonDrawer.RenderAsync();
+        await _polygonDrawer.RenderAsync(cancellationToken);
 
         _rectangle = Rectangle.RotateRectangle(_rectangle, 0.5f);
     }

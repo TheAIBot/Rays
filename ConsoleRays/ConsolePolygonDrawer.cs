@@ -101,7 +101,7 @@ internal sealed class ConsolePolygonDrawer : IPolygonDrawer
         return Task.CompletedTask;
     }
 
-    public Task RenderAsync()
+    public Task RenderAsync(CancellationToken cancellationToken)
     {
         var sBuilder = new StringBuilder();
         for (int y = Screen.GetLength(1) - 1; y >= 0; y--)

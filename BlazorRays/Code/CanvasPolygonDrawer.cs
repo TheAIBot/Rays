@@ -102,7 +102,7 @@ namespace BlazorRays.Code
             await DrawingContext.TranslateAsync(0, -Size.Y);
         }
 
-        public Task RenderAsync()
+        public Task RenderAsync(CancellationToken cancellationToken)
         {
             return DrawingContext.EndBatchAsync();
         }

@@ -19,13 +19,11 @@ internal sealed class RayTracer : I3DScene
         _triangleSetIntersector = triangleSetIntersector;
     }
 
-    public async Task RenderAsync(CancellationToken cancellationToken)
+    public Task RenderAsync(CancellationToken cancellationToken)
     {
-        await _polygonDrawer.ClearAsync();
         RayTraceViewPort rayTraceViewPort = Camera.GetRayTraceViewPort(_polygonDrawer.Size);
         Parallel.For(0, _polygonDrawer.Size.X * _polygonDrawer.Size.Y, x => RaySetPixelColor(rayTraceViewPort, x, _polygonDrawer.Size.X));
-
-        await _polygonDrawer.RenderAsync();
+        return Task.CompletedTask;
     }
 
     private void RaySetPixelColor(RayTraceViewPort rayTraceViewPort, int pixelIndex, int screenWidth)
