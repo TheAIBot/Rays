@@ -34,4 +34,8 @@ public readonly record struct Color(byte Red, byte Green, byte Blue, byte Alpha)
 public readonly record struct Point(int X, int Y)
 {
     public static Point operator /(Point p1, int divider) => new(p1.X / divider, p1.Y / divider);
+    public static Point operator /(Point p1, float divider) => new((int)(p1.X / divider), (int)(p1.Y / divider));
+
+    public static Point operator *(Point p1, int divider) => new(p1.X * divider, p1.Y * divider);
+    public static Point operator *(Point p1, float divider) => new((int)(p1.X * divider), (int)(p1.Y * divider));
 }

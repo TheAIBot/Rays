@@ -77,7 +77,7 @@
     private bool _dragging = false;
     private Vector2 _initialMousePosition = new Vector2();
     private bool _updateUI = false;
-    private int _renderScale = 1;
+    private float _renderScale = 1f;
 
     private readonly HistoricalStatistics<long> _frameTime = new HistoricalStatistics<long>(60);
 
@@ -110,7 +110,8 @@
     {
         if (firstRender)
         {
-            var drawer = new BrowserImageDrawer(_CanvasSize / _renderScale, _canvasElementId, _jsRuntime);
+            _statistics.Clear();
+            var drawer = new BrowserImageDrawer(_CanvasSize * _renderScale, _canvasElementId, _jsRuntime);
             var triangleIntersector = SceneSettings.TriangleSetIntersectorFactory.Create(SceneSettings.GeometryModel.ModelFileName);
 
             if (triangleIntersector is TriangleTree triangleTree)
