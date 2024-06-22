@@ -2,12 +2,12 @@
 
 namespace Rays.Scenes;
 
-public sealed class RayTracerFromGeometryObjectFactory : I3DSceneGeometryObjectFactory
+public sealed class RayTracerVectorizedThreadDisplayerFromGeometryObjectFactory : I3DSceneGeometryObjectFactory
 {
     private readonly ISceneInformationFactory _sceneInformationFactory;
     private readonly ICameraFactory _cameraFactory;
 
-    public RayTracerFromGeometryObjectFactory(ISceneInformationFactory sceneInformationFactory, ICameraFactory cameraFactory)
+    public RayTracerVectorizedThreadDisplayerFromGeometryObjectFactory(ISceneInformationFactory sceneInformationFactory, ICameraFactory cameraFactory)
     {
         _sceneInformationFactory = sceneInformationFactory;
         _cameraFactory = cameraFactory;
@@ -17,6 +17,6 @@ public sealed class RayTracerFromGeometryObjectFactory : I3DSceneGeometryObjectF
     {
         SceneInformation sceneInformation = _sceneInformationFactory.Create(triangleSetIntersector);
         Camera camera = _cameraFactory.Create(sceneInformation, polygonDrawer);
-        return new RayTracer(camera, sceneInformation, polygonDrawer, triangleSetIntersector);
+        return new RayTracerVectorizedThreadDisplayer(camera, sceneInformation, polygonDrawer, triangleSetIntersector);
     }
 }

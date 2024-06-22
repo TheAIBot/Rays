@@ -12,27 +12,49 @@ public readonly record struct HistoricalStatistics<T>(int MaxHistoryLength) wher
 
     public void AddNewEntry()
     {
-        if (_statistics.Count == MaxHistoryLength)
+        lock (_statistics)
         {
-            _statistics.Dequeue();
-        }
+            if (_statistics.Count == MaxHistoryLength)
+            {
+                _statistics.Dequeue();
+            }
 
-        _statistics.Enqueue(new Statistics<T>());
+            _statistics.Enqueue(new Statistics<T>());
+        }
     }
 
     public void UpdateLatestEntry(T value)
     {
-        _statistics.Last().Update(value);
+        lock (_statistics)
+        {
+            _statistics.Last().Update(value);
+        }
     }
 
     public void UpdateLatestEntry(Statistics<T> value)
     {
-        _statistics.Last().Update(value);
+        lock (_statistics)
+        {
+            _statistics.Last().Update(value);
+        }
     }
 
     public void Clear()
     {
-        _statistics.Clear();
+        if (_statistics.Count == 0)
+        {
+            return;
+        }
+
+        lock (_statistics)
+        {
+            if (_statistics.Count == 0)
+            {
+                return;
+            }
+
+            _statistics.Clear();
+        }
     }
 
     private T CalculateMin()
@@ -42,7 +64,15 @@ public readonly record struct HistoricalStatistics<T>(int MaxHistoryLength) wher
             return default;
         }
 
-        return _statistics.Min(x => x.Min);
+        lock (_statistics)
+        {
+            if (_statistics.Count == 0)
+            {
+                return default;
+            }
+
+            return _statistics.Min(x => x.Min);
+        }
     }
 
     private T CalculateAverage()
@@ -52,15 +82,23 @@ public readonly record struct HistoricalStatistics<T>(int MaxHistoryLength) wher
             return default;
         }
 
-        T sum = default;
-        T count = default;
-        foreach (var statistic in _statistics)
+        lock (_statistics)
         {
-            sum += statistic.Average;
-            count++;
-        }
+            if (_statistics.Count == 0)
+            {
+                return default;
+            }
 
-        return sum / count;
+            T sum = default;
+            T count = default;
+            foreach (var statistic in _statistics)
+            {
+                sum += statistic.Average;
+                count++;
+            }
+
+            return sum / count;
+        }
     }
 
     private T CalculateMax()
@@ -70,6 +108,14 @@ public readonly record struct HistoricalStatistics<T>(int MaxHistoryLength) wher
             return default;
         }
 
-        return _statistics.Max(x => x.Max);
+        lock (_statistics)
+        {
+            if (_statistics.Count == 0)
+            {
+                return default;
+            }
+
+            return _statistics.Max(x => x.Max);
+        }
     }
 }

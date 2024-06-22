@@ -17,6 +17,14 @@ public sealed class TexturedTriangles : ISubDividableTriangleSet
         _texture = texture;
     }
 
+    public void TryGetIntersections(ReadOnlySpan<Ray> rays, Span<bool> raysHit, Span<(TriangleIntersection intersection, Color color)> triangleIntersections)
+    {
+        for (int i = 0; i < rays.Length; i++)
+        {
+            raysHit[i] = TryGetIntersection(rays[i], out triangleIntersections[i]);
+        }
+    }
+
     public bool TryGetIntersection(Ray ray, out (TriangleIntersection intersection, Color color) intersection)
     {
         intersection = default;

@@ -20,6 +20,7 @@ public static class Program
         builder.Services.AddSingleton<CombinedTriangleTreeStatistics>();
         builder.Services.AddSingleton<CustomNodeClusterBuilder>();
         builder.Services.AddSingleton<TriangleTreeBuilder>();
+        builder.Services.AddSingleton<VectorizedTriangleTreeBuilder>();
         builder.Services.AddSingleton<TriangleTreeDebugModeFactory>();
         builder.Services.AddSingleton<IKMeansClusterInitialization, KMeansClusterRandomInitialization>();
         builder.Services.AddSingleton<IKMeansClusterInitialization, KMeansClusterPlusPlusInitialization>();
@@ -36,9 +37,11 @@ public static class Program
         builder.Services.AddDisplayableOption<ITriangleSetIntersectorFromGeometryObject, KMeansTriangleTreeFromGeometryObject>("Triangle Tree (KMeans)", false);
         builder.Services.AddDisplayableOption<ITriangleSetIntersectorFromGeometryObject, KMeansTriangleTreeTopDownFromGeometryObject>("Triangle Tree (KMeans Top down)", false);
         builder.Services.AddDisplayableOption<ITriangleSetIntersectorFromGeometryObject, TriangleListFromGeometryObject>("Triangle List", false);
+        builder.Services.AddDisplayableOption<ITriangleSetIntersectorFromGeometryObject, KMeansVectorizedTriangleTreeFromGeometryObject>("Vectorized Triangle Tree (KMeans)", false);
         builder.Services.AddDisplayableOption<I3DSceneGeometryObjectFactory, RayTracerFromGeometryObjectFactory>("Default", true);
         builder.Services.AddDisplayableOption<I3DSceneGeometryObjectFactory, DisplayDepthRayTracerFromGeometryObjectFactory>("Depth", false);
         builder.Services.AddDisplayableOption<I3DSceneGeometryObjectFactory, RayTracerThreadDisplayerFromGeometryObjectFactory>("Thread", false);
+        builder.Services.AddDisplayableOption<I3DSceneGeometryObjectFactory, RayTracerVectorizedThreadDisplayerFromGeometryObjectFactory>("Sub ray chunk render", false);
 
         foreach (var model in Directory.GetFiles(GetModelsFolderPath()))
         {

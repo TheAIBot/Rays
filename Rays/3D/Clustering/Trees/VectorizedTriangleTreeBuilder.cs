@@ -1,15 +1,15 @@
 ﻿namespace Rays._3D;
 
-public sealed class TriangleTreeBuilder
+public sealed class VectorizedTriangleTreeBuilder
 {
     private readonly CombinedTriangleTreeStatistics _combinedTriangleTreeStatistics;
 
-    public TriangleTreeBuilder(CombinedTriangleTreeStatistics combinedTriangleTreeStatistics)
+    public VectorizedTriangleTreeBuilder(CombinedTriangleTreeStatistics combinedTriangleTreeStatistics)
     {
         _combinedTriangleTreeStatistics = combinedTriangleTreeStatistics;
     }
 
-    public TriangleTree Create(Node root)
+    public VectorizedTriangleTree Create(Node root)
     {
         int nodeCount = root.CountNodes();
         var nodeBoundingBoxes = new AxisAlignedBox[nodeCount];
@@ -38,6 +38,6 @@ public sealed class TriangleTreeBuilder
             lastNodeIndex--;
         }
 
-        return new TriangleTree(nodeBoundingBoxes, nodeInformation, triangleSets, _combinedTriangleTreeStatistics);
+        return new VectorizedTriangleTree(nodeBoundingBoxes, nodeInformation, triangleSets, _combinedTriangleTreeStatistics);
     }
 }
