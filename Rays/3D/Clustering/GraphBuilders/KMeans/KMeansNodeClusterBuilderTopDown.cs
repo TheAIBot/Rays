@@ -22,17 +22,22 @@ public sealed class KMeansNodeClusterBuilderTopDown : INodeClusterBuilder
         {
             TriangleIndexNode parentNode = nodesToSplit.Pop();
             const int maxGroups = 8;
-            const int averageTrianglesPerNode = 50;
+            const int averageTrianglesPerNode = 5;
             int groupCount = Math.Min(maxGroups, (parentNode.TexturedTriangleSets.Length + (averageTrianglesPerNode - 1)) / averageTrianglesPerNode);
 
             KMeansClusterItems<TexturedTriangleIndex> nodeTriangleIntems = KMeansClusterItems<TexturedTriangleIndex>.Create(parentNode.TexturedTriangleSets, x => texturedTriangleSets[x.TextureIndex].Triangles[x.TriangleIndex].Center);
             KMeansClusters<TexturedTriangleIndex> clusters = _clusteringAlgorithm.CreateClusters(nodeTriangleIntems, groupCount);
 
+            int[] clusterItemCounts = clusters.GetClusterItemCounts();
             for (int i = 0; i < clusters.Count; i++)
             {
+                if (clusterItemCounts[i] == 0)
+                {
+                    continue;
+                }
+
                 var childTriangleIndexes = clusters.GetClusterItems(i).ToArray();
                 ISubDividableTriangleSet[] childTriangles = clusters.GetClusterItems(i)
-                                                                    .Order()
                                                                     .GroupBy(x => x.TextureIndex)
                                                                     .Select(x => texturedTriangleSets[x.Key].SubCopy(x.Select(y => y.TriangleIndex)))
                                                                     .ToArray();
