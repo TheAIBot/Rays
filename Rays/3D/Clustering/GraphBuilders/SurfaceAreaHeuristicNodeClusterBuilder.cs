@@ -107,28 +107,114 @@ public sealed class SurfaceAreaHeuristicNodeClusterBuilder : INodeClusterBuilder
     private static IEnumerable<SubBoxConfiguration> GetDefaultSizeSubBoxConfigurations()
     {
         float[] axisSplits = [0.25f, 0.50f, 0.75f];
-        return GetSubBoxConfigurations(axisSplits, axisSplits, axisSplits);
+        foreach (var subBoxConfiguration in Get2SubBoxConfigurations(axisSplits))
+        {
+            yield return subBoxConfiguration;
+        }
+
+        foreach (var subBoxConfiguration in Get4SubBoxConfigurations(axisSplits))
+        {
+            yield return subBoxConfiguration;
+        }
+
+        foreach (var subBoxConfiguration in Get8SubBoxConfigurations(axisSplits))
+        {
+            yield return subBoxConfiguration;
+        }
     }
 
-    private static IEnumerable<SubBoxConfiguration> GetSubBoxConfigurations(float[] xSplits, float[] ySplits, float[] zSplits)
+    private static IEnumerable<SubBoxConfiguration> Get2SubBoxConfigurations(float[] axisSplits)
+    {
+        const int axisCount = 3;
+        for (int axisIndex = 0; axisIndex < axisCount; axisIndex++)
+        {
+            foreach (var axisSPlit in axisSplits)
+            {
+                var box1Start = new Vector4(0, 0, 0, 0);
+                var box1End = new Vector4(1, 1, 1, 0);
+                box1End[axisIndex] = axisSPlit;
+                var box1 = new AxisAlignedBox(box1Start, box1End);
+
+                var box2Start = new Vector4(0, 0, 0, 0);
+                var box2End = new Vector4(1, 1, 1, 0);
+                box2Start[axisIndex] = axisSPlit;
+                var box2 = new AxisAlignedBox(box2Start, box2End);
+
+                AxisAlignedBox[] subBoxes = [
+                    MakeSlightlyLarger(box1),
+                    MakeSlightlyLarger(box2)
+                ];
+
+                yield return new SubBoxConfiguration(subBoxes);
+            }
+        }
+    }
+
+    private static IEnumerable<SubBoxConfiguration> Get4SubBoxConfigurations(float[] axisSplits)
+    {
+        const int axisCount = 3;
+        for (int firstAxisIndex = 0; firstAxisIndex < axisCount - 1; firstAxisIndex++)
+        {
+            for (int secondAxisIndex = firstAxisIndex + 1; secondAxisIndex < axisCount; secondAxisIndex++)
+            {
+                foreach (var firstAxisSplit in axisSplits)
+                {
+                    foreach (var secondAxisSplit in axisSplits)
+                    {
+                        var box1Start = new Vector4(0, 0, 0, 0);
+                        var box1End = new Vector4(1, 1, 1, 0);
+                        box1End[firstAxisIndex] = firstAxisSplit;
+                        box1End[secondAxisIndex] = secondAxisSplit;
+                        var box1 = new AxisAlignedBox(box1Start, box1End);
+
+                        var box2Start = new Vector4(0, 0, 0, 0);
+                        var box2End = new Vector4(1, 1, 1, 0);
+                        box2Start[firstAxisIndex] = firstAxisSplit;
+                        box2End[secondAxisIndex] = secondAxisSplit;
+                        var box2 = new AxisAlignedBox(box2Start, box2End);
+
+                        var box3Start = new Vector4(0, 0, 0, 0);
+                        var box3End = new Vector4(1, 1, 1, 0);
+                        box3End[firstAxisIndex] = firstAxisSplit;
+                        box3Start[secondAxisIndex] = secondAxisSplit;
+                        var box3 = new AxisAlignedBox(box3Start, box3End);
+
+                        var box4Start = new Vector4(0, 0, 0, 0);
+                        var box4End = new Vector4(1, 1, 1, 0);
+                        box4Start[firstAxisIndex] = firstAxisSplit;
+                        box4Start[secondAxisIndex] = secondAxisSplit;
+                        var box4 = new AxisAlignedBox(box4Start, box4End);
+
+                        AxisAlignedBox[] subBoxes = [
+                            MakeSlightlyLarger(box1),
+                            MakeSlightlyLarger(box2),
+                            MakeSlightlyLarger(box3),
+                            MakeSlightlyLarger(box4)
+                        ];
+
+                        yield return new SubBoxConfiguration(subBoxes);
+                    }
+                }
+            }
+        }
+    }
+
+    private static IEnumerable<SubBoxConfiguration> Get8SubBoxConfigurations(float[] axisSplits)
     {
         static AxisAlignedBox CreateBox(float xAxisSplit, float yAxisSplit, float zAxisSplit, float xOffset, float yOffset, float zOffset)
         {
-            // There is rare cases of 8 sub boxes not covering the entire area that the
-            // large box did because of floating point error which is why the boxes will
-            // overlap slightly.
-            var smallOverlap = new Vector4(0.00001f, 0.00001f, 0.00001f, 0);
+
             var startOffset = new Vector4(xOffset, yOffset, zOffset, 0);
             var boxSize = new Vector4(xAxisSplit, yAxisSplit, zAxisSplit, 0);
             var boxEnd = startOffset + boxSize;
-            return new AxisAlignedBox(startOffset - smallOverlap, boxEnd + smallOverlap);
+            return MakeSlightlyLarger(new AxisAlignedBox(startOffset, boxEnd));
         }
 
-        foreach (var xSplit in xSplits)
+        foreach (var xSplit in axisSplits)
         {
-            foreach (var ySplit in ySplits)
+            foreach (var ySplit in axisSplits)
             {
-                foreach (var zSplit in zSplits)
+                foreach (var zSplit in axisSplits)
                 {
                     AxisAlignedBox[] subBoxes = [
                         CreateBox(xSplit, ySplit, zSplit, 0, 0, 0),
@@ -145,6 +231,15 @@ public sealed class SurfaceAreaHeuristicNodeClusterBuilder : INodeClusterBuilder
                 }
             }
         }
+    }
+
+    private static AxisAlignedBox MakeSlightlyLarger(AxisAlignedBox box)
+    {
+        // There is rare cases of sub boxes not covering the entire area that the
+        // large box did because of floating point error which is why the boxes will
+        // overlap slightly.
+        var smallOverlap = new Vector4(0.00001f);
+        return new AxisAlignedBox(box.MinPosition - smallOverlap, box.MaxPosition + smallOverlap);
     }
 
     private sealed class Counter
