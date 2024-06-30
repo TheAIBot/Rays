@@ -19,6 +19,7 @@ public static class Program
         builder.Services.AddWorkReporting();
         builder.Services.AddSingleton<CombinedTriangleTreeStatistics>();
         builder.Services.AddSingleton<CustomNodeClusterBuilder>();
+        builder.Services.AddSingleton<SurfaceAreaHeuristicNodeClusterBuilder>();
         builder.Services.AddSingleton<TriangleTreeBuilder>();
         builder.Services.AddSingleton<VectorizedTriangleTreeBuilder>();
         builder.Services.AddSingleton<TriangleTreeDebugModeFactory>();
@@ -38,6 +39,7 @@ public static class Program
         builder.Services.AddDisplayableOption<ITriangleSetIntersectorFromGeometryObject, KMeansTriangleTreeTopDownFromGeometryObject>("Triangle Tree (KMeans Top down)", false);
         builder.Services.AddDisplayableOption<ITriangleSetIntersectorFromGeometryObject, TriangleListFromGeometryObject>("Triangle List", false);
         builder.Services.AddDisplayableOption<ITriangleSetIntersectorFromGeometryObject, KMeansVectorizedTriangleTreeFromGeometryObject>("Vectorized Triangle Tree (KMeans)", false);
+        builder.Services.AddDisplayableOption<ITriangleSetIntersectorFromGeometryObject, SurfaceAreaTriangleTreeFromGeometryObject>("Triangle Tree (Surface Area)", false);
         builder.Services.AddDisplayableOption<I3DSceneGeometryObjectFactory, RayTracerFromGeometryObjectFactory>("Default", true);
         builder.Services.AddDisplayableOption<I3DSceneGeometryObjectFactory, DisplayDepthRayTracerFromGeometryObjectFactory>("Depth", false);
         builder.Services.AddDisplayableOption<I3DSceneGeometryObjectFactory, RayTracerThreadDisplayerFromGeometryObjectFactory>("Thread", false);
