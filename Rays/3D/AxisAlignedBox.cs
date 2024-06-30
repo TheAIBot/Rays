@@ -37,7 +37,7 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
         return Intersects(triangle);
     }
 
-    private bool CollidesWith(Vector4 point)
+    public bool CollidesWith(Vector4 point)
     {
         return MinPosition.X <= point.X &&
                MinPosition.Y <= point.Y &&

@@ -50,7 +50,7 @@ public sealed class SurfaceAreaHeuristicNodeClusterBuilder : INodeClusterBuilder
                     Counter triangleCounter = new Counter();
                     AxisAlignedBox fullSizedBox = AxisAlignedBox.GetBoundingBoxForTriangles(CountTriangles(node.TexturedTriangleSets
                                                                                                 .SelectMany(x => x.Triangles)
-                                                                                                .Where(subBox.CollidesWith), triangleCounter));
+                                                                                                .Where(x => subBox.CollidesWith(x.Center)), triangleCounter));
                     if (triangleCounter.Count == 0)
                     {
                         continue;
@@ -73,13 +73,13 @@ public sealed class SurfaceAreaHeuristicNodeClusterBuilder : INodeClusterBuilder
             }
 
             var bestConfiguration = splitOptions.MinBy(x => x.Cost);
-            if (bestConfiguration.Cost > cost)
+            if (bestConfiguration.Cost >= cost)
             {
                 continue;
             }
 
             Node[] subNodes = bestConfiguration.SubNodesAndBoxes.Select(SubBoxes => new Node(node.TexturedTriangleSets
-                                                                                                 .Select(x => x.SubCopy(y => SubBoxes.SubBox.CollidesWith(y)))
+                                                                                                 .Select(x => x.SubCopy(y => SubBoxes.SubBox.CollidesWith(y.Center)))
                                                                                                  .Where(x => x.Triangles.Length > 0)
                                                                                                  .ToArray(),
                                                                                              new List<Node>())).ToArray();
