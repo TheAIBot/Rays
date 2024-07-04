@@ -30,6 +30,27 @@ public sealed class Camera
     /// </summary>
     public float AspectRatio { get; set; }
 
+    public Matrix4x4 Perspective
+    {
+        get
+        {
+            return Matrix4x4.CreatePerspectiveFieldOfView(FieldOfView, AspectRatio, 0.1f, 100f);
+        }
+    }
+
+    public Matrix4x4 View
+    {
+        get
+        {
+            return Matrix4x4.CreateLookAt(Position.ToTruncatedVector3(), Position.ToTruncatedVector3() + Direction.ToTruncatedVector3(), UpDirection.ToTruncatedVector3());
+        }
+    }
+
+    public Frustum GetFrustum()
+    {
+        return new Frustum(Perspective, View);
+    }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="Camera"/> class.
     /// </summary>
@@ -45,7 +66,7 @@ public sealed class Camera
         AspectRatio = aspectRatio;
     }
 
-    internal RayTraceViewPort GetRayTraceViewPort(Point screenSize)
+    public RayTraceViewPort GetRayTraceViewPort(Point screenSize)
     {
         Vector4 right = Direction.Cross(UpDirection);
         Vector4 up = right.Cross(Direction);
