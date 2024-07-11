@@ -1,7 +1,6 @@
-﻿using Rays._3D;
-using System.Numerics;
+﻿using System.Numerics;
 
-namespace Rays.Scenes;
+namespace Rays._3D;
 
 /// <summary>
 /// Original implementation from https://github.com/giawa/opengl4csharp/blob/dotnetcore/OpenGL/Math/Frustum.cs
@@ -30,6 +29,14 @@ public readonly struct Frustum
             float length = _planes[i].Normal.Length();
             _planes[i] = new Plane(_planes[i].D / length, _planes[i].Normal / length);
         }
+    }
+
+    public bool Intersects(AxisAlignedBox box)
+    {
+        Vector4 center = (box.MinPosition + box.MaxPosition) * 0.5f;
+        Vector4 extents = (box.MaxPosition - box.MinPosition) * 0.5f;
+
+        return Intersects(center, extents);
     }
 
     private bool Intersects(Vector4 center, Vector4 size)

@@ -49,6 +49,13 @@ public readonly record struct AxisAlignedBox(Vector4 MinPosition, Vector4 MaxPos
                MaxPosition.W >= point.W;
     }
 
+    public float GetDistance(Vector4 point)
+    {
+        Vector4 clampedPoint = Vector4.Max(MinPosition, Vector4.Min(MaxPosition, point));
+
+        return Vector4.Distance(clampedPoint, point);
+    }
+
     public static AxisAlignedBox GetBoundingBoxForTriangles(IEnumerable<Triangle> triangles)
     {
         var min = new Vector4(float.MaxValue);

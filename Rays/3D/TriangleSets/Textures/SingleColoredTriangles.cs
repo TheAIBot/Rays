@@ -4,6 +4,7 @@ namespace Rays._3D;
 
 public sealed class SingleColoredTriangles : ISubDividableTriangleSet
 {
+    private readonly AxisAlignedBox _boundingBox;
     public Color TriangleColor;
     public Triangle[] Triangles { get; }
 
@@ -11,7 +12,11 @@ public sealed class SingleColoredTriangles : ISubDividableTriangleSet
     {
         Triangles = triangles;
         TriangleColor = triangleColor;
+        _boundingBox = AxisAlignedBox.GetBoundingBoxForTriangles(triangles);
     }
+
+    public AxisAlignedBox GetBoundingBox() => _boundingBox;
+    public void OptimizeIntersectionFromSceneInformation(Vector4 cameraPosition, Frustum frustum) { }
 
     public void TryGetIntersections(ReadOnlySpan<Ray> rays, Span<bool> raysHit, Span<(TriangleIntersection intersection, Color color)> triangleIntersections)
     {

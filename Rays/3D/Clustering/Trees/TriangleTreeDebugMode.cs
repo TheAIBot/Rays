@@ -1,8 +1,11 @@
-﻿namespace Rays._3D;
+﻿using System.Numerics;
+
+namespace Rays._3D;
 
 public sealed class TriangleTreeDebugMode : ITriangleSetIntersector
 {
     private readonly TriangleTree[] _nodeLevels;
+    private readonly AxisAlignedBox _boundingBox;
 
     public bool IsEnabled => DisplayLevel != 0;
     public int DisplayLevel { get; private set; } = 0;
@@ -12,7 +15,11 @@ public sealed class TriangleTreeDebugMode : ITriangleSetIntersector
     public TriangleTreeDebugMode(TriangleTree[] nodeLevels)
     {
         _nodeLevels = nodeLevels;
+        _boundingBox = AxisAlignedBox.GetBoundingBoxForBoxes(_nodeLevels.Select(x => x.GetBoundingBox()));
     }
+
+    public AxisAlignedBox GetBoundingBox() => _boundingBox;
+    public void OptimizeIntersectionFromSceneInformation(Vector4 cameraPosition, Frustum frustum) { }
 
     public void ChangeDisplayLevel(int level)
     {

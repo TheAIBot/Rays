@@ -8,6 +8,7 @@ public sealed class TexturedTriangles : ISubDividableTriangleSet
 {
     private readonly Triangle[] _textureTriangles;
     private readonly Image<Rgba32> _texture;
+    private readonly AxisAlignedBox _boundingBox;
     public Triangle[] Triangles { get; }
 
     public TexturedTriangles(Triangle[] triangles, Triangle[] textureTriangles, Image<Rgba32> texture)
@@ -15,7 +16,11 @@ public sealed class TexturedTriangles : ISubDividableTriangleSet
         Triangles = triangles;
         _textureTriangles = textureTriangles;
         _texture = texture;
+        _boundingBox = AxisAlignedBox.GetBoundingBoxForTriangles(textureTriangles);
     }
+
+    public AxisAlignedBox GetBoundingBox() => _boundingBox;
+    public void OptimizeIntersectionFromSceneInformation(Vector4 cameraPosition, Frustum frustum) { }
 
     public void TryGetIntersections(ReadOnlySpan<Ray> rays, Span<bool> raysHit, Span<(TriangleIntersection intersection, Color color)> triangleIntersections)
     {

@@ -23,6 +23,9 @@ public sealed class TriangleTree : ITriangleSetIntersector
         _treeStatistics = treeStatistics;
     }
 
+    public AxisAlignedBox GetBoundingBox() => _nodeBoundingBoxes[0];
+    public void OptimizeIntersectionFromSceneInformation(Vector4 cameraPosition, Frustum frustum) { }
+
     public void TryGetIntersections(ReadOnlySpan<Ray> rays, Span<bool> raysHit, Span<(TriangleIntersection intersection, Color color)> triangleIntersections)
     {
         for (int i = 0; i < rays.Length; i++)
